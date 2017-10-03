@@ -9,11 +9,11 @@
   * [Linux and Make](#build-linux-make)
 
 
-### Description<a id="description"></a>
+### <a id="description"></a>Description
 # TODO: Plugin description goes here...
 
 
-### Building From Source<a id="build-instructions"></a>
+### <a id="build-instructions"></a>Building From Source
 
 Building this plugin also requires downloading and building the plugin-GUI source.
 
@@ -21,7 +21,7 @@ First, clone both the [plugin-GUI](http://github.com/open-ephys/plugin-GUI) and 
 
 Platform-specific instructions are found below:
 
-#### MacOS and Xcode<a id="build-mac-xcode"></a>
+#### <a id="build-mac-xcode"></a>MacOS and Xcode
 
 To build for MacOS, open the plugin's workspace file ProbeViewerPlugin.xcworkspace. If the base repository is located in the same directory as the plugin-GUI, the workspace should automatically link to the necessary dependencies from the plugin-GUI project. If these are not found or if your plugin-GUI is located in a different directory, the following references will need to be fixed in Xcode's file browser:
 
@@ -37,7 +37,7 @@ Once these dependencies are set correctly, this plugin can be built using the Pr
 If everything builds successfully, the plugin will be installed to `~/Library/Application\ Suport/open-ephys/PlugIns/` and the gui application will launch. Your plugin should load automatically from its installation directory.
 
 
-#### Windows and Visual Studio 201X<a id="build-win-vs201x"></a>
+#### <a id="build-win-vs201x"></a>Windows and Visual Studio 201X
 
 
-#### Linux and Make<a id="build-linux-make"></a>
+#### <a id="build-linux-make"></a>Linux and Make
