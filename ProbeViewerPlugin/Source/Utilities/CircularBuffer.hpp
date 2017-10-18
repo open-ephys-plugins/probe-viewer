@@ -2,7 +2,7 @@
  ------------------------------------------------------------------
  
  This file is part of the Open Ephys GUI
- Copyright (C) 2013 Open Ephys
+ Copyright (C) 2017 Open Ephys
  
  ------------------------------------------------------------------
  
@@ -21,44 +21,44 @@
  
  */
 
-#ifndef __PROBEVIEWERNODE_H__
-#define __PROBEVIEWERNODE_H__
+#ifndef CircularBuffer_hpp
+#define CircularBuffer_hpp
 
-#include <ProcessorHeaders.h>
+#include <VisualizerWindowHeaders.h>
 
 namespace ProbeViewer {
-    
-class ProbeViewerNode : public GenericProcessor
+
+class CircularBuffer
 {
 public:
-    ProbeViewerNode();
-    virtual ~ProbeViewerNode() override;
+    CircularBuffer();
+    virtual ~CircularBuffer();
     
-    AudioProcessorEditor* createEditor() override;
+    void setSize(int numChannels, int numSamples);
     
-    void process(AudioSampleBuffer& buffer) override;
+    int getChannelReadIndex(int channel) const;
+    int getNumSamplesReadyForDrawing(int channel) const;
     
-    void updateSettings() override;
+    bool hasSamplesReadyForDrawing() const;
+    void clearSamplesReadyForDrawing();
     
-    bool enable() override;
-    bool disable() override;
+    void pushBuffer(AudioSampleBuffer& input, int numSamples);
+    void pushBuffer(AudioSampleBuffer& input, std::function<int (int)> getNumSamples);
     
-    class CircularBuffer* getCircularBufferPtr() { return dataBuffer; }
-//    CriticalSection* getMutex() { return &displayMutex; }
+    float getSample(int sampIdx, int channel) const;
     
+//    CriticalSection* getMutex() { return &dataMutex; }
 private:
-    static const float bufferLengthSeconds;
+    ScopedPointer<AudioSampleBuffer> dataBuffer;
     
-//    CriticalSection displayMutex;
-    ScopedPointer<class CircularBuffer> dataBuffer;
+    Array<int> readIndex;
+    Array<int> writeIndex;
     
-    std::function<int (int)> channelSampleCountPollFunction;
+    Atomic<int> samplesReadyForDrawing;
     
-    bool resizeBuffer();
+    CriticalSection dataMutex;
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerNode);
 };
-    
 }
 
-#endif /* __PROBEVIEWERNODE_H__ */
+#endif /* CircularBuffer_hpp */

@@ -34,7 +34,7 @@ To build for MacOS, open the plugin's workspace file ProbeViewerPlugin.xcworkspa
 
 Once these dependencies are set correctly, this plugin can be built using the ProbeViewer scheme in Xcode. __Note: Other plugins that ship with plugin-GUI will not be built. If you need to build these as well, you will need to open and build__ `plugin-GUI/Builds/MacOSX/OpenEphys.xcworkspace`.
 
-If everything builds successfully, the plugin will be installed to `~/Library/Application\ Suport/open-ephys/PlugIns/` and the gui application will launch. Your plugin should load automatically from its installation directory.
+If everything builds successfully, the plugin will be installed to `~/Library/Application\ Suport/open-ephys/PlugIns/` and the gui application will launch. Your plugin should load automatically from its installation directory. The copy will overwrite existing files of the same name ~~~~ProbeViewerPlugin.bundle~~~~.
 
 
 #### <a id="build-win-vs201x"></a>Windows and Visual Studio 201X

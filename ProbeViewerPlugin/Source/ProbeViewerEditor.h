@@ -28,15 +28,45 @@
 
 namespace ProbeViewer {
     
-class ProbeViewerEditor : public VisualizerEditor
+class ProbeViewerEditor
+    : public VisualizerEditor
+    , public ComboBox::Listener
 {
 public:
     ProbeViewerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true);
-    virtual ~ProbeViewerEditor() override {}
+    virtual ~ProbeViewerEditor() override;
     
-    virtual void resized() override;
+    /** Override the default VisualizerEditor behavior slightly, only for initialization */
+    void buttonClicked(Button* button) override;
     
+    /** Override the custom button event callback */
+    void buttonEvent(Button* button);
+    
+    /** Respond to user's subprocessor sample rate selection */
+    void comboBoxChanged(ComboBox *cb) override;
+    
+    /** Called by the base calss VisualizerEditor to display the canvas
+        when the user chooses to display one
+     
+        @see VisualizerEditor::buttonClicked
+     */
     virtual Visualizer* createNewCanvas() override;
+    
+private:
+    HashMap<int, float> inputSampleRates; // hold the possible subprocessor sample rates
+    SortedSet<int> inputSubprocessorIndices;
+    
+    class ProbeViewerNode* probeViewerProcessor;
+    
+    ScopedPointer<Label> subprocessorSelectionLabel;
+    ScopedPointer<ComboBox> subprocessorSelection;
+    
+    ScopedPointer<Label> subprocessorSampleRateLabel;
+    
+    void setCanvasDrawableSubprocessor(int index);
+    void updateSubprocessorSelectorOptions();
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerEditor);
 };
     
 }

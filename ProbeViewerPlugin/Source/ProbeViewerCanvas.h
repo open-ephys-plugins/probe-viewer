@@ -2,7 +2,7 @@
  ------------------------------------------------------------------
  
  This file is part of the Open Ephys GUI
- Copyright (C) 2013 Open Ephys
+ Copyright (C) 2017 Open Ephys
  
  ------------------------------------------------------------------
  
@@ -31,9 +31,15 @@ namespace ProbeViewer {
 class ProbeViewerCanvas : public Visualizer
 {
 public:
-    ProbeViewerCanvas();
+    ProbeViewerCanvas(class ProbeViewerNode*);
     
-    virtual ~ProbeViewerCanvas() override {}
+    virtual ~ProbeViewerCanvas() override;
+    
+    
+    
+    /**
+     *  Required overrides from Visualizer
+     */
     
     /** Called when the component's tab becomes visible again.*/
     virtual void refreshState() override;
@@ -51,10 +57,73 @@ public:
     virtual void endAnimation() override;
     
     /** Called by an editor to initiate a parameter change.*/
-    virtual void setParameter(int, float) override {}
+    virtual void setParameter(int, float) override {}               // unused
     
     /** Called by an editor to initiate a parameter change.*/
-    virtual void setParameter(int, int, int, float) override {}
+    virtual void setParameter(int, int, int, float) override {}     // unused
+    
+    
+    
+    /**
+     *  Overrides from juce::Component
+     */
+    
+    void paint(Graphics& g) override;
+    void resized() override;
+    
+    
+    
+    /**
+     *  Custom member methods
+     */
+    
+    void setNumChannels(int numChannels);
+    int getNumChannels();
+    
+    void setChannelHeight(float height);
+    float getChannelHeight();
+    
+    float getChannelSampleRate(int channel);
+    
+    /** Delegates a subprocessor index for drawing to the LfpDisplay referenced by this
+     this canvas */
+    void setDrawableSubprocessor(int idx);
+    
+    class ProbeViewerViewport* getViewportPtr();
+    class ChannelViewCanvas* getChannelViewCanvasPtr();
+    
+    static const float TRANSPORT_WINDOW_TIMEBASE;
+    
+private:
+    class ProbeViewerNode* pvProcessor;
+    ScopedPointer<class NeuropixInterface> interface;
+    ScopedPointer<class ChannelViewCanvas> channelsView;
+    ScopedPointer<class ProbeViewerViewport> viewport;
+    
+    class CircularBuffer* dataBuffer;
+    OwnedArray<Array<float>> partialBufferCache;
+    
+    int numChannels;
+    
+    void updateScreenBuffers();
+    int getNumCachedSamples(int channel);
+    float popFrontCachedSampleForChannel(int channel);
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerCanvas);
+};
+    
+class ProbeViewerViewport : public Viewport
+{
+public:
+    ProbeViewerViewport(ProbeViewerCanvas*, class ChannelViewCanvas*);
+    virtual ~ProbeViewerViewport() override;
+    void visibleAreaChanged(const Rectangle<int>& newVisibleArea);
+    
+private:
+    ProbeViewerCanvas* canvas;
+    class ChannelViewCanvas* channelsView;
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerViewport);
 };
     
 }

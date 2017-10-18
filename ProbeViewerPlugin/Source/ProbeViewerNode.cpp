@@ -26,10 +26,22 @@
 #include "ProbeViewerEditor.h"
 #include "ProbeViewerCanvas.h"
 
+#include "Utilities/CircularBuffer.hpp"
+
 using namespace ProbeViewer;
 
 ProbeViewerNode::ProbeViewerNode()
 : GenericProcessor ("Probe Viewer")
+{
+    setProcessorType(PROCESSOR_TYPE_SINK);
+    dataBuffer = new CircularBuffer;
+    
+    // bind the get samples function
+    using namespace std::placeholders;
+    channelSampleCountPollFunction = std::bind(&ProbeViewerNode::getNumSamples, this, _1);
+}
+
+ProbeViewerNode::~ProbeViewerNode()
 { }
 
 AudioProcessorEditor* ProbeViewerNode::createEditor()
@@ -40,5 +52,47 @@ AudioProcessorEditor* ProbeViewerNode::createEditor()
 
 void ProbeViewerNode::process(AudioSampleBuffer& b)
 {
-    
+    dataBuffer->pushBuffer(b, channelSampleCountPollFunction);
 }
+
+void ProbeViewerNode::updateSettings()
+{
+    std::cout << "Setting num inputs on ProbeViewer to " << getNumInputs() << std::endl;
+}
+
+bool ProbeViewerNode::enable()
+{
+    if (resizeBuffer())
+    {
+        auto editor = (ProbeViewerEditor*) getEditor();
+        
+        editor->enable();
+        return true;
+    }
+    
+    return false;
+}
+
+bool ProbeViewerNode::disable()
+{
+    ((ProbeViewerEditor*) getEditor())->disable();
+    return true;
+}
+
+bool ProbeViewerNode::resizeBuffer()
+{
+    int nSamples = (int) getSampleRate() * bufferLengthSeconds;
+    int nInputs = getNumInputs();
+    
+    std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
+    
+    if (nSamples > 0 && nInputs > 0)
+    {
+        dataBuffer->setSize(nInputs, nSamples);
+        return true;
+    }
+    
+    return false;
+}
+
+const float ProbeViewerNode::bufferLengthSeconds = 10.0f;

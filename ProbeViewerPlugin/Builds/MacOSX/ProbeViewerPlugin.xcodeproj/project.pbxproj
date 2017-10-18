@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		931D3A131F858A9200D94337 /* CircularBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 931D3A111F858A9200D94337 /* CircularBuffer.cpp */; };
+		931D3A181F858D8B00D94337 /* NeuropixInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 931D3A161F858D8B00D94337 /* NeuropixInterface.cpp */; };
+		938F9EB31F8815D9000676D7 /* ChannelViewCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938F9EB11F8815D9000676D7 /* ChannelViewCanvas.cpp */; };
+		938F9EBA1F9542FA000676D7 /* ColourScheme.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938F9EB81F9542FA000676D7 /* ColourScheme.cpp */; };
 		93E875CF1F82E4B7007AFE33 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93E875C71F82E4B7007AFE33 /* OpenEphysLib.cpp */; };
 		93E875D01F82E4B7007AFE33 /* ProbeViewerCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93E875C81F82E4B7007AFE33 /* ProbeViewerCanvas.cpp */; };
 		93E875D11F82E4B7007AFE33 /* ProbeViewerEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93E875CA1F82E4B7007AFE33 /* ProbeViewerEditor.cpp */; };
@@ -16,6 +20,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		931D3A111F858A9200D94337 /* CircularBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircularBuffer.cpp; sourceTree = "<group>"; };
+		931D3A121F858A9200D94337 /* CircularBuffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CircularBuffer.hpp; sourceTree = "<group>"; };
+		931D3A161F858D8B00D94337 /* NeuropixInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NeuropixInterface.cpp; sourceTree = "<group>"; };
+		931D3A171F858D8B00D94337 /* NeuropixInterface.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NeuropixInterface.hpp; sourceTree = "<group>"; };
+		938F9EB11F8815D9000676D7 /* ChannelViewCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChannelViewCanvas.cpp; path = ChannelViewCanvas/ChannelViewCanvas.cpp; sourceTree = "<group>"; };
+		938F9EB21F8815D9000676D7 /* ChannelViewCanvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ChannelViewCanvas.hpp; path = ChannelViewCanvas/ChannelViewCanvas.hpp; sourceTree = "<group>"; };
+		938F9EB81F9542FA000676D7 /* ColourScheme.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColourScheme.cpp; sourceTree = "<group>"; };
+		938F9EB91F9542FA000676D7 /* ColourScheme.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ColourScheme.hpp; sourceTree = "<group>"; };
 		93E875BC1F82E402007AFE33 /* ProbeViewerPlugin.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProbeViewerPlugin.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		93E875BF1F82E402007AFE33 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		93E875C71F82E4B7007AFE33 /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
@@ -40,6 +52,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		931D3A141F858D5600D94337 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				938F9EB81F9542FA000676D7 /* ColourScheme.cpp */,
+				938F9EB91F9542FA000676D7 /* ColourScheme.hpp */,
+				931D3A111F858A9200D94337 /* CircularBuffer.cpp */,
+				931D3A121F858A9200D94337 /* CircularBuffer.hpp */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		931D3A151F858D6300D94337 /* NeuropixInterface */ = {
+			isa = PBXGroup;
+			children = (
+				931D3A161F858D8B00D94337 /* NeuropixInterface.cpp */,
+				931D3A171F858D8B00D94337 /* NeuropixInterface.hpp */,
+			);
+			path = NeuropixInterface;
+			sourceTree = "<group>";
+		};
+		938F9EB41F8815DD000676D7 /* ChannelViewCanvas */ = {
+			isa = PBXGroup;
+			children = (
+				938F9EB11F8815D9000676D7 /* ChannelViewCanvas.cpp */,
+				938F9EB21F8815D9000676D7 /* ChannelViewCanvas.hpp */,
+			);
+			name = ChannelViewCanvas;
+			sourceTree = "<group>";
+		};
 		93E875B31F82E402007AFE33 = {
 			isa = PBXGroup;
 			children = (
@@ -76,6 +117,9 @@
 				93E875C81F82E4B7007AFE33 /* ProbeViewerCanvas.cpp */,
 				93E875C91F82E4B7007AFE33 /* ProbeViewerCanvas.h */,
 				93E875C71F82E4B7007AFE33 /* OpenEphysLib.cpp */,
+				931D3A141F858D5600D94337 /* Utilities */,
+				931D3A151F858D6300D94337 /* NeuropixInterface */,
+				938F9EB41F8815DD000676D7 /* ChannelViewCanvas */,
 			);
 			name = Source;
 			path = ../../../Source;
@@ -167,7 +211,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "// Move the file to the application support directory for open-ephys\nrsync -a zvh $BUILD_DIR/$CONFIGURATION/ProbeViewerPlugin.bundle ~/Library/Application\\ Support/open-ephys/PlugIns/";
+			shellScript = "// Move the file to the application support directory for open-ephys\nrsync -avzh $CONFIGURATION_BUILD_DIR/ProbeViewerPlugin.bundle ~/Library/Application\\ Support/open-ephys/PlugIns/";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -177,8 +221,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				93E875D01F82E4B7007AFE33 /* ProbeViewerCanvas.cpp in Sources */,
+				931D3A181F858D8B00D94337 /* NeuropixInterface.cpp in Sources */,
+				931D3A131F858A9200D94337 /* CircularBuffer.cpp in Sources */,
+				938F9EBA1F9542FA000676D7 /* ColourScheme.cpp in Sources */,
 				93E875CF1F82E4B7007AFE33 /* OpenEphysLib.cpp in Sources */,
 				93E875D21F82E4B7007AFE33 /* ProbeViewerNode.cpp in Sources */,
+				938F9EB31F8815D9000676D7 /* ChannelViewCanvas.cpp in Sources */,
 				93E875D11F82E4B7007AFE33 /* ProbeViewerEditor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -210,6 +258,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../../build/$(CONFIGURATION)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEPLOYMENT_POSTPROCESSING = YES;
@@ -239,6 +288,9 @@
 					"../../../../plugin-gui/Source/Plugins/CommonLibs",
 					"$(MAC_PACKAGE_DIR)/include",
 					"$(inherited)",
+					Source/Utilities,
+					Source/NeuropixInterface,
+					Source/ChannelViewCanvas,
 				);
 				INSTALL_PATH = "~/Library/Application\\ Support/open-ephys/PlugIns";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
@@ -284,6 +336,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "";
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/../../build/$(CONFIGURATION)";
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -314,6 +367,9 @@
 					"../../../../plugin-gui/Source/Plugins/CommonLibs",
 					"$(MAC_PACKAGE_DIR)/include",
 					"$(inherited)",
+					Source/Utilities,
+					Source/NeuropixInterface,
+					Source/ChannelViewCanvas,
 				);
 				INSTALL_PATH = "~/Library/Application\\ Support/open-ephys/PlugIns";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
@@ -339,8 +395,18 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
+				HEADER_SEARCH_PATHS = (
+					"../../../../plugin-gui/JuceLibraryCode",
+					"../../../../plugin-gui/JuceLibraryCode/Modules",
+					"../../../../plugin-gui/Source/Plugins/Headers",
+					"../../../../plugin-gui/Source/Plugins/CommonLibs",
+					"$(MAC_PACKAGE_DIR)/include",
+					"$(inherited)",
+					Source/NeuropixInterface,
+					Source/Utilities,
+				);
 				INFOPLIST_FILE = ProbeViewerPlugin/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Application\\ Support/open-ephys/PlugIns";
+				INSTALL_PATH = "~$(LOCAL_LIBRARY_DIR)/Application\\ Support/open-ephys/PlugIns";
 				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.ProbeViewer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -353,8 +419,18 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
+				HEADER_SEARCH_PATHS = (
+					"../../../../plugin-gui/JuceLibraryCode",
+					"../../../../plugin-gui/JuceLibraryCode/Modules",
+					"../../../../plugin-gui/Source/Plugins/Headers",
+					"../../../../plugin-gui/Source/Plugins/CommonLibs",
+					"$(MAC_PACKAGE_DIR)/include",
+					"$(inherited)",
+					Source/NeuropixInterface,
+					Source/Utilities,
+				);
 				INFOPLIST_FILE = ProbeViewerPlugin/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Application\\ Support/open-ephys/PlugIns";
+				INSTALL_PATH = "~$(LOCAL_LIBRARY_DIR)/Application\\ Support/open-ephys/PlugIns";
 				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.ProbeViewer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
