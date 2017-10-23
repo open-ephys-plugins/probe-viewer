@@ -21,44 +21,49 @@
  
  */
 
-#ifndef CircularBuffer_hpp
-#define CircularBuffer_hpp
+#ifndef ProbeViewerTimeScale_hpp
+#define ProbeViewerTimeScale_hpp
 
 #include <VisualizerWindowHeaders.h>
 
 namespace ProbeViewer {
 
-class CircularBuffer
+class ProbeViewerTimeScale : public Component
 {
 public:
-    CircularBuffer();
-    virtual ~CircularBuffer();
+    ProbeViewerTimeScale(float timeScale, float resolution);
+    virtual ~ProbeViewerTimeScale() override;
     
-    void setSize(int numChannels, int numSamples);
+    void paint(Graphics& g) override;
+    void resized() override;
     
-    int getChannelReadIndex(int channel) const;
-    int getNumSamplesReadyForDrawing(int channel) const;
+    void setBackgroundColour(Colour background);
+    void setBackgroundColourGradient(ColourGradient background);
+    void setForegroundColour(Colour foreground);
     
-    bool hasSamplesReadyForDrawing() const;
-    void clearSamplesReadyForDrawing();
+    void setMarginOffset(float marginOffset);
     
-    void pushBuffer(AudioSampleBuffer& input, int numSamples);
-    void pushBuffer(AudioSampleBuffer& input, std::function<int (int)> getNumSamples);
-    
-    float getSample(int sampIdx, int channel) const;
-    
-    CriticalSection* getMutex() { return &dataMutex; }
 private:
-    ScopedPointer<AudioSampleBuffer> dataBuffer;
+    float timeScale;
+    float resolution;
+    float marginWidth;
     
-    Array<int> readIndex;
-    Array<int> writeIndex;
+    enum BackgroundFillType
+    {
+        GRADIENT,
+        SOLID
+    };
+    BackgroundFillType backgroundFillType;
     
-    Atomic<int> samplesReadyForDrawing;
+    ColourGradient backgroundGradient;
+    Colour backgroundColour;
+    Colour foregroundColour;
     
-    CriticalSection dataMutex;
+    Font font;
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerTimeScale);
+};
     
 };
-}
 
-#endif /* CircularBuffer_hpp */
+#endif /* ProbeViewerTimeScale_hpp */

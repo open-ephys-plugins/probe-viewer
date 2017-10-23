@@ -98,6 +98,8 @@ private:
     class ProbeViewerNode* pvProcessor;
     ScopedPointer<class NeuropixInterface> interface;
     ScopedPointer<class ChannelViewCanvas> channelsView;
+    ScopedPointer<class ProbeViewerTimeScale> timeScale;
+    ScopedPointer<class CanvasOptionsBar> optionsBar;
     ScopedPointer<class ProbeViewerViewport> viewport;
     
     class CircularBuffer* dataBuffer;

@@ -17,6 +17,8 @@
 		93E875D21F82E4B7007AFE33 /* ProbeViewerNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93E875CC1F82E4B7007AFE33 /* ProbeViewerNode.cpp */; };
 		93E8884E1F82FF95007AFE33 /* Plugin_Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 93E8884C1F82FF95007AFE33 /* Plugin_Debug.xcconfig */; };
 		93E8884F1F82FF95007AFE33 /* Plugin_Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 93E8884D1F82FF95007AFE33 /* Plugin_Release.xcconfig */; };
+		93F657FD1F99373600623A46 /* ProbeViewerTimeScale.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93F657FB1F99373600623A46 /* ProbeViewerTimeScale.cpp */; };
+		93F658011F994FAF00623A46 /* CanvasOptionsBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93F657FF1F994FAF00623A46 /* CanvasOptionsBar.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +41,10 @@
 		93E875CD1F82E4B7007AFE33 /* ProbeViewerNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProbeViewerNode.h; sourceTree = "<group>"; };
 		93E8884C1F82FF95007AFE33 /* Plugin_Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Plugin_Debug.xcconfig; path = "../../../../../plugin-gui/Builds/MacOSX/Plugins/Config/Plugin_Debug.xcconfig"; sourceTree = "<group>"; };
 		93E8884D1F82FF95007AFE33 /* Plugin_Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Plugin_Release.xcconfig; path = "../../../../../plugin-gui/Builds/MacOSX/Plugins/Config/Plugin_Release.xcconfig"; sourceTree = "<group>"; };
+		93F657FB1F99373600623A46 /* ProbeViewerTimeScale.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProbeViewerTimeScale.cpp; path = TimeScale/ProbeViewerTimeScale.cpp; sourceTree = "<group>"; };
+		93F657FC1F99373600623A46 /* ProbeViewerTimeScale.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ProbeViewerTimeScale.hpp; path = TimeScale/ProbeViewerTimeScale.hpp; sourceTree = "<group>"; };
+		93F657FF1F994FAF00623A46 /* CanvasOptionsBar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CanvasOptionsBar.cpp; path = ChannelViewCanvas/CanvasOptionsBar.cpp; sourceTree = "<group>"; };
+		93F658001F994FAF00623A46 /* CanvasOptionsBar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = CanvasOptionsBar.hpp; path = ChannelViewCanvas/CanvasOptionsBar.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +83,8 @@
 			children = (
 				938F9EB11F8815D9000676D7 /* ChannelViewCanvas.cpp */,
 				938F9EB21F8815D9000676D7 /* ChannelViewCanvas.hpp */,
+				93F657FF1F994FAF00623A46 /* CanvasOptionsBar.cpp */,
+				93F658001F994FAF00623A46 /* CanvasOptionsBar.hpp */,
 			);
 			name = ChannelViewCanvas;
 			sourceTree = "<group>";
@@ -120,6 +128,7 @@
 				931D3A141F858D5600D94337 /* Utilities */,
 				931D3A151F858D6300D94337 /* NeuropixInterface */,
 				938F9EB41F8815DD000676D7 /* ChannelViewCanvas */,
+				93F657FE1F99373E00623A46 /* TimeScale */,
 			);
 			name = Source;
 			path = ../../../Source;
@@ -132,6 +141,15 @@
 				93E8884D1F82FF95007AFE33 /* Plugin_Release.xcconfig */,
 			);
 			name = Config;
+			sourceTree = "<group>";
+		};
+		93F657FE1F99373E00623A46 /* TimeScale */ = {
+			isa = PBXGroup;
+			children = (
+				93F657FC1F99373600623A46 /* ProbeViewerTimeScale.hpp */,
+				93F657FB1F99373600623A46 /* ProbeViewerTimeScale.cpp */,
+			);
+			name = TimeScale;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -228,6 +246,8 @@
 				93E875D21F82E4B7007AFE33 /* ProbeViewerNode.cpp in Sources */,
 				938F9EB31F8815D9000676D7 /* ChannelViewCanvas.cpp in Sources */,
 				93E875D11F82E4B7007AFE33 /* ProbeViewerEditor.cpp in Sources */,
+				93F658011F994FAF00623A46 /* CanvasOptionsBar.cpp in Sources */,
+				93F657FD1F99373600623A46 /* ProbeViewerTimeScale.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -394,6 +414,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
 				DEPLOYMENT_POSTPROCESSING = NO;
 				HEADER_SEARCH_PATHS = (
 					"../../../../plugin-gui/JuceLibraryCode",
@@ -404,6 +425,7 @@
 					"$(inherited)",
 					Source/NeuropixInterface,
 					Source/Utilities,
+					Source/TimeScale,
 				);
 				INFOPLIST_FILE = ProbeViewerPlugin/Info.plist;
 				INSTALL_PATH = "~$(LOCAL_LIBRARY_DIR)/Application\\ Support/open-ephys/PlugIns";
@@ -418,6 +440,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
 				DEPLOYMENT_POSTPROCESSING = NO;
 				HEADER_SEARCH_PATHS = (
 					"../../../../plugin-gui/JuceLibraryCode",
@@ -428,6 +451,7 @@
 					"$(inherited)",
 					Source/NeuropixInterface,
 					Source/Utilities,
+					Source/TimeScale,
 				);
 				INFOPLIST_FILE = ProbeViewerPlugin/Info.plist;
 				INSTALL_PATH = "~$(LOCAL_LIBRARY_DIR)/Application\\ Support/open-ephys/PlugIns";

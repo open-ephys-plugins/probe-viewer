@@ -29,6 +29,7 @@
 namespace ProbeViewer {
     
 enum class RenderMode : int;
+enum class ColourSchemeId : int;
 struct BitmapRenderTile;
 
 class ChannelViewCanvas : public Component
@@ -50,6 +51,7 @@ public:
     float getChannelHeight();
     
     void updateRMS(int channel, float value);
+    void pushPixelValueForChannel(int channel, float rms, float spikeRate, float fft);
     
     void setDisplayedSubprocessor(int subProcessorIdx);
     
@@ -60,10 +62,15 @@ public:
     RenderMode getCurrentRenderMode() const;
     void setCurrentRenderMode(RenderMode r);
     
+    ColourSchemeId getCurrentColourScheme() const;
+    void setCurrentColourScheme(ColourSchemeId schemeId);
+    
     OwnedArray<class ProbeChannelDisplay> readSites;
     Array<class ProbeChannelDisplay*> channels;
     Atomic<int> isDirty;
     int numPixelUpdates;
+    
+    class CanvasOptionsBar* optionsBar;
     
     static const int NUM_READ_SITES_FOR_MAX_CHANNELS;
     static const int CHANNEL_DISPLAY_MAX_HEIGHT;
@@ -78,6 +85,8 @@ private:
     class ProbeViewerCanvas* canvas;
     
     float channelHeight;
+    
+    ColourSchemeId colourSchemeId;
     
     Image screenBufferImage;
     
@@ -98,6 +107,8 @@ struct BitmapRenderTile
     ScopedPointer<Image> spikeRate;
     ScopedPointer<Image> fft;
     
+    OwnedArray<Array<Image>> readSiteSubImage;
+    
     const int width;
     const int height;
     
@@ -105,6 +116,7 @@ struct BitmapRenderTile
     ~BitmapRenderTile() = default;
     
     Image* const getTileForRenderMode(RenderMode mode);
+    Image& getReadSiteSubImageForRenderMode(int readSite, RenderMode mode);
     
     BitmapRenderTile(const BitmapRenderTile &) = delete;
     BitmapRenderTile(BitmapRenderTile &&) = delete;
@@ -124,12 +136,13 @@ enum class RenderMode : int
 class ProbeChannelDisplay : public Component
 {
 public:
-    ProbeChannelDisplay(ChannelViewCanvas* channelsView, ChannelState status, int channelID, int readSiteID, float sampleRate);
+    ProbeChannelDisplay(ChannelViewCanvas* channelsView, class CanvasOptionsBar* optionsBar, ChannelState status, int channelID, int readSiteID, float sampleRate);
     virtual ~ProbeChannelDisplay() override;
     
     void paint(Graphics& g) override;
     
-    void pxPaint(Image::BitmapData *bitmapData);
+    //void pxPaint(Image::BitmapData *bitmapData);
+    void pxPaint();
     
     ChannelState getChannelState() const;
     void setChannelState(ChannelState status);
@@ -147,6 +160,7 @@ public:
     
 private:
     ChannelViewCanvas* channelsView;
+    CanvasOptionsBar* optionsBar;
     
     float sampleRate;
     int samplesPerPixel;
@@ -158,6 +172,7 @@ private:
     int yBitmapPos;
     
     Array<float> rms;
+    Array<float> spikeRate;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeChannelDisplay);
 };

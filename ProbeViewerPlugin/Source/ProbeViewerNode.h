@@ -43,6 +43,8 @@ public:
     bool enable() override;
     bool disable() override;
     
+    void setParameter(int parameterIndex, float newValue) override;
+    
     class CircularBuffer* getCircularBufferPtr() { return dataBuffer; }
 //    CriticalSection* getMutex() { return &displayMutex; }
     

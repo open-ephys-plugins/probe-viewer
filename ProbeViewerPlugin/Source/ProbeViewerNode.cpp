@@ -79,6 +79,18 @@ bool ProbeViewerNode::disable()
     return true;
 }
 
+void ProbeViewerNode::setParameter(int parameterIndex, float newValue)
+{
+    editor->updateParameterButtons(parameterIndex);
+    
+    // Sets Parameters array for processor
+    parameters[parameterIndex]->setValue(newValue, currentChannel);
+    
+    ProbeViewerEditor* ed = (ProbeViewerEditor*) getEditor();
+    if(ed->canvas != 0)
+        ed->canvas->setParameter (parameterIndex, newValue);
+}
+
 bool ProbeViewerNode::resizeBuffer()
 {
     int nSamples = (int) getSampleRate() * bufferLengthSeconds;

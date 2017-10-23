@@ -1,0 +1,553 @@
+//
+//  CanvasOptionsBar.cpp
+//  ProbeViewerPlugin
+//
+//  Created by Kelly Fox on 10/19/17.
+//  Copyright © 2017 Allen Institute. All rights reserved.
+//
+
+#include "CanvasOptionsBar.hpp"
+
+#include "ChannelViewCanvas.hpp"
+#include "../Utilities/ColourScheme.hpp"
+
+using namespace ProbeViewer;
+
+CanvasOptionsBar::CanvasOptionsBar(class ChannelViewCanvas* channelsView)
+: channelsView(channelsView)
+, marginWidth(0)
+, backgroundGradient(Colour(50,50,50), 0, 0, Colour(25,25,25), 0, 30, false)
+, foregroundColour(150, 150, 150)
+, labelFont("Default", 13.0f, Font::plain)
+, labelColour(100, 100, 100)
+{
+    rmsSubOptionComponent = new RMSSubOptionComponent(labelFont, labelColour);
+    fftSubOptionComponent = new FFTSubOptionComponent(labelFont, labelColour);
+    spikeRateSubOptionComponent = new SpikeRateSubOptionComponent(labelFont, labelColour);
+    
+    currentSubOptionComponent = rmsSubOptionComponent;
+    addAndMakeVisible(currentSubOptionComponent);
+    
+    renderModeSelectionLabel = new Label("renderModeSelectionLabel", "Display Render Mode");
+    renderModeSelectionLabel->setFont(labelFont);
+    renderModeSelectionLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(renderModeSelectionLabel);
+    
+    StringArray renderModeNames = {"RMS Signal", "Freq. Band Power", "Spike Rate"};
+    renderModeSelection = new ComboBox("renderModeSelection");
+    renderModeSelection->addItemList(renderModeNames, 1);
+    renderModeSelection->setEditableText(false);
+    renderModeSelection->addListener(this);
+    renderModeSelection->setSelectedId(1, dontSendNotification);
+    addAndMakeVisible(renderModeSelection);
+    
+    
+    
+    // colour scheme options
+    colourSchemeSelectionLabel = new Label("colourSchemeSelectionLabel", "Colour Scheme");
+    colourSchemeSelectionLabel->setFont(labelFont);
+    colourSchemeSelectionLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(colourSchemeSelectionLabel);
+    
+    StringArray colourSchemeNames = {"Inferno", "Plasma", "Magma", "Viridis", "Jet"};
+    colourSchemeSelection = new ComboBox("colourSchemeSelection");
+    colourSchemeSelection->addItemList(colourSchemeNames, 1);
+    colourSchemeSelection->setEditableText(false);
+    colourSchemeSelection->addListener(this);
+    colourSchemeSelection->setSelectedId(1, dontSendNotification);
+    addAndMakeVisible(colourSchemeSelection);
+}
+
+CanvasOptionsBar::~CanvasOptionsBar()
+{ }
+
+void CanvasOptionsBar::paint(Graphics& g)
+{
+    g.setGradientFill(backgroundGradient);
+    g.fillRect(0, 0, getWidth(), getHeight());
+    
+    g.setColour(Colour(80, 80, 80));
+    g.drawLine(marginWidth, 0, marginWidth, getHeight(), 1);
+}
+
+void CanvasOptionsBar::resized()
+{
+    renderModeSelectionLabel->setBounds(0, 0, 95, getHeight());
+    renderModeSelection->setBounds(renderModeSelectionLabel->getRight(), 2, 100, getHeight() - 4);
+    
+    int colourSchemeOffset = 700;
+    if (getWidth() > colourSchemeOffset) colourSchemeOffset = getWidth();
+    colourSchemeSelectionLabel->setBounds(colourSchemeOffset - 150, 0, 60, getHeight());
+    colourSchemeSelection->setBounds(colourSchemeSelectionLabel->getRight(), 2, 90, getHeight() - 4);
+    
+    Rectangle<int> subOptionBounds(marginWidth + 3, 0, colourSchemeOffset - marginWidth - 150 - 3, getHeight());
+    rmsSubOptionComponent->setBounds(subOptionBounds);
+    fftSubOptionComponent->setBounds(subOptionBounds);
+    spikeRateSubOptionComponent->setBounds(subOptionBounds);
+}
+
+void CanvasOptionsBar::comboBoxChanged(ComboBox *cb)
+{
+    if (cb == renderModeSelection)
+    {
+        removeChildComponent(currentSubOptionComponent);
+        
+        RenderMode renderMode;
+        
+        switch(cb->getSelectedId())
+        {
+            case 1:
+                renderMode = RenderMode::RMS;
+                currentSubOptionComponent = rmsSubOptionComponent;
+                break;
+                
+            case 2:
+                renderMode = RenderMode::FFT;
+                currentSubOptionComponent = fftSubOptionComponent;
+                break;
+                
+            case 3:
+            default:
+                renderMode = RenderMode::SPIKE_RATE;
+                currentSubOptionComponent = spikeRateSubOptionComponent;
+                break;
+        }
+        
+        addAndMakeVisible(currentSubOptionComponent);
+        
+        channelsView->setCurrentRenderMode(renderMode);
+    }
+    else if (cb == colourSchemeSelection)
+    {
+        ColourSchemeId colourSchemeId;
+        
+        switch(cb->getSelectedId())
+        {
+            case 1:
+                colourSchemeId = ColourSchemeId::INFERNO;
+                break;
+                
+            case 2:
+                colourSchemeId = ColourSchemeId::PLASMA;
+                break;
+                
+            case 3:
+                colourSchemeId = ColourSchemeId::MAGMA;
+                break;
+                
+            case 4:
+                colourSchemeId = ColourSchemeId::VIRIDIS;
+                break;
+                
+            case 5:
+            default:
+                colourSchemeId = ColourSchemeId::JET;
+                break;
+        }
+        
+        channelsView->setCurrentColourScheme(colourSchemeId);
+    }
+}
+
+void CanvasOptionsBar::setMarginOffset(float marginOffset)
+{
+    marginWidth = marginOffset;
+    resized();
+}
+
+// BEGIN PUBLIC ACCESSOR DELEGATES
+
+float CanvasOptionsBar::getRMSLowBound() const
+{
+    return rmsSubOptionComponent->getRMSLowBound();
+}
+
+float CanvasOptionsBar::getRMSHiBound() const
+{
+    return rmsSubOptionComponent->getRMSHiBound();
+}
+
+float CanvasOptionsBar::getRMSBoundSpread() const
+{
+    return rmsSubOptionComponent->getRMSBoundSpread();
+}
+
+float CanvasOptionsBar::getFFTLowBound() const
+{
+    return fftSubOptionComponent->getFFTLowBound();
+}
+
+float CanvasOptionsBar::getFFTHiBound() const
+{
+    return fftSubOptionComponent->getFFTHiBound();
+}
+
+float CanvasOptionsBar::getFFTBoundSpread() const
+{
+    return fftSubOptionComponent->getFFTBoundSpread();
+}
+
+float CanvasOptionsBar::getSpikeRateLowBound() const
+{
+    return spikeRateSubOptionComponent->getSpikeRateLowBound();
+}
+
+float CanvasOptionsBar::getSpikeRateHiBound() const
+{
+    return spikeRateSubOptionComponent->getSpikeRateHiBound();
+}
+
+float CanvasOptionsBar::getSpikeRateBoundSpread() const
+{
+    return spikeRateSubOptionComponent->getSpikeRateBoundSpread();
+}
+
+float CanvasOptionsBar::getSpikeRateThreshold() const
+{
+    return spikeRateSubOptionComponent->getSpikeRateThreshold();
+}
+
+
+
+
+#pragma mark - RMSSubOptionComponent -
+
+RMSSubOptionComponent::RMSSubOptionComponent(Font labelFont, Colour labelColour)
+: labelFont(labelFont)
+, labelColour(labelColour)
+, lowValueBound(0)
+, hiValueBound(250)
+{
+    // low value plotting threshold
+    lowValueBoundLabel = new Label("lowValueBoundLabel", "Low:");
+    lowValueBoundLabel->setFont(labelFont);
+    lowValueBoundLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(lowValueBoundLabel);
+    
+    lowValueBoundSelectionOptions.addArray({
+        "0",
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "350",
+        "400",
+        "450",
+        "500"
+    });
+    lowValueBoundSelection = new ComboBox("lowValueBoundSelection");
+    lowValueBoundSelection->addItemList(lowValueBoundSelectionOptions, 1);
+    lowValueBoundSelection->setEditableText(true);
+    lowValueBoundSelection->addListener(this);
+    lowValueBoundSelection->setSelectedId(1, dontSendNotification);
+    addAndMakeVisible(lowValueBoundSelection);
+    
+    // hi value plotting threshold
+    hiValueBoundLabel = new Label("hiValueBoundLabel", "High:");
+    hiValueBoundLabel->setFont(labelFont);
+    hiValueBoundLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(hiValueBoundLabel);
+    
+    hiValueBoundSelectionOptions.addArray({
+        "0",
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "350",
+        "400",
+        "450",
+        "500"
+    });
+    hiValueBoundSelection = new ComboBox("hiValueBoundSelection");
+    hiValueBoundSelection->addItemList(hiValueBoundSelectionOptions, 1);
+    hiValueBoundSelection->setEditableText(true);
+    hiValueBoundSelection->addListener(this);
+    hiValueBoundSelection->setSelectedId(6, dontSendNotification);
+    addAndMakeVisible(hiValueBoundSelection);
+}
+
+RMSSubOptionComponent::~RMSSubOptionComponent()
+{ }
+
+void RMSSubOptionComponent::paint(Graphics& g)
+{
+    g.setColour(Colours::cyan);
+    g.drawRect(0, 0, getWidth(), getHeight());
+    g.drawFittedText("RMS SUB OPTIONS", 0, 0, getWidth(), getHeight(), Justification::centred, 1);
+}
+
+void RMSSubOptionComponent::resized()
+{
+    lowValueBoundLabel->setBounds(0, 0, 40, getHeight());
+    lowValueBoundSelection->setBounds(lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight(), 0, 40, getHeight());
+    hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+}
+
+void RMSSubOptionComponent::comboBoxChanged(ComboBox* cb)
+{
+    if (cb == lowValueBoundSelection)
+    {
+        // if custom value
+        if (cb->getSelectedId() == 0)
+        {
+            auto val = fabsf(cb->getText().getFloatValue());
+            std::cout << val << std::endl;
+            
+            // clip value if necessary
+            if (val > 1000) val = 1000;
+            
+            lowValueBound = val;
+        }
+        else
+        {
+            lowValueBound = lowValueBoundSelectionOptions[cb->getSelectedItemIndex()].getFloatValue();
+        }
+        
+        return;
+    }
+    
+    if (cb == hiValueBoundSelection)
+    {
+        // if custom value
+        if (cb->getSelectedId() == 0)
+        {
+            auto val = fabsf(cb->getText().getFloatValue());
+            
+            // clip value if necessary
+            if (val > 1000) val = 1000;
+            
+            hiValueBound = val;
+        }
+        else
+        {
+            hiValueBound = lowValueBoundSelectionOptions[cb->getSelectedItemIndex()].getFloatValue();
+        }
+        
+        return;
+    }
+}
+
+float RMSSubOptionComponent::getRMSLowBound() const
+{
+    return lowValueBound;
+}
+
+float RMSSubOptionComponent::getRMSHiBound() const
+{
+    return hiValueBound;
+}
+
+float RMSSubOptionComponent::getRMSBoundSpread() const
+{
+    return hiValueBound - lowValueBound;
+}
+
+
+
+
+#pragma mark - FFTSubOptionComponent -
+
+FFTSubOptionComponent::FFTSubOptionComponent(Font labelFont, Colour labelColour)
+: labelFont(labelFont)
+, labelColour(labelColour)
+{
+    lowValueBoundLabel = new Label("lowValueBoundLabel", "Low:");
+    lowValueBoundLabel->setFont(labelFont);
+    lowValueBoundLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(lowValueBoundLabel);
+    
+    hiValueBoundLabel = new Label("hiValueBoundLabel", "High:");
+    hiValueBoundLabel->setFont(labelFont);
+    hiValueBoundLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(hiValueBoundLabel);
+}
+
+FFTSubOptionComponent::~FFTSubOptionComponent()
+{ }
+
+void FFTSubOptionComponent::paint(Graphics& g)
+{
+    g.setColour(Colours::cyan);
+    g.drawRect(0, 0, getWidth(), getHeight());
+    g.drawFittedText("FFT SUB OPTIONS", 0, 0, getWidth(), getHeight(), Justification::centred, 1);
+}
+
+void FFTSubOptionComponent::resized()
+{
+    lowValueBoundLabel->setBounds(0, 0, 40, getHeight());
+    hiValueBoundLabel->setBounds(lowValueBoundLabel->getRight(), 0, 40, getHeight());
+}
+
+
+void FFTSubOptionComponent::comboBoxChanged(ComboBox* cb)
+{
+    
+}
+
+float FFTSubOptionComponent::getFFTLowBound() const
+{
+    jassert(false); // this is not implemented yet
+    return lowValueBound;
+}
+
+float FFTSubOptionComponent::getFFTHiBound() const
+{
+    jassert(false); // this is not implemented yet
+    return hiValueBound;
+}
+
+float FFTSubOptionComponent::getFFTBoundSpread() const
+{
+    jassert(false); // this is not implemented yet
+    return hiValueBound - lowValueBound;
+}
+
+
+
+
+
+#pragma mark - SpikeRateSubOptionComponent -
+
+SpikeRateSubOptionComponent::SpikeRateSubOptionComponent(Font labelFont, Colour labelColour)
+: labelFont(labelFont)
+, labelColour(labelColour)
+{
+    // low bound plotting threshold
+    lowValueBoundLabel = new Label("lowValueBoundLabel", "Low:");
+    lowValueBoundLabel->setFont(labelFont);
+    lowValueBoundLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(lowValueBoundLabel);
+    
+    lowValueBoundSelectionOptions.add("0");
+    lowValueBoundSelection = new ComboBox("lowValueBoundSelection");
+    lowValueBoundSelection->addItemList(lowValueBoundSelectionOptions, 1);
+    lowValueBoundSelection->setEditableText(true);
+    lowValueBoundSelection->addListener(this);
+    lowValueBoundSelection->setSelectedId(1, dontSendNotification);
+    lowValueBoundSelection->setEnabled(false);
+    lowValueBound = 0;
+    addAndMakeVisible(lowValueBoundSelection);
+    
+    
+    // hi bound plotting threshold
+    hiValueBoundLabel = new Label("hiValueBoundLabel", "High:");
+    hiValueBoundLabel->setFont(labelFont);
+    hiValueBoundLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(hiValueBoundLabel);
+    
+    hiValueBoundSelectionOptions.add("10000");
+    hiValueBoundSelection = new ComboBox("hiValueBoundSelection");
+    hiValueBoundSelection->addItemList(hiValueBoundSelectionOptions, 1);
+    hiValueBoundSelection->setEditableText(true);
+    hiValueBoundSelection->addListener(this);
+    hiValueBoundSelection->setSelectedId(1, dontSendNotification);
+    hiValueBoundSelection->setEnabled(false);
+    hiValueBound = 10000;
+    addAndMakeVisible(hiValueBoundSelection);
+    
+    
+    // spike onset threshold
+    thresholdSelectionLabel = new Label("thresholdSelectionLabel", "Spike Onset Threshold");
+    thresholdSelectionLabel->setFont(labelFont);
+    thresholdSelectionLabel->setColour(Label::textColourId, labelColour);
+    addAndMakeVisible(thresholdSelectionLabel);
+    
+    thresholdSelectionOptions.addArray({
+        "-25", "-50",
+        "-75", "-100",
+        "-150", "-200"
+    });
+    thresholdSelection = new ComboBox("thresholdSelection");
+    thresholdSelection->addItemList(thresholdSelectionOptions, 1);
+    thresholdSelection->setEditableText(true);
+    thresholdSelection->setSelectedId(1, dontSendNotification);
+    thresholdSelection->addListener(this);
+    addAndMakeVisible(thresholdSelection);
+}
+
+SpikeRateSubOptionComponent::~SpikeRateSubOptionComponent()
+{ }
+
+void SpikeRateSubOptionComponent::paint(Graphics& g)
+{
+    g.setColour(Colours::cyan);
+    g.drawRect(0, 0, getWidth(), getHeight());
+    g.drawFittedText("SPIKE RATE SUB OPTIONS", 0, 0, getWidth(), getHeight(), Justification::centred, 1);
+}
+
+void SpikeRateSubOptionComponent::resized()
+{
+    lowValueBoundLabel->setBounds(0, 0, 40, getHeight());
+    lowValueBoundSelection->setBounds(lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight(), 0, 40, getHeight());
+    hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    
+    thresholdSelectionLabel->setBounds(hiValueBoundSelection->getRight(), 0, 90, getHeight());
+    thresholdSelection->setBounds(thresholdSelectionLabel->getRight(), 2, 60, getHeight() - 4);
+}
+
+void SpikeRateSubOptionComponent::comboBoxChanged(ComboBox* cb)
+{
+    if (cb == lowValueBoundSelection)
+    {
+        jassert(false); // this is not implemented yet
+        return;
+    }
+    
+    if (cb == hiValueBoundSelection)
+    {
+        jassert(false); // this is not implemented yet
+        return;
+    }
+    
+    if (cb == thresholdSelection)
+    {
+        // if custom value
+        if (cb->getSelectedId() == 0)
+        {
+            auto val = fabsf(cb->getText().getFloatValue());
+            
+            if (val < 10) val = 10;
+            else if (val > 500) val = 500;
+            
+            val *= -1;
+            
+            threshold = val;
+        }
+        else // otherwise get the preset value
+        {
+            auto val = cb->getText().getFloatValue();
+            
+            threshold = val;
+        }
+        
+        return;
+    }
+    
+}
+
+float SpikeRateSubOptionComponent::getSpikeRateLowBound() const
+{
+    return lowValueBound;
+}
+
+float SpikeRateSubOptionComponent::getSpikeRateHiBound() const
+{
+    return hiValueBound;
+}
+
+float SpikeRateSubOptionComponent::getSpikeRateBoundSpread() const
+{
+    return hiValueBound - lowValueBound;
+}
+
+float SpikeRateSubOptionComponent::getSpikeRateThreshold() const
+{
+    return threshold;
+}

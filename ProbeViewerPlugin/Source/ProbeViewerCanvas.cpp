@@ -28,6 +28,8 @@
 
 #include "NeuropixInterface/NeuropixInterface.hpp"
 #include "ChannelViewCanvas/ChannelViewCanvas.hpp"
+#include "ChannelViewCanvas/CanvasOptionsBar.hpp"
+#include "TimeScale/ProbeViewerTimeScale.hpp"
 #include "Utilities/CircularBuffer.hpp"
 
 using namespace ProbeViewer;
@@ -43,7 +45,14 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode* processor_)
     interface = new NeuropixInterface(this);
     addAndMakeVisible(interface);
     
+    timeScale = new ProbeViewerTimeScale(ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE, 0.5f);
+    addAndMakeVisible(timeScale);
+    
     channelsView = new ChannelViewCanvas(this);
+    
+    optionsBar = new CanvasOptionsBar(channelsView);
+    addAndMakeVisible(optionsBar);
+    channelsView->optionsBar = optionsBar;
     
     viewport = new ProbeViewerViewport(this, channelsView);
     viewport->setViewedComponent(channelsView, false);
@@ -73,7 +82,7 @@ void ProbeViewerCanvas::update()
     {
         if (NeuropixInterface::refNodes.contains(i + referenceNodeOffsetCount + 1))
         {
-            channelsView->readSites.add(new ProbeChannelDisplay(channelsView, ChannelState::reference, -1, i + referenceNodeOffsetCount, 0));
+            channelsView->readSites.add(new ProbeChannelDisplay(channelsView, optionsBar, ChannelState::reference, -1, i + referenceNodeOffsetCount, 0));
             ++referenceNodeOffsetCount;
         }
         
@@ -81,7 +90,7 @@ void ProbeViewerCanvas::update()
         if (pvProcessor->getNumInputs() > 0) sampleRate = pvProcessor->getDataChannel(i)->getSampleRate();
         else sampleRate = 30000;
         
-        auto channelDisplay = new ProbeChannelDisplay(channelsView, ChannelState::enabled, i, i + referenceNodeOffsetCount, sampleRate);
+        auto channelDisplay = new ProbeChannelDisplay(channelsView, optionsBar, ChannelState::enabled, i, i + referenceNodeOffsetCount, sampleRate);
         
         channelsView->readSites.add(channelDisplay);
         channelsView->channels.add(channelDisplay);
@@ -116,9 +125,15 @@ void ProbeViewerCanvas::paint(Graphics& g)
 
 void ProbeViewerCanvas::resized()
 {
-    interface->setBounds(0, 0, 200, getHeight());
+    timeScale->setBounds(0, 0, getWidth(), 30);
+    optionsBar->setBounds(0, getHeight() - 30, getWidth(), 30);
+    
+    interface->setBounds(0, timeScale->getBottom(), 200, getHeight() - timeScale->getHeight() - optionsBar->getHeight());
+    timeScale->setMarginOffset(interface->getWidth());
+    optionsBar->setMarginOffset(interface->getWidth());
+    
     channelsView->setBounds(0, 0, viewport->getWidth(), channelsView->getChannelHeight() * channelsView->readSites.size());
-    viewport->setBounds(interface->getRight(), 4, getWidth() - interface->getWidth(), getHeight() - 6);
+    viewport->setBounds(interface->getRight(), timeScale->getBottom() + 2, getWidth() - interface->getWidth(), getHeight() - timeScale->getHeight() - optionsBar->getHeight() - 4);
 }
 
 void ProbeViewerCanvas::setNumChannels(int numChannels)
@@ -196,8 +211,7 @@ void ProbeViewerCanvas::updateScreenBuffers()
 {
     if (dataBuffer->hasSamplesReadyForDrawing())
     {
-//        std::cout << Time::getCurrentTime().toString(false, true) << " There are " << dataBuffer->getNumSamplesReadyForDrawing(0) << " samples ready to draw" << std::endl;
-        
+        ScopedLock drawLock(*dataBuffer->getMutex());
         int numTicks = 0;
         
         for (int channel = 0; channel < numChannels; ++channel)
@@ -242,7 +256,8 @@ void ProbeViewerCanvas::updateScreenBuffers()
                     }
                 }
                 
-                // find min, max
+                
+                // find min, max, spike onset
                 for (int sampIdx = (pix == 0 && numCachedSamples > 0 ? numCachedSamples : 0); sampIdx < samplesPerPixel; ++sampIdx)
                 {
 //                    float val = dataBuffer->getSample(sampleBufferIndex++, channel);
@@ -267,16 +282,30 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 
                 float median = (max + min) / 2.0f;
                 float rms = 0;
+                float spikeRate = 0;
+                int numSpikesInPixel = 0;
+                
+                const float spikeRateThreshold = optionsBar->getSpikeRateThreshold();
                 
                 for (int sampIdx = 0; sampIdx < samplesPerPixel; ++sampIdx)
                 {
                     const float medianOffsetVal = samples[sampIdx] - median;
                     
                     rms += (medianOffsetVal * medianOffsetVal);
+                    
+//                    if (medianOffsetVal > spikeRateThreshold)
+//                    {
+//                        if ()
+//                    }
+//                    else
+//                        spikeOnset = false;
+                    if (medianOffsetVal < spikeRateThreshold) numSpikesInPixel++;
                 }
                 
                 rms = sqrtf(rms / samplesPerPixel);
-                channelsView->updateRMS(channel, rms);
+                spikeRate = numSpikesInPixel / (samplesPerPixel / getChannelSampleRate(channel));
+                
+                channelsView->pushPixelValueForChannel(channel, rms, spikeRate, 0);
                 
                 //if (channel == 0)
     //            std::cout << channel << " => " << rms << std::endl;
