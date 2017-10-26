@@ -11,6 +11,8 @@
 		931D3A181F858D8B00D94337 /* NeuropixInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 931D3A161F858D8B00D94337 /* NeuropixInterface.cpp */; };
 		938F9EB31F8815D9000676D7 /* ChannelViewCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938F9EB11F8815D9000676D7 /* ChannelViewCanvas.cpp */; };
 		938F9EBA1F9542FA000676D7 /* ColourScheme.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938F9EB81F9542FA000676D7 /* ColourScheme.cpp */; };
+		939176551FA158D200417218 /* kiss_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 939176511FA158D200417218 /* kiss_fft.c */; };
+		939176561FA158D200417218 /* kiss_fftr.c in Sources */ = {isa = PBXBuildFile; fileRef = 939176531FA158D200417218 /* kiss_fftr.c */; };
 		93E875CF1F82E4B7007AFE33 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93E875C71F82E4B7007AFE33 /* OpenEphysLib.cpp */; };
 		93E875D01F82E4B7007AFE33 /* ProbeViewerCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93E875C81F82E4B7007AFE33 /* ProbeViewerCanvas.cpp */; };
 		93E875D11F82E4B7007AFE33 /* ProbeViewerEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93E875CA1F82E4B7007AFE33 /* ProbeViewerEditor.cpp */; };
@@ -30,6 +32,11 @@
 		938F9EB21F8815D9000676D7 /* ChannelViewCanvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ChannelViewCanvas.hpp; path = ChannelViewCanvas/ChannelViewCanvas.hpp; sourceTree = "<group>"; };
 		938F9EB81F9542FA000676D7 /* ColourScheme.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColourScheme.cpp; sourceTree = "<group>"; };
 		938F9EB91F9542FA000676D7 /* ColourScheme.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ColourScheme.hpp; sourceTree = "<group>"; };
+		939176501FA158D200417218 /* _kiss_fft_guts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _kiss_fft_guts.h; sourceTree = "<group>"; };
+		939176511FA158D200417218 /* kiss_fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fft.c; sourceTree = "<group>"; };
+		939176521FA158D200417218 /* kiss_fft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft.h; sourceTree = "<group>"; };
+		939176531FA158D200417218 /* kiss_fftr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fftr.c; sourceTree = "<group>"; };
+		939176541FA158D200417218 /* kiss_fftr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fftr.h; sourceTree = "<group>"; };
 		93E875BC1F82E402007AFE33 /* ProbeViewerPlugin.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProbeViewerPlugin.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		93E875BF1F82E402007AFE33 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		93E875C71F82E4B7007AFE33 /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
@@ -89,6 +96,19 @@
 			name = ChannelViewCanvas;
 			sourceTree = "<group>";
 		};
+		9391764F1FA1586F00417218 /* kissfft */ = {
+			isa = PBXGroup;
+			children = (
+				939176501FA158D200417218 /* _kiss_fft_guts.h */,
+				939176511FA158D200417218 /* kiss_fft.c */,
+				939176521FA158D200417218 /* kiss_fft.h */,
+				939176531FA158D200417218 /* kiss_fftr.c */,
+				939176541FA158D200417218 /* kiss_fftr.h */,
+			);
+			name = kissfft;
+			path = ../../../Libraries/kissfft;
+			sourceTree = "<group>";
+		};
 		93E875B31F82E402007AFE33 = {
 			isa = PBXGroup;
 			children = (
@@ -108,6 +128,7 @@
 		93E875BE1F82E402007AFE33 /* ProbeViewerPlugin */ = {
 			isa = PBXGroup;
 			children = (
+				93F658021F9EB13200623A46 /* Libraries */,
 				93E875E71F82FF0F007AFE33 /* Config */,
 				93E875C51F82E4B7007AFE33 /* Source */,
 				93E875BF1F82E402007AFE33 /* Info.plist */,
@@ -150,6 +171,14 @@
 				93F657FB1F99373600623A46 /* ProbeViewerTimeScale.cpp */,
 			);
 			name = TimeScale;
+			sourceTree = "<group>";
+		};
+		93F658021F9EB13200623A46 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				9391764F1FA1586F00417218 /* kissfft */,
+			);
+			name = Libraries;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -239,6 +268,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				93E875D01F82E4B7007AFE33 /* ProbeViewerCanvas.cpp in Sources */,
+				939176551FA158D200417218 /* kiss_fft.c in Sources */,
 				931D3A181F858D8B00D94337 /* NeuropixInterface.cpp in Sources */,
 				931D3A131F858A9200D94337 /* CircularBuffer.cpp in Sources */,
 				938F9EBA1F9542FA000676D7 /* ColourScheme.cpp in Sources */,
@@ -248,6 +278,7 @@
 				93E875D11F82E4B7007AFE33 /* ProbeViewerEditor.cpp in Sources */,
 				93F658011F994FAF00623A46 /* CanvasOptionsBar.cpp in Sources */,
 				93F657FD1F99373600623A46 /* ProbeViewerTimeScale.cpp in Sources */,
+				939176561FA158D200417218 /* kiss_fftr.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -426,6 +457,7 @@
 					Source/NeuropixInterface,
 					Source/Utilities,
 					Source/TimeScale,
+					Libraries/kissfft,
 				);
 				INFOPLIST_FILE = ProbeViewerPlugin/Info.plist;
 				INSTALL_PATH = "~$(LOCAL_LIBRARY_DIR)/Application\\ Support/open-ephys/PlugIns";
@@ -452,6 +484,7 @@
 					Source/NeuropixInterface,
 					Source/Utilities,
 					Source/TimeScale,
+					Libraries/kissfft,
 				);
 				INFOPLIST_FILE = ProbeViewerPlugin/Info.plist;
 				INSTALL_PATH = "~$(LOCAL_LIBRARY_DIR)/Application\\ Support/open-ephys/PlugIns";

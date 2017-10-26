@@ -64,6 +64,8 @@ NeuropixInterface::NeuropixInterface(ProbeViewerCanvas* canvas_)
     }
     
     addMouseListener(this, true);
+    
+    setBufferedToImage(true);
 }
 
 NeuropixInterface::~NeuropixInterface()
@@ -102,7 +104,6 @@ void NeuropixInterface::paint(Graphics& g)
     zoomInfo->lowestChan = (PROBE_GRAPHIC_CHAN1_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset)) * 2 - 1;
     zoomInfo->highestChan = (PROBE_GRAPHIC_CHAN1_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight)) * 2 + 10;
     
-//    float totalHeight = float(zoomInfo->lowerBound + 100);
     float newChannelHeight = float(getHeight() - 2) / ((zoomInfo->highestChan - zoomInfo->lowestChan) / 2);
     if (zoomInfo->channelHeight != newChannelHeight)
     {
@@ -140,22 +141,16 @@ void NeuropixInterface::paint(Graphics& g)
     g.fillRect(25, zoomInfo->lowerBound - zoomInfo->zoomOffset, 15, zoomInfo->zoomOffset + 10);
     
     g.setColour(Colours::darkgrey);
-//    g.fillRect(100, 0, 100, 22);
-//    g.fillRect(100, zoomInfo->lowerBound + 10, 100, 100);
     
     Path upperBorder;
     upperBorder.startNewSubPath(5, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight - 3);
     upperBorder.lineTo(54, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight - 3);
-//    upperBorder.lineTo(100, 16);
-//    upperBorder.lineTo(200, 16);
     upperBorder.lineTo(100, 1);
     upperBorder.lineTo(200, 1);
     
     Path lowerBorder;
     lowerBorder.startNewSubPath(5, zoomInfo->lowerBound - zoomInfo->zoomOffset);
     lowerBorder.lineTo(54, zoomInfo->lowerBound - zoomInfo->zoomOffset);
-//    lowerBorder.lineTo(100, zoomInfo->lowerBound + 16);
-//    lowerBorder.lineTo(200, zoomInfo->lowerBound + 16);
     lowerBorder.lineTo(100, getHeight() - 1);
     lowerBorder.lineTo(200, getHeight() - 1);
     
@@ -442,7 +437,7 @@ Colour NeuropixInterface::getChannelColour(uint channel)
             return Colours::maroon;
             
         case ChannelState::enabled:
-            return Colours::yellow;//(channelOutput[channel] == 1 ? Colours::yellow : Colours::goldenrod);
+            return Colours::yellow;
             
         case ChannelState::reference:
             return Colours::black;

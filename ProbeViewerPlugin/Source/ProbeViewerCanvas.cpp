@@ -38,6 +38,7 @@ using namespace ProbeViewer;
 
 ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode* processor_)
 : pvProcessor(processor_)
+, fft_cfg(kiss_fftr_alloc(ProbeViewerCanvas::FFT_SIZE, false, 0, 0))
 , numChannels(0)
 {
     dataBuffer = pvProcessor->getCircularBufferPtr();
@@ -59,10 +60,19 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode* processor_)
     viewport->setScrollBarsShown(false, false);
     addAndMakeVisible(viewport);
     
+    // init the fft input/output containers
+    for (int i = 0; i < ProbeViewerCanvas::FFT_SIZE; ++i)
+    {
+        fftInput.push_back(0.0f);
+    }
+    
+    setBufferedToImage(true);
 }
 
 ProbeViewerCanvas::~ProbeViewerCanvas()
-{ }
+{
+    free(fft_cfg);
+}
 
 void ProbeViewerCanvas::refreshState()
 {
@@ -71,13 +81,20 @@ void ProbeViewerCanvas::refreshState()
 
 void ProbeViewerCanvas::update()
 {
+    // TODO: (kelly) the options bar for the FFT rendering is only configured to support
+    //               one global sample rate. if several sampleRates are represented at
+    //               this will still work, but the center frequency combobox options will
+    //               only be accurate for one of the sampleRates - currently, the first
+    //               non-zero sample rate encountered
     numChannels = jmax(pvProcessor->getNumInputs(), 1);
     
     channelsView->readSites.clear();
     channelsView->channels.clear();
     partialBufferCache.clear();
+    channelFFTSampleBuffer.clear();
     
     int referenceNodeOffsetCount = 0;
+    float labelsSampleRate = 0;
     for (int i = 0; i < NeuropixInterface::MAX_NUM_CHANNELS; ++i)
     {
         if (NeuropixInterface::refNodes.contains(i + referenceNodeOffsetCount + 1))
@@ -95,8 +112,17 @@ void ProbeViewerCanvas::update()
         channelsView->readSites.add(channelDisplay);
         channelsView->channels.add(channelDisplay);
         partialBufferCache.add(new Array<float>());
+        
+//        channelFFTSampleBuffer.push_back(std::vector<float>());
+//        channelFFTSampleBuffer[i].resize(ProbeViewerCanvas::FFT_SIZE);
+        channelFFTSampleBuffer.add(new FFTSampleCacheBuffer(ProbeViewerCanvas::FFT_SIZE));
+        
+        if (labelsSampleRate == 0) labelsSampleRate = sampleRate;
     }
     
+    // see note above ^
+    if (labelsSampleRate == 0) labelsSampleRate = 44100.0f;
+    optionsBar->updateFFTFrequencies(ProbeViewerCanvas::FFT_SIZE/2 + 1, labelsSampleRate);
 }
 
 void ProbeViewerCanvas::refresh()
@@ -189,23 +215,23 @@ float ProbeViewerCanvas::popFrontCachedSampleForChannel(int channel)
 }
 
 // anonymous static helper function to encapsulate repeated logic in updateScreenBuffers() below
-namespace {
-    void processSample(float&& val, int& index, float& min, float& max, Array<float>& samplesBuffer)
-    {
-        samplesBuffer.set(index, val);
-        
-        if (index == 0)
-        {
-            min = val;
-            max = val;
-        }
-        else
-        {
-            if (val > max) max = val;
-            if (val < min) min = val;
-        }
-    }
-}
+//namespace {
+//    void processSample(float&& val, int& index, float& min, float& max, Array<float>& samplesBuffer)
+//    {
+//        samplesBuffer.set(index, val);
+//        
+//        if (index == 0)
+//        {
+//            min = val;
+//            max = val;
+//        }
+//        else
+//        {
+//            if (val > max) max = val;
+//            if (val < min) min = val;
+//        }
+//    }
+//}
 
 void ProbeViewerCanvas::updateScreenBuffers()
 {
@@ -231,52 +257,54 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 Array<float> samples;
                 samples.resize(samplesPerPixel);
                 
-                // find min, max
+                // find min, max for cached samples
                 if (pix == 0 && numCachedSamples > 0)
                 {
                     for (int cachedSampIdx = 0; cachedSampIdx < numCachedSamples; ++cachedSampIdx)
                     {
-//                        float val = popFrontCachedSampleForChannel(channel);
-//                        samples.set(cachedSampIdx, val);
-//                        
-//                        if (cachedSampIdx == 0)
-//                        {
-//                            min = val;
-//                            max = val;
-//                        }
-//                        else{
-//                            if (val > max) max = val;
-//                            if (val < min) min = val;
-//                        }
-                        processSample(popFrontCachedSampleForChannel(channel),
-                                      cachedSampIdx,
-                                      min,
-                                      max,
-                                      samples);
+//                        processSample(popFrontCachedSampleForChannel(channel),
+//                                      cachedSampIdx,
+//                                      min,
+//                                      max,
+//                                      samples);
+                        const auto val = popFrontCachedSampleForChannel(channel);
+                        samples.set(cachedSampIdx, val);
+                        
+                        if (cachedSampIdx == 0)
+                        {
+                            min = val;
+                            max = val;
+                        }
+                        else
+                        {
+                            if (val > max) max = val;
+                            if (val < min) min = val;
+                        }
                     }
                 }
                 
                 
-                // find min, max, spike onset
+                // find min, max for new buffer samples
                 for (int sampIdx = (pix == 0 && numCachedSamples > 0 ? numCachedSamples : 0); sampIdx < samplesPerPixel; ++sampIdx)
                 {
-//                    float val = dataBuffer->getSample(sampleBufferIndex++, channel);
-//                    samples.set(sampIdx, val);
-//                    
-//                    if (sampIdx == 0)
-//                    {
-//                        min = val;
-//                        max = val;
-//                    }
-//                    else{
-//                        if (val > max) max = val;
-//                        if (val < min) min = val;
-//                    }
-                    processSample(dataBuffer->getSample(sampleBufferIndex, channel),
-                                  sampIdx,
-                                  min,
-                                  max,
-                                  samples);
+//                    processSample(dataBuffer->getSample(sampleBufferIndex, channel),
+//                                  sampIdx,
+//                                  min,
+//                                  max,
+//                                  samples);
+                    const auto val = dataBuffer->getSample(sampleBufferIndex, channel);
+                    samples.set(sampIdx, val);
+                    
+                    if (sampIdx == 0)
+                    {
+                        min = val;
+                        max = val;
+                    }
+                    else
+                    {
+                        if (val > max) max = val;
+                        if (val < min) min = val;
+                    }
                     ++sampleBufferIndex;
                 }
                 
@@ -292,23 +320,40 @@ void ProbeViewerCanvas::updateScreenBuffers()
                     const float medianOffsetVal = samples[sampIdx] - median;
                     
                     rms += (medianOffsetVal * medianOffsetVal);
-                    
-//                    if (medianOffsetVal > spikeRateThreshold)
-//                    {
-//                        if ()
-//                    }
-//                    else
-//                        spikeOnset = false;
+  
                     if (medianOffsetVal < spikeRateThreshold) numSpikesInPixel++;
+                    
+//                    channelFFTSampleBuffer[channel].push_back(medianOffsetVal / 500);
+                    channelFFTSampleBuffer[channel]->pushSample(medianOffsetVal / 500.0f);
                 }
                 
+                
+                //
+                //
+                //              PERFORM FFT FOR THIS PIXEL AND CHANNEL
+                //
+                //
+                
+                for (int sampleIdx = 0; sampleIdx < ProbeViewerCanvas::FFT_SIZE; ++sampleIdx)
+                {
+                    fftInput[sampleIdx] = fftWindow[sampleIdx] * channelFFTSampleBuffer[channel]->readSample(sampleIdx);
+                }
+                
+                kiss_fftr(fft_cfg, fftInput.data(), fftOutput);
+                //
+                //
+                //          END FFT FOR PIXEL AND CHANNEL
+                //
+                //
+                
+                const int bin = optionsBar->getFFTCenterFrequencyBin();
+                const float fftValueDb = 20 * log10((fftOutput[bin].r * fftOutput[bin].r + fftOutput[bin].i * fftOutput[bin].i) * 2 / ProbeViewerCanvas::FFT_SIZE);
+                
                 rms = sqrtf(rms / samplesPerPixel);
+                
                 spikeRate = numSpikesInPixel / (samplesPerPixel / getChannelSampleRate(channel));
                 
-                channelsView->pushPixelValueForChannel(channel, rms, spikeRate, 0);
-                
-                //if (channel == 0)
-    //            std::cout << channel << " => " << rms << std::endl;
+                channelsView->pushPixelValueForChannel(channel, rms, spikeRate, fftValueDb);
             }
             
             for (int sampIdx = sampleBufferIndex; sampIdx < numSamplesToRead; ++sampIdx)
@@ -338,12 +383,89 @@ int ProbeViewerCanvas::getNumCachedSamples(int channel)
 
 
 # pragma mark - ProbeViewerCanvas Constants
+
 const float ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE = 10.0f;
+// load the fftWindow with a Hanning window
+const std::vector<float> ProbeViewerCanvas::fftWindow = []() -> std::vector<float> {
+    std::vector<float> window;
+    
+    for (int i = 0; i < ProbeViewerCanvas::FFT_SIZE; ++i)
+    {
+        window.push_back(0.5 * (1 - cos((2 * M_PI * i)/(ProbeViewerCanvas::FFT_SIZE - 1))));
+    }
+    
+    return window;
+}();
+
+
+
+
+# pragma mark - ProbeViewerCanvas::FFTSampleCacheBuffer -
+
+ProbeViewerCanvas::FFTSampleCacheBuffer::FFTSampleCacheBuffer(std::size_t size)
+: writeIdx(0)
+, readIdx(1)
+, bufferSize(size)
+{
+    buffer.resize(size);
+}
+
+ProbeViewerCanvas::FFTSampleCacheBuffer::~FFTSampleCacheBuffer()
+{ }
+
+void ProbeViewerCanvas::FFTSampleCacheBuffer::resize(const std::size_t size)
+{
+    jassert(size > 0);
+    bufferSize = size;
+    buffer.clear();
+    buffer = std::vector<float>(size, 0.0f);
+    
+    writeIdx = 0;
+    readIdx = 1;
+}
+
+namespace {
+    void incrementIndices(std::size_t & writeIdx, std::size_t & readIdx, std::size_t bufferSize)
+    {
+        writeIdx = readIdx++;
+        
+        if (readIdx >= bufferSize)
+        {
+            readIdx = 0;
+        }
+        
+        jassert(writeIdx < bufferSize);
+        jassert(readIdx < bufferSize);
+    }
+}
+
+void ProbeViewerCanvas::FFTSampleCacheBuffer::pushSample(const float sample)
+{
+    buffer[writeIdx] = sample;
+    incrementIndices(writeIdx, readIdx, bufferSize);
+}
+
+float ProbeViewerCanvas::FFTSampleCacheBuffer::readSample(std::size_t index) const
+{
+    jassert(index < bufferSize);
+    
+    index += readIdx;
+    
+    if (index >= bufferSize)
+    {
+        index -= bufferSize;
+    }
+    
+    jassert(index < bufferSize);
+    
+    return buffer[index];
+}
 
 
 
 
 # pragma mark - ProbeViewerViewport -
+
 ProbeViewerViewport::ProbeViewerViewport(ProbeViewerCanvas* canvas, ChannelViewCanvas* channelsView)
 : Viewport()
 , canvas(canvas)

@@ -25,20 +25,82 @@ public:
     
     void comboBoxChanged(ComboBox * cb) override;
     
+    /**
+     * Sets the left margin offset in pixels of the render mode sub options panels
+     */
     void setMarginOffset(float marginOffset);
     
     // ACCESSORS FOR OPTIONS BAR SUB-OPTIONS
+    
+    /**
+     *  Return the RMS low bound for plotter color mapping
+     */
     float getRMSLowBound() const;
+    
+    /**
+     *  Return the RMS high bound for plotter color mapping
+     */
     float getRMSHiBound() const;
+    
+    /**
+     *  Return the difference between high and low bounds for RMS
+     */
     float getRMSBoundSpread() const;
     
+    /**
+     *  Return the FFT low bound for plotter color mapping
+     */
     float getFFTLowBound() const;
+    
+    /**
+     *  Return the FFT high bound for plotter color mapping
+     */
     float getFFTHiBound() const;
+    
+    /**
+     *  Return the difference between high and low bounds for FFT
+     */
     float getFFTBoundSpread() const;
     
+    /**
+     *  Return the selected center frequency bin for the FFT renderer
+     */
+    int getFFTCenterFrequencyBin() const;
+    
+    /**
+     *  Trigger a refresh of the available center frequency preset values
+     *  in the FFT Render Mode Sub Options bar.
+     *
+     *  @param numBins      the number of FFT output bins
+     *  @param sampleRate   the sampleRate of the input signal (for the
+     *                      channels that are currently displayed)
+     */
+    void updateFFTFrequencies(const int numBins, const float sampleRate);
+    
+    /**
+     *  Return the spike rate low bound for plotter color mapping
+     */
     float getSpikeRateLowBound() const;
+    
+    /**
+     *  Return the spike rate high bound for plotter color mapping
+     */
     float getSpikeRateHiBound() const;
+    
+    /**
+     *  Return the absolute difference between high and low bounds for
+     *  spike rate
+     */
     float getSpikeRateBoundSpread() const;
+    
+    /**
+     *  Return the currently selected spike threshold.
+     *
+     *  This value describes the threshold below which a peak is 
+     *  considered a spike. It is intended to be used when input
+     *  data is processed into a pixel, and describes the threshold
+     *  after adjusting samples for median offset.
+     */
     float getSpikeRateThreshold() const;
     
 private:
@@ -77,8 +139,19 @@ public:
     
     void comboBoxChanged(ComboBox* cb) override;
     
+    /**
+     *  Return the RMS low bound for plotter color mapping
+     */
     float getRMSLowBound() const;
+    
+    /**
+     *  Return the RMS high bound for plotter color mapping
+     */
     float getRMSHiBound() const;
+    
+    /**
+     *  Return the difference between high and low bounds for RMS
+     */
     float getRMSBoundSpread() const;
     
 private:
@@ -108,9 +181,27 @@ public:
     
     void comboBoxChanged(ComboBox* cb) override;
     
+    void updateFrequencyRanges(const int numBins, const int sampleRate);
+    
+    /**
+     *  Return the FFT low bound for plotter color mapping
+     */
     float getFFTLowBound() const;
+    
+    /**
+     *  Return the FFT high bound for plotter color mapping
+     */
     float getFFTHiBound() const;
+    
+    /**
+     *  Return the difference between high and low bounds for FFT
+     */
     float getFFTBoundSpread() const;
+    
+    /**
+     *  Return the selected center frequency bin for the FFT renderer
+     */
+    int getFFTSamplingBin() const;
     
 private:
     Font labelFont;
@@ -125,6 +216,23 @@ private:
     ScopedPointer<Label> hiValueBoundLabel;
     ScopedPointer<ComboBox> hiValueBoundSelection;
     float hiValueBound;
+    
+    StringArray binSelectionOptions;
+    ScopedPointer<Label> binSelectionLabel;
+    ScopedPointer<ComboBox> binSelection;
+    int binSelectionValue;
+    
+    float maxFreq;
+    
+    /**
+     *  Return an array of center frequency preset options.
+     *
+     *  The frequencies returned are derived from the Nyquist frequency
+     *  (sampleRate / 2) split into "numBins". The expected number is
+     *  going to be FFT_SIZE / 2 + 1 (the value of numBins) labels ranging
+     *  from 0 Hz to the Nyquist frequency.
+     */
+    StringArray generateFrequencyLabels(int numBins, float sampleRate);
 };
 
 class SpikeRateSubOptionComponent : public Component
@@ -139,9 +247,30 @@ public:
     
     void comboBoxChanged(ComboBox* cb) override;
     
+    /**
+     *  Return the spike rate low bound for plotter color mapping
+     */
     float getSpikeRateLowBound() const;
+    
+    /**
+     *  Return the spike rate high bound for plotter color mapping
+     */
     float getSpikeRateHiBound() const;
+    
+    /**
+     *  Return the absolute difference between high and low bounds for
+     *  spike rate
+     */
     float getSpikeRateBoundSpread() const;
+    
+    /**
+     *  Return the currently selected spike threshold.
+     *
+     *  This value describes the threshold below which a peak is
+     *  considered a spike. It is intended to be used when input
+     *  data is processed into a pixel, and describes the threshold
+     *  after adjusting samples for median offset.
+     */
     float getSpikeRateThreshold() const;
     
 private:

@@ -41,28 +41,96 @@ public:
     void paint(Graphics&) override;
     void resized() override;
     
+    /**
+     *  Perform the necessary work to update if new pixels are ready to be
+     *  rendered.
+     *
+     *  This method is called automatically from:
+     *  @see ProbeViewerCanvas::refresh
+     */
     void refresh();
     
+    /**
+     *  Render each tile for the screen display to the master screen buffer.
+     */
     void renderTilesToScreenBufferImage();
     
+    /**
+     *  Update the internal state after EACH pixel column is updated during
+     *  rendering.
+     *
+     *  This must be called after each column of pixels on a BitmapRenderTile
+     *  is completed to synchronize the currently active drawing tile and 
+     *  column drawing position within that tile. Failing to call this method
+     *  will cause the same column to be repeatedly overwritten offscreen.
+     */
     void tick();
     
+    /**
+     *  Set the height in pixels of the displayed channels (data and reference)
+     */
     void setChannelHeight(float height);
+    
+    /**
+     *  Returns the height in pixels of the displayed channels.
+     */
     float getChannelHeight();
     
-    void updateRMS(int channel, float value);
+    /**
+     *  Receive and queue pixel value updates for RMS, FFT, and SpikeRate 
+     *  screen images for the given channel.
+     *
+     *  This method expects the channel to refer to an index within the 
+     *  data acquisition subset of channels, and does not do bound checking.
+     */
     void pushPixelValueForChannel(int channel, float rms, float spikeRate, float fft);
     
+    /**
+     *  Set the index of the specific subprocessor for which to render
+     *  probe channels.
+     */
     void setDisplayedSubprocessor(int subProcessorIdx);
     
+    /**
+     *  Returns a pointer the BitmapRenderTile that is currently flagged 
+     *  for pixel updates.
+     */
     BitmapRenderTile* const getFrontBufferPtr() const;
     
+    /**
+     *  Get the pixel-wise offset (from the left) of the BitmapRenderTile
+     *  returned by ChannelViewCanvas::getFrontBufferPtr(). 
+     *
+     *  This value describes the current column that should have its
+     *  pixels updated during rendering.
+     */
     int getBufferOffsetPosition() const;
     
+    /**
+     *  Returns a value describing which RenderMode is currently selected
+     *  display on screen (RMS, FFT, or SpikeRate).
+     */
     RenderMode getCurrentRenderMode() const;
+    
+    /**
+     *  Set the RenderMode that should be displayed on screen (FFT, RMS,
+     *  or SpikeRate).
+     */
     void setCurrentRenderMode(RenderMode r);
     
+    /**
+     *  Return a value describing the current user-selected colour
+     *  mapping scheme to use for rendering.
+     */
     ColourSchemeId getCurrentColourScheme() const;
+    
+    /**
+     *  Set the current colour mapping that should be used to render 
+     *  new pixels.
+     *
+     *  Changing this value does not overwrite old pixels, but will draw
+     *  all subsequent pixels with the new mapping.
+     */
     void setCurrentColourScheme(ColourSchemeId schemeId);
     
     OwnedArray<class ProbeChannelDisplay> readSites;
@@ -112,12 +180,35 @@ struct BitmapRenderTile
     const int width;
     const int height;
     
+    /**
+     *  Create a new BitmapRenderTile with the given dimensions.
+     *
+     *  The params must not be zero, as this object allocates Image memory
+     *  directly from width and height. These values are not checked for 
+     *  valid input.
+     */
     BitmapRenderTile(int width, int height);
     ~BitmapRenderTile() = default;
     
+    /**
+     *  Return a pointer to an Image for a complete tile and a specific
+     *  RenderMode.
+     */
     Image* const getTileForRenderMode(RenderMode mode);
+    
+    /**
+     *  Return an Image reference that wraps only the given readSite's drawable
+     *  area on the currently active front buffer, and for the given RenderMode.
+     *
+     *  @param readSite     The index of the readsite to draw to
+     *  @param mode         The RenderMode which must be drawn to for
+     *                      this tile
+     */
     Image& getReadSiteSubImageForRenderMode(int readSite, RenderMode mode);
     
+    /**
+     *  BitmapRenderTiles are non-copyable and non-moveable.
+     */
     BitmapRenderTile(const BitmapRenderTile &) = delete;
     BitmapRenderTile(BitmapRenderTile &&) = delete;
     BitmapRenderTile& operator=(const BitmapRenderTile &) = delete;
@@ -144,18 +235,59 @@ public:
     //void pxPaint(Image::BitmapData *bitmapData);
     void pxPaint();
     
+    /**
+     *  Return a value describing whether this channel represents a refer-
+     *  ence node or a data acquisition node.
+     */
     ChannelState getChannelState() const;
+    
+    /**
+     *  Set this channel's state to reflect whether it is a reference node
+     *  or an active data acquiring node.
+     */
     void setChannelState(ChannelState status);
     
+    /**
+     *  Accept and queue one pixel worth of updates on this channel for
+     *  RMS, FFT, and SpikeRate values.
+     */
     void pushSamples(float rms, float spikeRate, float fft);
     
+    /**
+     *  Return the index number of this channel relative to the subset of
+     *  available probe channels that are data acquiring.
+     */
     int getChannelId() const;
+    
+    /**
+     *  Set the index of this channel relative to the subset of available
+     *  probe channels that are only data acquiring.
+     */
     void setChannelId(int id);
     
+    /**
+     *  Return the index number of this channel, relative to the
+     *  complete set of channels available on the probe (including
+     *  reference nodes).
+     */
     int getReadSiteId() const;
+    
+    /**
+     *  Set the index relative to data and reference nodes to the given 
+     *  param
+     */
     void setReadSiteId(int id);
     
+    /**
+     *  Return the sample rate of this channel, or 0 if this is a
+     *  reference channel with no data stream.
+     */
     float getSampleRate();
+    
+    /**
+     *  Return the number of samples used to calculate each pixel for
+     *  this channel.
+     */
     int getNumSamplesPerPixel();
     
 private:
@@ -173,6 +305,7 @@ private:
     
     Array<float> rms;
     Array<float> spikeRate;
+    Array<float> fft;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeChannelDisplay);
 };

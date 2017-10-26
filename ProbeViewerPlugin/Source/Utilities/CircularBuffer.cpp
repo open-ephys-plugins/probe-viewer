@@ -38,6 +38,7 @@ CircularBuffer::~CircularBuffer()
 
 void CircularBuffer::setSize(int numChannels, int numSamples)
 {
+    bufferLengthSamples = numSamples;
     dataBuffer->setSize(numChannels, numSamples);
     
     readIndex.clear();
@@ -57,7 +58,7 @@ int CircularBuffer::getNumSamplesReadyForDrawing(int channel) const
     int numSamples = writeIndex[channel] - readIndex[channel];
     if (numSamples < 0)
     {
-        numSamples = dataBuffer->getNumSamples() - 1 - readIndex[channel] + writeIndex[channel] - 1;
+        numSamples = bufferLengthSamples - 1 - readIndex[channel] + writeIndex[channel] - 1;
     }
     
     return numSamples;
@@ -85,7 +86,7 @@ void CircularBuffer::pushBuffer(AudioSampleBuffer& input, int numSamples)
     
     for (int channel = 0; channel < input.getNumChannels(); ++channel)
     {
-        const int samplesLeft = dataBuffer->getNumSamples() - writeIndex[channel];
+        const int samplesLeft = bufferLengthSamples - writeIndex[channel];
         
         if (numSamples < samplesLeft)
         {
@@ -129,7 +130,7 @@ void CircularBuffer::pushBuffer(AudioSampleBuffer& input, std::function<int (int
     
     for (int channel = 0; channel < input.getNumChannels(); ++channel)
     {
-        const int samplesLeft = dataBuffer->getNumSamples() - writeIndex[channel];
+        const int samplesLeft = bufferLengthSamples - writeIndex[channel];
         const int numSamples = getNumSamples(channel);
         
         if (numSamples < samplesLeft)
@@ -170,7 +171,7 @@ float CircularBuffer::getSample(int sampIdx, int channel) const
 {
     int localIdx = sampIdx + readIndex[channel];
     
-    if (localIdx >= dataBuffer->getNumSamples()) localIdx %= dataBuffer->getNumSamples();
+    if (localIdx >= bufferLengthSamples) localIdx -= bufferLengthSamples;
     
     return dataBuffer->getSample(channel, localIdx);
 }

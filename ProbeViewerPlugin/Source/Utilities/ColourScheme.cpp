@@ -12,7 +12,7 @@ using namespace ProbeViewer;
 
 #pragma mark ColourScheme utility forward declarations -
 namespace { // hidden from the outside world (true static and hidden)
-    ColourSchemeId selectedColourScheme;
+    ColourSchemeId selectedColourScheme = ColourSchemeId::INFERNO;
     
     Colour colourFromInferno(float val);
     Colour colourFromMagma(float val);

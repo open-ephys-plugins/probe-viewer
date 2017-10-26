@@ -34,22 +34,73 @@ public:
     CircularBuffer();
     virtual ~CircularBuffer();
     
+    /**
+     *  Set the dimensions of the internal buffer memory, channels x samples.
+     *
+     *  Calling this method may clear the current contents of some or all of
+     *  previously stored samples, and will reset the write and read indices to
+     *  their initialization state.
+     */
     void setSize(int numChannels, int numSamples);
     
+    /**
+     *  Return the current location of the read point for a specific channel.
+     */
     int getChannelReadIndex(int channel) const;
+    
+    /**
+     *  Return the number of samples that are fresh since the last time
+     *  ::clearSamplesReadyForDrawing was called.
+     */
     int getNumSamplesReadyForDrawing(int channel) const;
     
+    /**
+     *  Returns a value indicating whether or not this CircularBuffer has
+     *  fresh samples since the last time ::clearSamplesReadyForDrawing
+     *  was called.
+     */
     bool hasSamplesReadyForDrawing() const;
+    
+    /**
+     *  Clears the flag and internal state that holds a set of samples and
+     *  advertises them as ready to be drawn with ::hasSamplesReadyForDrawing.
+     */
     void clearSamplesReadyForDrawing();
     
+    /**
+     *  Read and store a fixed number of samples for all channels in an
+     *  AudioSampleBuffer.
+     */
     void pushBuffer(AudioSampleBuffer& input, int numSamples);
+    
+    /**
+     *  Read and store all necessary samples from an AudioSampleBuffer.
+     *
+     *  The channels may have different numbers of samples available, due
+     *  to differing sample rates. The second argument checks how many
+     *  samples should be grabbed for each channel.
+     */
     void pushBuffer(AudioSampleBuffer& input, std::function<int (int)> getNumSamples);
     
+    /**
+     *  Return a single sample at a specific index and from a specific channel.
+     *
+     *  Sample-wise reading should only be done after getting this object's
+     *  mutex from ::getMutex below.
+     */
     float getSample(int sampIdx, int channel) const;
     
+    /**
+     *  Return the mutex for locking the internal data buffer during sample read
+     *  access.
+     *
+     *  This is not necessary to use when using ::pushBuffer, as it locks itself.
+     */
     CriticalSection* getMutex() { return &dataMutex; }
 private:
     ScopedPointer<AudioSampleBuffer> dataBuffer;
+    
+    std::size_t bufferLengthSamples;
     
     Array<int> readIndex;
     Array<int> writeIndex;
