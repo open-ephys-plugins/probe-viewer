@@ -6,7 +6,7 @@ DEPFLAGS := $(if $(word 2, $(TARGET_ARCH)), , -MMD)
 
 # PLUGIN_DIR := ../../../plugin-gui/Source/Plugins
 PLUGIN_DIR := ../../Source
-COMMON_DIR := ../../../plugin-gui/Source/Plugins/CommonLibs
+COMMON_DIR := ../../../../plugin-gui/Source/Plugins/CommonLibs
 
 ifndef CONFIG
   CONFIG=Debug
@@ -43,6 +43,7 @@ ifeq ($(CONFIG),Release)
   endif
 
   CPPFLAGS := $(DEPFLAGS) -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.4.2" -D "JUCE_APP_VERSION_HEX=0x402" -I /usr/include -I /usr/include/freetype2 -I $(CURDIR)/../../../../plugin-gui/JuceLibraryCode -I $(CURDIR)/../../../../plugin-gui/JuceLibraryCode/modules -I $(CURDIR)/../../../../plugin-gui/Source/Plugins/Headers
+
   CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 -std=c++11 -fPIC -rdynamic
   CXXFLAGS += $(CFLAGS)
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -L/usr/X11R6/lib/ -lGL -lX11 -lXext -lXinerama -lasound -ldl -lfreetype -lpthread -lrt -pg -ldl -lXext -lGLU -fPIC -rdynamic
@@ -80,7 +81,6 @@ $(PLUGIN_DIR) $(COMMONDIRS):
 		$(MAKE) -C $@/Source clean ; \
 		$(MAKE) -C $@/Source TARGET:=$(PLUGINNAME).so;\
 	else if [ -f $@/Makefile ]; then \
-		echo "Found Makefile"; \
 		$(MAKE) -C $@ ; \
 		else \
 		echo "No makefile found"; \

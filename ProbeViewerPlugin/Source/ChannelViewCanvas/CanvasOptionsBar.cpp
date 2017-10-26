@@ -316,6 +316,8 @@ void RMSSubOptionComponent::comboBoxChanged(ComboBox* cb)
             if (val > 1000) val = 1000;
             
             lowValueBound = val;
+            
+            cb->setText(String(val));
         }
         else
         {
@@ -336,6 +338,8 @@ void RMSSubOptionComponent::comboBoxChanged(ComboBox* cb)
             if (val > 1000) val = 1000;
             
             hiValueBound = val;
+            
+            cb->setText(String(val));
         }
         else
         {
@@ -468,6 +472,8 @@ void FFTSubOptionComponent::comboBoxChanged(ComboBox* cb)
             val *= -1;
             
             lowValueBound = val;
+            
+            cb->setText(String(val));
         }
         else
         {
@@ -487,6 +493,8 @@ void FFTSubOptionComponent::comboBoxChanged(ComboBox* cb)
             val *= -1;
             
             hiValueBound = val;
+            
+            cb->setText(String(val));
         }
         else
         {
@@ -578,7 +586,6 @@ SpikeRateSubOptionComponent::SpikeRateSubOptionComponent(Font labelFont, Colour 
     lowValueBoundSelection->setEditableText(true);
     lowValueBoundSelection->addListener(this);
     lowValueBoundSelection->setSelectedId(1, dontSendNotification);
-    lowValueBoundSelection->setEnabled(false);
     lowValueBound = 0;
     addAndMakeVisible(lowValueBoundSelection);
     
@@ -595,7 +602,6 @@ SpikeRateSubOptionComponent::SpikeRateSubOptionComponent(Font labelFont, Colour 
     hiValueBoundSelection->setEditableText(true);
     hiValueBoundSelection->addListener(this);
     hiValueBoundSelection->setSelectedId(1, dontSendNotification);
-    hiValueBoundSelection->setEnabled(false);
     hiValueBound = 10000;
     addAndMakeVisible(hiValueBoundSelection);
     
@@ -627,7 +633,7 @@ void SpikeRateSubOptionComponent::paint(Graphics& g)
 {
     g.setColour(Colours::darkgrey);
     g.drawRect(0, 0, getWidth(), getHeight());
-    g.drawFittedText("SPIKE RATE SUB OPTIONS ", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
+    g.drawFittedText("SPIKE RATE SUB OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
 }
 
 void SpikeRateSubOptionComponent::resized()
@@ -650,11 +656,11 @@ void SpikeRateSubOptionComponent::comboBoxChanged(ComboBox* cb)
         {
             auto val = fabsf(cb->getText().getFloatValue());
             
-            if (val > 500) val = 500;
-            
-            val *= -1;
+            if (val > 5000) val = 5000;
             
             lowValueBound = val;
+            
+            cb->setText(String(val));
         }
         else
         {
@@ -672,11 +678,11 @@ void SpikeRateSubOptionComponent::comboBoxChanged(ComboBox* cb)
         {
             auto val = fabsf(cb->getText().getFloatValue());
             
-            if (val > 500) val = 500;
-            
-            val *= -1;
+            if (val > 10000) val = 10000;
             
             hiValueBound = val;
+            
+            cb->setText(String(val));
         }
         else
         {
@@ -700,6 +706,8 @@ void SpikeRateSubOptionComponent::comboBoxChanged(ComboBox* cb)
             val *= -1;
             
             threshold = val;
+            
+            cb->setText(String(val));
         }
         else // otherwise get the preset value
         {
@@ -725,7 +733,7 @@ float SpikeRateSubOptionComponent::getSpikeRateHiBound() const
 
 float SpikeRateSubOptionComponent::getSpikeRateBoundSpread() const
 {
-    return fabsf(hiValueBound - lowValueBound);
+    return fabs(hiValueBound - lowValueBound);
 }
 
 float SpikeRateSubOptionComponent::getSpikeRateThreshold() const

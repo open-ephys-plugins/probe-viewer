@@ -74,6 +74,10 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NeuropixInterface);
 };
     
+/**
+ *  A data struct for encapsulating the state specific to zooming and
+ *  scrolling on the probe interface display.
+ */
 struct ProbeGraphicZoomInfo
 {
     ProbeGraphicZoomInfo() = default;

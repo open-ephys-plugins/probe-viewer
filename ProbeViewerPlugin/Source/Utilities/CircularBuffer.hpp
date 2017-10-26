@@ -77,7 +77,8 @@ public:
      *  Read and store all necessary samples from an AudioSampleBuffer.
      *
      *  The channels may have different numbers of samples available, due
-     *  to differing sample rates. The second argument checks how many
+     *  to differing sample rates. The second argument is a wrapper for the
+     *  source processor's getNumSamples function and is used to check how many
      *  samples should be grabbed for each channel.
      */
     void pushBuffer(AudioSampleBuffer& input, std::function<int (int)> getNumSamples);

@@ -105,8 +105,7 @@
 				939176531FA158D200417218 /* kiss_fftr.c */,
 				939176541FA158D200417218 /* kiss_fftr.h */,
 			);
-			name = kissfft;
-			path = ../../../Libraries/kissfft;
+			path = kissfft;
 			sourceTree = "<group>";
 		};
 		93E875B31F82E402007AFE33 = {
@@ -128,7 +127,6 @@
 		93E875BE1F82E402007AFE33 /* ProbeViewerPlugin */ = {
 			isa = PBXGroup;
 			children = (
-				93F658021F9EB13200623A46 /* Libraries */,
 				93E875E71F82FF0F007AFE33 /* Config */,
 				93E875C51F82E4B7007AFE33 /* Source */,
 				93E875BF1F82E402007AFE33 /* Info.plist */,
@@ -139,6 +137,7 @@
 		93E875C51F82E4B7007AFE33 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				9391764F1FA1586F00417218 /* kissfft */,
 				93E875CC1F82E4B7007AFE33 /* ProbeViewerNode.cpp */,
 				93E875CD1F82E4B7007AFE33 /* ProbeViewerNode.h */,
 				93E875CA1F82E4B7007AFE33 /* ProbeViewerEditor.cpp */,
@@ -171,14 +170,6 @@
 				93F657FB1F99373600623A46 /* ProbeViewerTimeScale.cpp */,
 			);
 			name = TimeScale;
-			sourceTree = "<group>";
-		};
-		93F658021F9EB13200623A46 /* Libraries */ = {
-			isa = PBXGroup;
-			children = (
-				9391764F1FA1586F00417218 /* kissfft */,
-			);
-			name = Libraries;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -457,7 +448,7 @@
 					Source/NeuropixInterface,
 					Source/Utilities,
 					Source/TimeScale,
-					Libraries/kissfft,
+					Source/kissfft,
 				);
 				INFOPLIST_FILE = ProbeViewerPlugin/Info.plist;
 				INSTALL_PATH = "~$(LOCAL_LIBRARY_DIR)/Application\\ Support/open-ephys/PlugIns";
@@ -484,7 +475,7 @@
 					Source/NeuropixInterface,
 					Source/Utilities,
 					Source/TimeScale,
-					Libraries/kissfft,
+					Source/kissfft,
 				);
 				INFOPLIST_FILE = ProbeViewerPlugin/Info.plist;
 				INSTALL_PATH = "~$(LOCAL_LIBRARY_DIR)/Application\\ Support/open-ephys/PlugIns";
