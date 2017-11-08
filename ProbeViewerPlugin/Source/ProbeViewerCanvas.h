@@ -25,7 +25,7 @@
 #define __PROBEVIEWERCANVAS_H__
 
 #include <VisualizerWindowHeaders.h>
-#include "kiss_fftr.h"
+#include "kissfft/kiss_fftr.h"
 
 namespace ProbeViewer {
     
@@ -127,6 +127,7 @@ public:
     static const float TRANSPORT_WINDOW_TIMEBASE;
     static constexpr std::size_t FFT_ORDER = 8;
     static constexpr std::size_t FFT_SIZE = 1 << ProbeViewerCanvas::FFT_ORDER;
+    static constexpr int FFT_TARGET_SAMPLE_RATE = 1000;
     
 private:
     class ProbeViewerNode* pvProcessor;
@@ -139,10 +140,15 @@ private:
     class CircularBuffer* dataBuffer;
     OwnedArray<Array<float>> partialBufferCache;
     
+    std::vector<std::size_t> inputDownsamplingIndex;
+    std::size_t numSamplesToChunk;
+    
     
     kiss_fftr_cfg fft_cfg;
     std::vector<float> fftInput;
     kiss_fft_cpx fftOutput[ProbeViewerCanvas::FFT_SIZE/2 + 1];
+    
+    
     
     class FFTSampleCacheBuffer
     {
@@ -207,7 +213,6 @@ private:
     };
     
     OwnedArray<FFTSampleCacheBuffer> channelFFTSampleBuffer;
-    
     
     static const std::vector<float> fftWindow;
     

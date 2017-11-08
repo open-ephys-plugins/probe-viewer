@@ -30,6 +30,7 @@ using namespace ProbeViewer;
 
 ProbeViewerEditor::ProbeViewerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors)
 : VisualizerEditor(parentNode, useDefaultParameterEditors)
+, hasNoInputs(true)
 {
     probeViewerProcessor = (ProbeViewerNode *)parentNode;
     
@@ -63,8 +64,10 @@ void ProbeViewerEditor::buttonClicked(Button* button)
         canvas = createNewCanvas();
         
         // initialize the subprocessor sample rate filtering before canvas updates
+        // (else) initialization errors. lots of time-critical cross dependencies here,
+        // should be cleaned up
+        // !! much of this is duplicated from LfpDisplayEditor
         updateSubprocessorSelectorOptions();
-        ((ProbeViewerCanvas*)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + (subprocessorSelection->getSelectedId() - 1)));
         
         canvas->update();
         
@@ -103,6 +106,8 @@ void ProbeViewerEditor::updateSubprocessorSelectorOptions()
     inputSampleRates.clear();
     subprocessorSelection->clear(dontSendNotification);
     
+    hasNoInputs = probeViewerProcessor->getTotalDataChannels() != 0;
+    
     for (int i = 0, len = probeViewerProcessor->getTotalDataChannels(); i < len; ++i)
     {
         int subProcessorIdx = probeViewerProcessor->getDataChannel(i)->getSubProcessorIdx();
@@ -110,8 +115,6 @@ void ProbeViewerEditor::updateSubprocessorSelectorOptions()
         bool success = inputSubprocessorIndices.add(subProcessorIdx);
         
         if (success) inputSampleRates.set(subProcessorIdx, probeViewerProcessor->getDataChannel(i)->getSampleRate());
-        
-        //        if (success) std::cout << "\t\tadding subprocessor index " << subProcessorIdx << std::endl;
     }
     
     int subprocessorToSet = -1;
@@ -135,12 +138,24 @@ void ProbeViewerEditor::updateSubprocessorSelectorOptions()
         subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
         setCanvasDrawableSubprocessor(subprocessorToSet);
     }
+    else
+    {
+        subprocessorSelection->addItem ("None", 1);
+        subprocessorSelection->setSelectedId(1, dontSendNotification);
+        
+        String sampleRateLabelText = "Sample Rate: <not available>";
+        subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+        setCanvasDrawableSubprocessor(-1);
+    }
 }
 
 void ProbeViewerEditor::setCanvasDrawableSubprocessor(int index)
 {
     if (canvas)
     {
-        ((ProbeViewerCanvas *) canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + index));
+        if (index >= 0)
+            ((ProbeViewerCanvas *) canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + index));
+        else
+            ((ProbeViewerCanvas *) canvas.get())->setDrawableSubprocessor(-1);
     }
 }

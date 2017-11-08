@@ -40,6 +40,7 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode* processor_)
 : pvProcessor(processor_)
 , fft_cfg(kiss_fftr_alloc(ProbeViewerCanvas::FFT_SIZE, false, 0, 0))
 , numChannels(0)
+, numSamplesToChunk(1)
 {
     dataBuffer = pvProcessor->getCircularBufferPtr();
     
@@ -53,6 +54,7 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode* processor_)
     
     optionsBar = new CanvasOptionsBar(channelsView);
     addAndMakeVisible(optionsBar);
+    optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
     channelsView->optionsBar = optionsBar;
     
     viewport = new ProbeViewerViewport(this, channelsView);
@@ -86,15 +88,20 @@ void ProbeViewerCanvas::update()
     //               this will still work, but the center frequency combobox options will
     //               only be accurate for one of the sampleRates - currently, the first
     //               non-zero sample rate encountered
-    numChannels = jmax(pvProcessor->getNumInputs(), 1);
+    numChannels = jmax(pvProcessor->getNumInputs(), 0);
+    setNumChannels(numChannels);
     
     channelsView->readSites.clear();
     channelsView->channels.clear();
     partialBufferCache.clear();
     channelFFTSampleBuffer.clear();
+    inputDownsamplingIndex.clear();
+    
+    if (numChannels != interface->getNumActiveChannels())
+        interface->setNumActiveChannels(numChannels);
     
     int referenceNodeOffsetCount = 0;
-    float labelsSampleRate = 0;
+    float globalSampleRate = 0;
     for (int i = 0; i < NeuropixInterface::MAX_NUM_CHANNELS; ++i)
     {
         if (NeuropixInterface::refNodes.contains(i + referenceNodeOffsetCount + 1))
@@ -104,7 +111,8 @@ void ProbeViewerCanvas::update()
         }
         
         float sampleRate = 0;
-        if (pvProcessor->getNumInputs() > 0) sampleRate = pvProcessor->getDataChannel(i)->getSampleRate();
+        const int procInputs = pvProcessor->getNumInputs();
+        if (procInputs > 0 && procInputs < getNumChannels()) sampleRate = pvProcessor->getDataChannel(i)->getSampleRate();
         else sampleRate = 30000;
         
         auto channelDisplay = new ProbeChannelDisplay(channelsView, optionsBar, ChannelState::enabled, i, i + referenceNodeOffsetCount, sampleRate);
@@ -113,16 +121,16 @@ void ProbeViewerCanvas::update()
         channelsView->channels.add(channelDisplay);
         partialBufferCache.add(new Array<float>());
         
-//        channelFFTSampleBuffer.push_back(std::vector<float>());
-//        channelFFTSampleBuffer[i].resize(ProbeViewerCanvas::FFT_SIZE);
         channelFFTSampleBuffer.add(new FFTSampleCacheBuffer(ProbeViewerCanvas::FFT_SIZE));
+        inputDownsamplingIndex.push_back(0);
         
-        if (labelsSampleRate == 0) labelsSampleRate = sampleRate;
+        if (globalSampleRate == 0) globalSampleRate = sampleRate;
     }
     
     // see note above ^
-    if (labelsSampleRate == 0) labelsSampleRate = 44100.0f;
-    optionsBar->updateFFTFrequencies(ProbeViewerCanvas::FFT_SIZE/2 + 1, labelsSampleRate);
+    numSamplesToChunk = std::size_t(globalSampleRate / ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
+    
+    optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
 }
 
 void ProbeViewerCanvas::refresh()
@@ -214,25 +222,6 @@ float ProbeViewerCanvas::popFrontCachedSampleForChannel(int channel)
     return val;
 }
 
-// anonymous static helper function to encapsulate repeated logic in updateScreenBuffers() below
-//namespace {
-//    void processSample(float&& val, int& index, float& min, float& max, Array<float>& samplesBuffer)
-//    {
-//        samplesBuffer.set(index, val);
-//        
-//        if (index == 0)
-//        {
-//            min = val;
-//            max = val;
-//        }
-//        else
-//        {
-//            if (val > max) max = val;
-//            if (val < min) min = val;
-//        }
-//    }
-//}
-
 void ProbeViewerCanvas::updateScreenBuffers()
 {
     if (dataBuffer->hasSamplesReadyForDrawing())
@@ -262,11 +251,6 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 {
                     for (int cachedSampIdx = 0; cachedSampIdx < numCachedSamples; ++cachedSampIdx)
                     {
-//                        processSample(popFrontCachedSampleForChannel(channel),
-//                                      cachedSampIdx,
-//                                      min,
-//                                      max,
-//                                      samples);
                         const auto val = popFrontCachedSampleForChannel(channel);
                         samples.set(cachedSampIdx, val);
                         
@@ -287,11 +271,6 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 // find min, max for new buffer samples
                 for (int sampIdx = (pix == 0 && numCachedSamples > 0 ? numCachedSamples : 0); sampIdx < samplesPerPixel; ++sampIdx)
                 {
-//                    processSample(dataBuffer->getSample(sampleBufferIndex, channel),
-//                                  sampIdx,
-//                                  min,
-//                                  max,
-//                                  samples);
                     const auto val = dataBuffer->getSample(sampleBufferIndex, channel);
                     samples.set(sampIdx, val);
                     
@@ -324,7 +303,14 @@ void ProbeViewerCanvas::updateScreenBuffers()
                     if (medianOffsetVal < spikeRateThreshold) numSpikesInPixel++;
                     
 //                    channelFFTSampleBuffer[channel].push_back(medianOffsetVal / 500);
-                    channelFFTSampleBuffer[channel]->pushSample(medianOffsetVal / 500.0f);
+                    if (inputDownsamplingIndex[channel]++ == 0)
+                    {
+                        channelFFTSampleBuffer[channel]->pushSample(medianOffsetVal / 500.0f);
+                    }
+                    else if (inputDownsamplingIndex[channel] >= numSamplesToChunk)
+                    {
+                        inputDownsamplingIndex[channel] = 0;
+                    }
                 }
                 
                 
@@ -333,7 +319,6 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 //              PERFORM FFT FOR THIS PIXEL AND CHANNEL
                 //
                 //
-                
                 for (int sampleIdx = 0; sampleIdx < ProbeViewerCanvas::FFT_SIZE; ++sampleIdx)
                 {
                     fftInput[sampleIdx] = fftWindow[sampleIdx] * channelFFTSampleBuffer[channel]->readSample(sampleIdx);
@@ -415,7 +400,6 @@ ProbeViewerCanvas::FFTSampleCacheBuffer::~FFTSampleCacheBuffer()
 
 void ProbeViewerCanvas::FFTSampleCacheBuffer::resize(const std::size_t size)
 {
-    jassert(size > 0);
     bufferSize = size;
     buffer.clear();
     buffer = std::vector<float>(size, 0.0f);

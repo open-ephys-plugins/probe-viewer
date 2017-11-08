@@ -23,7 +23,7 @@
 
 #include "NeuropixInterface.hpp"
 
-#include "ProbeViewerCanvas.h"
+#include "../ProbeViewerCanvas.h"
 
 #include "../ChannelViewCanvas/ChannelViewCanvas.hpp"
 
@@ -32,20 +32,17 @@ using namespace ProbeViewer;
 NeuropixInterface::NeuropixInterface(ProbeViewerCanvas* canvas_)
 : canvas(canvas_)
 , cursorType(MouseCursor::NormalCursor)
+, numActiveChannels(0)
 {
     zoomInfo = new ProbeGraphicZoomInfo;
     zoomInfo->lowerBound = PROBE_GRAPHIC_CHAN1_POS;
     
     
-    for (size_t i = 0; i < NUM_PROBE_READ_SITES; ++i)
+    for (std::size_t i = 0; i < NUM_PROBE_READ_SITES; ++i)
     {
         ChannelState status;
-        
-        if (i < MAX_NUM_CHANNELS + 10) // because there are 10 refnodes within 384 active channels
-        {
-            status = ChannelState::enabled;
-        }
-        else if (i < 960)
+
+        if (i < 960)
         {
             status = ChannelState::disabled;
         }
@@ -58,7 +55,7 @@ NeuropixInterface::NeuropixInterface(ProbeViewerCanvas* canvas_)
         channelSelectionState.add(0);
     }
     
-    for (size_t i = 0; i < refNodes.size(); ++i)
+    for (std::size_t i = 0; i < refNodes.size(); ++i)
     {
         channelStatus.set(*(refNodes.begin() + i) - 1, ChannelState::reference);
     }
@@ -76,7 +73,7 @@ void NeuropixInterface::paint(Graphics& g)
     const int xOffset = 27;
     
     // draw zoomed out channels
-    for (size_t channel = 0; channel < channelStatus.size(); ++channel)
+    for (std::size_t channel = 0; channel < channelStatus.size(); ++channel)
     {
         g.setColour(getChannelColour(channel));
         g.setPixel(xOffset + 3 + ((channel % 2)) * 2, PROBE_GRAPHIC_CHAN1_POS - (channel / 2));
@@ -88,7 +85,7 @@ void NeuropixInterface::paint(Graphics& g)
     g.setFont(12);
     
     int ch = 0;
-    for (size_t channel = PROBE_GRAPHIC_CHAN1_POS; channel > 30; channel -= 50)
+    for (std::size_t channel = PROBE_GRAPHIC_CHAN1_POS; channel > 30; channel -= 50)
     {
         g.drawLine(6, channel, 18, channel);
         g.drawLine(44, channel, 54, channel);
@@ -169,8 +166,6 @@ void NeuropixInterface::mouseMove(const MouseEvent &event)
 {
     float y = event.y;
     float x = event.x;
-    
-    //std::cout << x << " " << y << std::endl;
     
     bool isOverZoomRegionNew = false;
     bool isOverUpperBorderNew = false;
@@ -426,6 +421,18 @@ void NeuropixInterface::mouseWheelMove(const MouseEvent &event, const MouseWheel
     }
 }
 
+void NeuropixInterface::setNumActiveChannels(int numChannels)
+{
+    numActiveChannels = jmin(jmax(numChannels, 0), (int)NeuropixInterface::MAX_NUM_CHANNELS);
+    
+    updateProbeSitesRendering();
+}
+
+int NeuropixInterface::getNumActiveChannels() const
+{
+    return numActiveChannels;
+}
+
 Colour NeuropixInterface::getChannelColour(uint channel)
 {
     switch (channelStatus[channel]) // not available
@@ -468,6 +475,34 @@ MouseCursor NeuropixInterface::getMouseCursor()
     MouseCursor c = MouseCursor(cursorType);
     
     return c;
+}
+
+void NeuropixInterface::updateProbeSitesRendering()
+{
+    auto upperLimit = numActiveChannels;
+    
+    // turn some channels on, starting at 0
+    for (std::size_t i = 0; i < upperLimit; ++i)
+    {
+        if (channelStatus[i] == ChannelState::reference)
+        {
+            ++upperLimit;
+            continue;
+        }
+        
+        channelStatus.set(i, ChannelState::enabled);
+    }
+    
+    // turn the rest off
+    for (std::size_t i = upperLimit; i < NeuropixInterface::NUM_PROBE_READ_SITES; ++i)
+    {
+        if (channelStatus[i] != ChannelState::reference)
+        {
+            channelStatus.set(i, ChannelState::disabled);
+        }
+    }
+    
+    repaint();
 }
 
 

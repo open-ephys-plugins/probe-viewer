@@ -22,7 +22,7 @@
  */
 
 #include "ChannelViewCanvas.hpp"
-#include "ProbeViewerCanvas.h"
+#include "../ProbeViewerCanvas.h"
 
 #include "../NeuropixInterface/NeuropixInterface.hpp"
 #include "../Utilities/ColourScheme.hpp"

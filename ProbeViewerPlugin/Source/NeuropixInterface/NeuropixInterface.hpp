@@ -46,16 +46,23 @@ public:
     void mouseUp(const MouseEvent& event);
     void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
     
+    
+    void setNumActiveChannels(int numChannels);
+    int getNumActiveChannels() const;
+    
+    
     static const unsigned int MAX_NUM_CHANNELS;
     static const SortedSet<int> refNodes;
     
-private:
     static const unsigned int NUM_PROBE_READ_SITES;
     static const unsigned int PROBE_GRAPHIC_CHAN1_POS;
     static const int PROBE_VIEW_X_OFFSET;
     static const Path shankPath;
+private:
     
     class ProbeViewerCanvas* canvas;
+    
+    std::size_t numActiveChannels;
     
     ScopedPointer<struct ProbeGraphicZoomInfo> zoomInfo;
     
@@ -70,6 +77,7 @@ private:
     Colour getChannelColour(uint channel);
     int getNearestChannelIdx(int x, int y);
     MouseCursor getMouseCursor();
+    void updateProbeSitesRendering();
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NeuropixInterface);
 };

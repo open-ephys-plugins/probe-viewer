@@ -63,6 +63,8 @@ private:
     
     ScopedPointer<Label> subprocessorSampleRateLabel;
     
+    bool hasNoInputs;
+    
     void setCanvasDrawableSubprocessor(int index);
     void updateSubprocessorSelectorOptions();
     

@@ -68,14 +68,14 @@ public:
     int getFFTCenterFrequencyBin() const;
     
     /**
-     *  Trigger a refresh of the available center frequency preset values
-     *  in the FFT Render Mode Sub Options bar.
+     *  Recalculate the number of real-numbered output bins and their
+     *  frequency mappings.
      *
      *  @param numBins      the number of FFT output bins
      *  @param sampleRate   the sampleRate of the input signal (for the
      *                      channels that are currently displayed)
      */
-    void updateFFTFrequencies(const int numBins, const float sampleRate);
+    void setFFTParams(const int numBins, const float sampleRate);
     
     /**
      *  Return the spike rate low bound for plotter color mapping
@@ -182,6 +182,8 @@ public:
     void comboBoxChanged(ComboBox* cb) override;
     
     void updateFrequencyRanges(const int numBins, const int sampleRate);
+    void setSampleRate(const float sampleRate);
+    void setFFTSize(const int numBins);
     
     /**
      *  Return the FFT low bound for plotter color mapping
@@ -222,17 +224,10 @@ private:
     ScopedPointer<ComboBox> binSelection;
     int binSelectionValue;
     
+    float sampleRate;
     float maxFreq;
-    
-    /**
-     *  Return an array of center frequency preset options.
-     *
-     *  The frequencies returned are derived from the Nyquist frequency
-     *  (sampleRate / 2) split into "numBins". The expected number is
-     *  going to be FFT_SIZE / 2 + 1 (the value of numBins) labels ranging
-     *  from 0 Hz to the Nyquist frequency.
-     */
-    StringArray generateFrequencyLabels(int numBins, float sampleRate);
+    int fftSize;
+    int numBins;
 };
 
 class SpikeRateSubOptionComponent : public Component

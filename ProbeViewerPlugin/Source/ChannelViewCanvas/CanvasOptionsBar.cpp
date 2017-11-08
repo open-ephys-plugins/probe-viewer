@@ -195,9 +195,11 @@ int CanvasOptionsBar::getFFTCenterFrequencyBin() const
     return fftSubOptionComponent->getFFTSamplingBin();
 }
 
-void CanvasOptionsBar::updateFFTFrequencies(const int numBins, const float sampleRate)
+void CanvasOptionsBar::setFFTParams(const int numBins, const float sampleRate)
 {
-    fftSubOptionComponent->updateFrequencyRanges(numBins, sampleRate);
+    fftSubOptionComponent->setSampleRate(sampleRate);
+    fftSubOptionComponent->setFFTSize(numBins);
+    
 }
 
 float CanvasOptionsBar::getSpikeRateLowBound() const
@@ -420,10 +422,10 @@ FFTSubOptionComponent::FFTSubOptionComponent(Font labelFont, Colour labelColour)
     binSelectionLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(binSelectionLabel);
     
-    binSelectionOptions = generateFrequencyLabels(ProbeViewerCanvas::FFT_SIZE, 44100.0);
+    binSelectionOptions.addArray({"1", "8", "16", "32", "64", "128", "256"});
     binSelection = new ComboBox("binSelection");
     binSelection->addItemList(binSelectionOptions, 1);
-    binSelection->setEditableText(true);
+    binSelection->setEditableText(false);
     binSelection->addListener(this);
     binSelection->setSelectedId(binSelectionValue + 1, dontSendNotification);
     addAndMakeVisible(binSelection);
@@ -504,34 +506,21 @@ void FFTSubOptionComponent::comboBoxChanged(ComboBox* cb)
     }
     if (cb == binSelection)
     {
-        // if custom value
-        if (cb->getSelectedId() == 0)
-        {
-            auto val = fabsf(cb->getText().getFloatValue());
-            
-            if (val > maxFreq) val = maxFreq;
-            
-            cb->setText(String(val));
-            
-            binSelectionValue = freqToBinIndex(val, maxFreq, ProbeViewerCanvas::FFT_SIZE/2);
-            
-        }
-        else // using a preset value
-        {
-            binSelectionValue = cb->getSelectedId() - 1;
-        }
+        binSelectionValue = freqToBinIndex(cb->getText().getFloatValue(), maxFreq, fftSize/2);
         return;
     }
 }
 
-void FFTSubOptionComponent::updateFrequencyRanges(const int numBins, const int sampleRate)
+void FFTSubOptionComponent::setSampleRate(const float sampleRate)
 {
+    this->sampleRate = sampleRate;
     maxFreq = sampleRate / 2.0f;
-    binSelectionValue = 0;
-    binSelectionOptions = generateFrequencyLabels(numBins, sampleRate);
-    binSelection->clear();
-    binSelection->addItemList(binSelectionOptions, 1);
-    binSelection->setSelectedId(binSelectionValue + 1, dontSendNotification);
+}
+
+void FFTSubOptionComponent::setFFTSize(const int numBins_)
+{
+    fftSize = numBins_;
+    this->numBins = numBins_ / 2 + 1;
 }
 
 float FFTSubOptionComponent::getFFTLowBound() const
@@ -553,16 +542,6 @@ int FFTSubOptionComponent::getFFTSamplingBin() const
 {
     return binSelectionValue;
 }
-                    
-StringArray FFTSubOptionComponent::generateFrequencyLabels(const int numBins, const float sampleRate)
-{
-    StringArray arr;
-    for (int i = 0; i < numBins; ++i)
-    {
-        arr.add(String(i * (sampleRate / 2) / float(numBins - 1)));
-    }
-    return arr;
-};
 
 
 
