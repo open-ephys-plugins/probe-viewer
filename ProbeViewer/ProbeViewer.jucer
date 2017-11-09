@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="XkMHN7" name="ProbeViewer" projectType="openephysplug" version="1.0.0"
+              bundleIdentifier="org.open-ephys.ProbeViewer" includeBinaryInAppConfig="1"
+              pluginName="ProbeViewer" pluginDesc="ProbeViewer" pluginManufacturer="yourcompany"
+              pluginManufacturerCode="Manu" pluginCode="Xkmh" openEphysPluginType="1"
+              openEphysPluginProcessorType="3" openEphysFileSourcePluginSupportedExtensions=""
+              openEphysPluginDesiredWidth="180" buildVST="0" buildVST3="0"
+              jucerVersion="4.2.1">
+  <MAINGROUP id="L9t3ED" name="ProbeViewer">
+    <GROUP id="{AF76CECE-5151-A14B-6B8C-17B8AB551F33}" name="Source">
+      <FILE id="yp7KDX" name="OpenEphysLib.cpp" compile="1" resource="0"
+            file="Source/OpenEphysLib.cpp"/>
+      <FILE id="mgIUCF" name="ProbeViewerProcessor.cpp" compile="1" resource="0"
+            file="Source/ProbeViewerProcessor.cpp"/>
+      <FILE id="zQGQZC" name="ProbeViewerProcessor.h" compile="0" resource="0"
+            file="Source/ProbeViewerProcessor.h"/>
+      <FILE id="qRvHoq" name="ProbeViewerProcessorEditor.cpp" compile="1"
+            resource="0" file="Source/ProbeViewerProcessorEditor.cpp"/>
+      <FILE id="Kms5ER" name="ProbeViewerProcessorEditor.h" compile="0" resource="0"
+            file="Source/ProbeViewerProcessorEditor.h"/>
+      <FILE id="wxOAe6" name="ProbeViewerProcessorContentComponent.cpp" compile="1"
+            resource="0" file="Source/ProbeViewerProcessorContentComponent.cpp"/>
+      <FILE id="RLsuK6" name="ProbeViewerProcessorContentComponent.h" compile="0"
+            resource="0" file="Source/ProbeViewerProcessorContentComponent.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX" postbuildCommand="rsync -avzh $CONFIGURATION_BUILD_DIR/ProbeViewerPlugin.bundle ~/Library/Application\ Support/open-ephys/PlugIns/">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="ProbeViewer"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="ProbeViewer"/>
+      </CONFIGURATIONS>
+    </XCODE_MAC>
+    <VS2013 targetFolder="Builds/VisualStudio2013">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="ProbeViewer"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="3" targetName="ProbeViewer"/>
+      </CONFIGURATIONS>
+    </VS2013>
+    <VS2012 targetFolder="Builds/VisualStudio2012">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="ProbeViewer"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="3" targetName="ProbeViewer"/>
+      </CONFIGURATIONS>
+    </VS2012>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
+                       targetName="ProbeViewer"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="3"
+                       targetName="ProbeViewer"/>
+      </CONFIGURATIONS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+  <MODULES/>
+  <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
+  <OPENEPHYSPLUGIN/>
+</JUCERPROJECT>

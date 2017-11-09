@@ -1,0 +1,491 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		939176A81FB4FBA300417218 /* CanvasOptionsBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 939176851FB4FBA300417218 /* CanvasOptionsBar.cpp */; };
+		939176A91FB4FBA300417218 /* ChannelViewCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 939176871FB4FBA300417218 /* ChannelViewCanvas.cpp */; };
+		939176AA1FB4FBA300417218 /* COPYING in Resources */ = {isa = PBXBuildFile; fileRef = 9391768B1FB4FBA300417218 /* COPYING */; };
+		939176AB1FB4FBA300417218 /* kiss_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 9391768C1FB4FBA300417218 /* kiss_fft.c */; };
+		939176AC1FB4FBA300417218 /* kiss_fftr.c in Sources */ = {isa = PBXBuildFile; fileRef = 9391768E1FB4FBA300417218 /* kiss_fftr.c */; };
+		939176AD1FB4FBA300417218 /* NeuropixInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 939176911FB4FBA300417218 /* NeuropixInterface.cpp */; };
+		939176AE1FB4FBA300417218 /* OpenEphysLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 939176931FB4FBA300417218 /* OpenEphysLib.cpp */; };
+		939176AF1FB4FBA300417218 /* ProbeViewerCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 939176941FB4FBA300417218 /* ProbeViewerCanvas.cpp */; };
+		939176B01FB4FBA300417218 /* ProbeViewerEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 939176961FB4FBA300417218 /* ProbeViewerEditor.cpp */; };
+		939176B11FB4FBA300417218 /* ProbeViewerNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 939176981FB4FBA300417218 /* ProbeViewerNode.cpp */; };
+		939176B51FB4FBA300417218 /* ProbeViewerTimeScale.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 939176A11FB4FBA300417218 /* ProbeViewerTimeScale.cpp */; };
+		939176B61FB4FBA300417218 /* CircularBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 939176A41FB4FBA300417218 /* CircularBuffer.cpp */; };
+		939176B71FB4FBA300417218 /* ColourScheme.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 939176A61FB4FBA300417218 /* ColourScheme.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		6A8DEE58B831079F4F4E0502 /* JuceHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JuceHeader.h; path = ../../JuceLibraryCode/JuceHeader.h; sourceTree = SOURCE_ROOT; };
+		9391767D1FB4F89E00417218 /* ProbeViewer.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProbeViewer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		9391767F1FB4F89E00417218 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		939176851FB4FBA300417218 /* CanvasOptionsBar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvasOptionsBar.cpp; sourceTree = "<group>"; };
+		939176861FB4FBA300417218 /* CanvasOptionsBar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CanvasOptionsBar.hpp; sourceTree = "<group>"; };
+		939176871FB4FBA300417218 /* ChannelViewCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChannelViewCanvas.cpp; sourceTree = "<group>"; };
+		939176881FB4FBA300417218 /* ChannelViewCanvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ChannelViewCanvas.hpp; sourceTree = "<group>"; };
+		9391768A1FB4FBA300417218 /* _kiss_fft_guts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _kiss_fft_guts.h; sourceTree = "<group>"; };
+		9391768B1FB4FBA300417218 /* COPYING */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COPYING; sourceTree = "<group>"; };
+		9391768C1FB4FBA300417218 /* kiss_fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fft.c; sourceTree = "<group>"; };
+		9391768D1FB4FBA300417218 /* kiss_fft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft.h; sourceTree = "<group>"; };
+		9391768E1FB4FBA300417218 /* kiss_fftr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fftr.c; sourceTree = "<group>"; };
+		9391768F1FB4FBA300417218 /* kiss_fftr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fftr.h; sourceTree = "<group>"; };
+		939176911FB4FBA300417218 /* NeuropixInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NeuropixInterface.cpp; sourceTree = "<group>"; };
+		939176921FB4FBA300417218 /* NeuropixInterface.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NeuropixInterface.hpp; sourceTree = "<group>"; };
+		939176931FB4FBA300417218 /* OpenEphysLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEphysLib.cpp; sourceTree = "<group>"; };
+		939176941FB4FBA300417218 /* ProbeViewerCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProbeViewerCanvas.cpp; sourceTree = "<group>"; };
+		939176951FB4FBA300417218 /* ProbeViewerCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProbeViewerCanvas.h; sourceTree = "<group>"; };
+		939176961FB4FBA300417218 /* ProbeViewerEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProbeViewerEditor.cpp; sourceTree = "<group>"; };
+		939176971FB4FBA300417218 /* ProbeViewerEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProbeViewerEditor.h; sourceTree = "<group>"; };
+		939176981FB4FBA300417218 /* ProbeViewerNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProbeViewerNode.cpp; sourceTree = "<group>"; };
+		939176991FB4FBA300417218 /* ProbeViewerNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProbeViewerNode.h; sourceTree = "<group>"; };
+		939176A11FB4FBA300417218 /* ProbeViewerTimeScale.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProbeViewerTimeScale.cpp; sourceTree = "<group>"; };
+		939176A21FB4FBA300417218 /* ProbeViewerTimeScale.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ProbeViewerTimeScale.hpp; sourceTree = "<group>"; };
+		939176A41FB4FBA300417218 /* CircularBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircularBuffer.cpp; sourceTree = "<group>"; };
+		939176A51FB4FBA300417218 /* CircularBuffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CircularBuffer.hpp; sourceTree = "<group>"; };
+		939176A61FB4FBA300417218 /* ColourScheme.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColourScheme.cpp; sourceTree = "<group>"; };
+		939176A71FB4FBA300417218 /* ColourScheme.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ColourScheme.hpp; sourceTree = "<group>"; };
+		C154F1DDD2D945BE10D8160B /* AppConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppConfig.h; path = ../../JuceLibraryCode/AppConfig.h; sourceTree = SOURCE_ROOT; };
+		F9375D2118CE6FC5CF305FC7 /* RecentFilesMenuTemplate.nib */ = {isa = PBXFileReference; lastKnownFileType = file.nib; path = RecentFilesMenuTemplate.nib; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9391767A1FB4F89E00417218 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		09F6C980E78D13446440C50D /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				939176841FB4FBA300417218 /* ChannelViewCanvas */,
+				939176891FB4FBA300417218 /* kissfft */,
+				939176901FB4FBA300417218 /* NeuropixInterface */,
+				939176931FB4FBA300417218 /* OpenEphysLib.cpp */,
+				939176941FB4FBA300417218 /* ProbeViewerCanvas.cpp */,
+				939176951FB4FBA300417218 /* ProbeViewerCanvas.h */,
+				939176961FB4FBA300417218 /* ProbeViewerEditor.cpp */,
+				939176971FB4FBA300417218 /* ProbeViewerEditor.h */,
+				939176981FB4FBA300417218 /* ProbeViewerNode.cpp */,
+				939176991FB4FBA300417218 /* ProbeViewerNode.h */,
+				939176A01FB4FBA300417218 /* TimeScale */,
+				939176A31FB4FBA300417218 /* Utilities */,
+			);
+			name = Source;
+			path = ../../../Source;
+			sourceTree = "<group>";
+		};
+		1FA960A594EB87AB7CB70157 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9391767D1FB4F89E00417218 /* ProbeViewer.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3122FE300F02075142FFD184 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		35E0132EDCB51E5E69C9626D /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				805F89C1454F2074E4118CB1 /* Juce Library Code */,
+				99C136D7A16A93A681C1CA56 /* Resources */,
+				9391767E1FB4F89E00417218 /* ProbeViewer */,
+				3122FE300F02075142FFD184 /* Frameworks */,
+				1FA960A594EB87AB7CB70157 /* Products */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		805F89C1454F2074E4118CB1 /* Juce Library Code */ = {
+			isa = PBXGroup;
+			children = (
+				C154F1DDD2D945BE10D8160B /* AppConfig.h */,
+				6A8DEE58B831079F4F4E0502 /* JuceHeader.h */,
+			);
+			name = "Juce Library Code";
+			sourceTree = "<group>";
+		};
+		9391767E1FB4F89E00417218 /* ProbeViewer */ = {
+			isa = PBXGroup;
+			children = (
+				09F6C980E78D13446440C50D /* Source */,
+				9391767F1FB4F89E00417218 /* Info.plist */,
+			);
+			path = ProbeViewer;
+			sourceTree = "<group>";
+		};
+		939176841FB4FBA300417218 /* ChannelViewCanvas */ = {
+			isa = PBXGroup;
+			children = (
+				939176851FB4FBA300417218 /* CanvasOptionsBar.cpp */,
+				939176861FB4FBA300417218 /* CanvasOptionsBar.hpp */,
+				939176871FB4FBA300417218 /* ChannelViewCanvas.cpp */,
+				939176881FB4FBA300417218 /* ChannelViewCanvas.hpp */,
+			);
+			path = ChannelViewCanvas;
+			sourceTree = "<group>";
+		};
+		939176891FB4FBA300417218 /* kissfft */ = {
+			isa = PBXGroup;
+			children = (
+				9391768A1FB4FBA300417218 /* _kiss_fft_guts.h */,
+				9391768B1FB4FBA300417218 /* COPYING */,
+				9391768C1FB4FBA300417218 /* kiss_fft.c */,
+				9391768D1FB4FBA300417218 /* kiss_fft.h */,
+				9391768E1FB4FBA300417218 /* kiss_fftr.c */,
+				9391768F1FB4FBA300417218 /* kiss_fftr.h */,
+			);
+			path = kissfft;
+			sourceTree = "<group>";
+		};
+		939176901FB4FBA300417218 /* NeuropixInterface */ = {
+			isa = PBXGroup;
+			children = (
+				939176911FB4FBA300417218 /* NeuropixInterface.cpp */,
+				939176921FB4FBA300417218 /* NeuropixInterface.hpp */,
+			);
+			path = NeuropixInterface;
+			sourceTree = "<group>";
+		};
+		939176A01FB4FBA300417218 /* TimeScale */ = {
+			isa = PBXGroup;
+			children = (
+				939176A11FB4FBA300417218 /* ProbeViewerTimeScale.cpp */,
+				939176A21FB4FBA300417218 /* ProbeViewerTimeScale.hpp */,
+			);
+			path = TimeScale;
+			sourceTree = "<group>";
+		};
+		939176A31FB4FBA300417218 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				939176A41FB4FBA300417218 /* CircularBuffer.cpp */,
+				939176A51FB4FBA300417218 /* CircularBuffer.hpp */,
+				939176A61FB4FBA300417218 /* ColourScheme.cpp */,
+				939176A71FB4FBA300417218 /* ColourScheme.hpp */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		99C136D7A16A93A681C1CA56 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F9375D2118CE6FC5CF305FC7 /* RecentFilesMenuTemplate.nib */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9391767C1FB4F89E00417218 /* ProbeViewer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 939176821FB4F89E00417218 /* Build configuration list for PBXNativeTarget "ProbeViewer" */;
+			buildPhases = (
+				939176791FB4F89E00417218 /* Sources */,
+				9391767A1FB4F89E00417218 /* Frameworks */,
+				9391767B1FB4F89E00417218 /* Resources */,
+				939176831FB4F8ED00417218 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ProbeViewer;
+			productName = ProbeViewer;
+			productReference = 9391767D1FB4F89E00417218 /* ProbeViewer.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		62BC7C0E9733BCEF01AEF187 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0440;
+				TargetAttributes = {
+					9391767C1FB4F89E00417218 = {
+						CreatedOnToolsVersion = 8.2.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = C50C864140E1EFF16B2DD63B /* Build configuration list for PBXProject "ProbeViewer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 35E0132EDCB51E5E69C9626D /* Source */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9391767C1FB4F89E00417218 /* ProbeViewer */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9391767B1FB4F89E00417218 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				939176AA1FB4FBA300417218 /* COPYING in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		939176831FB4F8ED00417218 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "rsync -avzh $CONFIGURATION_BUILD_DIR/$TARGETNAME.bundle $USER_LIBRARY_DIR/Application\\ Support/open-ephys/PlugIns/";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		939176791FB4F89E00417218 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				939176B61FB4FBA300417218 /* CircularBuffer.cpp in Sources */,
+				939176AD1FB4FBA300417218 /* NeuropixInterface.cpp in Sources */,
+				939176AF1FB4FBA300417218 /* ProbeViewerCanvas.cpp in Sources */,
+				939176A91FB4FBA300417218 /* ChannelViewCanvas.cpp in Sources */,
+				939176A81FB4FBA300417218 /* CanvasOptionsBar.cpp in Sources */,
+				939176AE1FB4FBA300417218 /* OpenEphysLib.cpp in Sources */,
+				939176AB1FB4FBA300417218 /* kiss_fft.c in Sources */,
+				939176B11FB4FBA300417218 /* ProbeViewerNode.cpp in Sources */,
+				939176B51FB4FBA300417218 /* ProbeViewerTimeScale.cpp in Sources */,
+				939176AC1FB4FBA300417218 /* kiss_fftr.c in Sources */,
+				939176B71FB4FBA300417218 /* ColourScheme.cpp in Sources */,
+				939176B01FB4FBA300417218 /* ProbeViewerEditor.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		061CFB22F27D22CBDAD3E190 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PRODUCT_NAME = ProbeViewer;
+				WARNING_CFLAGS = "-Wreorder";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		321CA2672B8D1A34D519F475 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = ProbeViewer;
+				WARNING_CFLAGS = "-Wreorder";
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
+		939176801FB4F89E00417218 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)/";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					OEPLUGIN,
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"../../../../plugin-gui/Source/Plugins/Headers",
+					../../../../Headers,
+					"../../../../plugin-gui/JuceLibraryCode/**",
+					../../../../../../JuceLibraryCode,
+				);
+				INFOPLIST_FILE = ProbeViewer/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.ProbeViewer";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Wreorder",
+					"-Wpartial-availability",
+					"-Wreorder",
+					"-Wno-inconsistent-missing-override",
+				);
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Debug;
+		};
+		939176811FB4F89E00417218 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = NO;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = OEPLUGIN;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					"../../../../plugin-gui/Source/Plugins/Headers",
+					../../../../Headers,
+					"../../../../plugin-gui/JuceLibraryCode/**",
+					../../../../../../JuceLibraryCode,
+				);
+				INFOPLIST_FILE = ProbeViewer/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "open-ephys.ProbeViewer";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Wreorder",
+					"-Wpartial-availability",
+					"-Wreorder",
+					"-Wno-inconsistent-missing-override",
+				);
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		939176821FB4F89E00417218 /* Build configuration list for PBXNativeTarget "ProbeViewer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				939176801FB4F89E00417218 /* Debug */,
+				939176811FB4F89E00417218 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C50C864140E1EFF16B2DD63B /* Build configuration list for PBXProject "ProbeViewer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				321CA2672B8D1A34D519F475 /* Debug */,
+				061CFB22F27D22CBDAD3E190 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 62BC7C0E9733BCEF01AEF187 /* Project object */;
+}

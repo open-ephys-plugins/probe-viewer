@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ProbeViewer">
+      <UniqueIdentifier>{C230D02F-696B-CD32-AC48-8C6B2961631B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProbeViewer\Source">
+      <UniqueIdentifier>{E616179E-335B-544D-57E7-55BD78579720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Juce Library Code">
+      <UniqueIdentifier>{8B4D1BAA-6DB4-CAEC-A0FA-271F354D5C61}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Source\OpenEphysLib.cpp">
+      <Filter>ProbeViewer\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ProbeViewerProcessor.cpp">
+      <Filter>ProbeViewer\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ProbeViewerProcessorEditor.cpp">
+      <Filter>ProbeViewer\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ProbeViewerProcessorContentComponent.cpp">
+      <Filter>ProbeViewer\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\ProbeViewerProcessor.h">
+      <Filter>ProbeViewer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ProbeViewerProcessorEditor.h">
+      <Filter>ProbeViewer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ProbeViewerProcessorContentComponent.h">
+      <Filter>ProbeViewer\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h">
+      <Filter>Juce Library Code</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h">
+      <Filter>Juce Library Code</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include=".\resources.rc">
+      <Filter>Juce Library Code</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
