@@ -9,10 +9,10 @@
 #ifndef ColourScheme_hpp
 #define ColourScheme_hpp
 
-#include <VisualizerWindowHeaders.h>
+#include "VisualizerWindowHeaders.h"
 
 namespace ProbeViewer {
-    
+
 /**
  *  Color mapping enumeration describing a predefined set of colors for values
  *  0-1. The maps used and described by these values are derived from libmatplot.
@@ -25,7 +25,7 @@ enum class ColourSchemeId : int
     MAGMA,
     JET
 };
-    
+
 namespace ColourScheme
 {
     /**
@@ -34,14 +34,14 @@ namespace ColourScheme
      *  ColourScheme::setColourScheme
      */
     Colour getColourForNormalizedValue(float val);
-    
+
     /**
      *  Get the color mapping for a given value, with a specific ColourSchemeId and
      *  ignoring the value otherwise stored globally.
      */
     Colour getColourForNormalizedValueInScheme(float val, ColourSchemeId colourScheme);
-    
-    
+
+
     /**
      *  Set the global color scheme, using this value automatically in
      *  ColourScheme::getColourForNormalizedValue. The default value, if never

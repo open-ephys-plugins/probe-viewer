@@ -9,20 +9,60 @@
               jucerVersion="4.2.1">
   <MAINGROUP id="L9t3ED" name="ProbeViewer">
     <GROUP id="{AF76CECE-5151-A14B-6B8C-17B8AB551F33}" name="Source">
+      <GROUP id="{48210B82-E743-73B5-B10E-6B1EA2F11E2C}" name="ChannelViewCanvas">
+        <FILE id="D1IHxx" name="CanvasOptionsBar.cpp" compile="1" resource="0"
+              file="Source/ChannelViewCanvas/CanvasOptionsBar.cpp"/>
+        <FILE id="D7C4VT" name="CanvasOptionsBar.hpp" compile="0" resource="0"
+              file="Source/ChannelViewCanvas/CanvasOptionsBar.hpp"/>
+        <FILE id="Q2UG7x" name="ChannelViewCanvas.cpp" compile="1" resource="0"
+              file="Source/ChannelViewCanvas/ChannelViewCanvas.cpp"/>
+        <FILE id="X7cAZv" name="ChannelViewCanvas.hpp" compile="0" resource="0"
+              file="Source/ChannelViewCanvas/ChannelViewCanvas.hpp"/>
+      </GROUP>
+      <GROUP id="{298C660C-811D-B0FA-EF29-34151B60CC7C}" name="kissfft">
+        <FILE id="ROeX5S" name="_kiss_fft_guts.h" compile="0" resource="0"
+              file="Source/kissfft/_kiss_fft_guts.h"/>
+        <FILE id="DANk19" name="kiss_fft.c" compile="1" resource="0" file="Source/kissfft/kiss_fft.c"/>
+        <FILE id="VuDsI4" name="kiss_fft.h" compile="0" resource="0" file="Source/kissfft/kiss_fft.h"/>
+        <FILE id="fGs5dy" name="kiss_fftr.c" compile="1" resource="0" file="Source/kissfft/kiss_fftr.c"/>
+        <FILE id="Dcu6OV" name="kiss_fftr.h" compile="0" resource="0" file="Source/kissfft/kiss_fftr.h"/>
+      </GROUP>
+      <GROUP id="{3706713B-DD5D-AA5A-1E51-4F68B329BCC3}" name="NeuropixInterface">
+        <FILE id="dXBrtC" name="NeuropixInterface.cpp" compile="1" resource="0"
+              file="Source/NeuropixInterface/NeuropixInterface.cpp"/>
+        <FILE id="ZH55jG" name="NeuropixInterface.hpp" compile="0" resource="0"
+              file="Source/NeuropixInterface/NeuropixInterface.hpp"/>
+      </GROUP>
+      <GROUP id="{07515631-55A0-0C47-2362-7E5209354194}" name="TimeScale">
+        <FILE id="CfTm71" name="ProbeViewerTimeScale.cpp" compile="1" resource="0"
+              file="Source/TimeScale/ProbeViewerTimeScale.cpp"/>
+        <FILE id="Z2WtTA" name="ProbeViewerTimeScale.hpp" compile="0" resource="0"
+              file="Source/TimeScale/ProbeViewerTimeScale.hpp"/>
+      </GROUP>
+      <GROUP id="{D24D218A-2B78-45E2-EA7E-585E180D5334}" name="Utilities">
+        <FILE id="iK0V44" name="CircularBuffer.cpp" compile="1" resource="0"
+              file="Source/Utilities/CircularBuffer.cpp"/>
+        <FILE id="nsil7K" name="CircularBuffer.hpp" compile="0" resource="0"
+              file="Source/Utilities/CircularBuffer.hpp"/>
+        <FILE id="A7Jsj7" name="ColourScheme.cpp" compile="1" resource="0"
+              file="Source/Utilities/ColourScheme.cpp"/>
+        <FILE id="qNgUYX" name="ColourScheme.hpp" compile="0" resource="0"
+              file="Source/Utilities/ColourScheme.hpp"/>
+      </GROUP>
       <FILE id="yp7KDX" name="OpenEphysLib.cpp" compile="1" resource="0"
             file="Source/OpenEphysLib.cpp"/>
-      <FILE id="mgIUCF" name="ProbeViewerProcessor.cpp" compile="1" resource="0"
-            file="Source/ProbeViewerProcessor.cpp"/>
-      <FILE id="zQGQZC" name="ProbeViewerProcessor.h" compile="0" resource="0"
-            file="Source/ProbeViewerProcessor.h"/>
-      <FILE id="qRvHoq" name="ProbeViewerProcessorEditor.cpp" compile="1"
-            resource="0" file="Source/ProbeViewerProcessorEditor.cpp"/>
-      <FILE id="Kms5ER" name="ProbeViewerProcessorEditor.h" compile="0" resource="0"
-            file="Source/ProbeViewerProcessorEditor.h"/>
-      <FILE id="wxOAe6" name="ProbeViewerProcessorContentComponent.cpp" compile="1"
-            resource="0" file="Source/ProbeViewerProcessorContentComponent.cpp"/>
-      <FILE id="RLsuK6" name="ProbeViewerProcessorContentComponent.h" compile="0"
-            resource="0" file="Source/ProbeViewerProcessorContentComponent.h"/>
+      <FILE id="i4rGow" name="ProbeViewerCanvas.cpp" compile="1" resource="0"
+            file="Source/ProbeViewerCanvas.cpp"/>
+      <FILE id="xIo7oe" name="ProbeViewerCanvas.h" compile="0" resource="0"
+            file="Source/ProbeViewerCanvas.h"/>
+      <FILE id="phlNli" name="ProbeViewerEditor.cpp" compile="1" resource="0"
+            file="Source/ProbeViewerEditor.cpp"/>
+      <FILE id="xcQxhl" name="ProbeViewerEditor.h" compile="0" resource="0"
+            file="Source/ProbeViewerEditor.h"/>
+      <FILE id="uLh4RW" name="ProbeViewerNode.cpp" compile="1" resource="0"
+            file="Source/ProbeViewerNode.cpp"/>
+      <FILE id="G5nB9Q" name="ProbeViewerNode.h" compile="0" resource="0"
+            file="Source/ProbeViewerNode.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
@@ -48,12 +88,14 @@
                        isDebug="0" optimisation="3" targetName="ProbeViewer"/>
       </CONFIGURATIONS>
     </VS2012>
-    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile" extraLinkerFlags="-undefined dynamic_lookup"
+                extraCompilerFlags=" -Wno-inconsistent-missing-override" extraDefs="OEPLUGIN">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
-                       targetName="ProbeViewer"/>
+                       targetName="ProbeViewer" headerPath="../../../../plugin-gui/Source/Plugins/Headers &#10;../../../../plugin-gui/JuceLibraryCode&#10;../../../../plugin-gui/JuceLibraryCode/modules&#10;../../Headers&#10;../../../../JuceLibraryCode &#10;../../../../JuceLibraryCode/modules"/>
         <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="3"
-                       targetName="ProbeViewer"/>
+                       targetName="ProbeViewer" headerPath="../../../../plugin-gui/Source/Plugins/Headers &#10;../../../../plugin-gui/JuceLibraryCode&#10;../../../../plugin-gui/JuceLibraryCode/modules&#10;../../Headers&#10;../../../../JuceLibraryCode &#10;../../../../JuceLibraryCode/modules"
+                       defines=""/>
       </CONFIGURATIONS>
     </LINUX_MAKE>
   </EXPORTFORMATS>
