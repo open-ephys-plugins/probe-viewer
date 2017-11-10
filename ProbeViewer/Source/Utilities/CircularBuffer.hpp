@@ -101,7 +101,7 @@ public:
 private:
     ScopedPointer<AudioSampleBuffer> dataBuffer;
     
-    std::size_t bufferLengthSamples;
+    int bufferLengthSamples;
     
     Array<int> readIndex;
     Array<int> writeIndex;

@@ -97,3 +97,19 @@ xcuserdata/
 /*.gcno
 
 # End of https://www.gitignore.io/api/xcode
+
+
+
+
+
+
+
+
+
+
+# Open-Ephys specific ignores
+
+ProbeViewer/Builds/**/x[64,86]
+ProbeViewer/Builds/**/Debug
+ProbeViewer/Builds/**/Release
+ProbeViewer/Builds/**/build

@@ -125,9 +125,15 @@ public:
     class ChannelViewCanvas* getChannelViewCanvasPtr();
     
     static const float TRANSPORT_WINDOW_TIMEBASE;
-    static constexpr std::size_t FFT_ORDER = 8;
-    static constexpr std::size_t FFT_SIZE = 1 << ProbeViewerCanvas::FFT_ORDER;
-    static constexpr int FFT_TARGET_SAMPLE_RATE = 1000;
+#ifdef WIN32
+    static const int FFT_ORDER = 8;
+    static const int FFT_SIZE = 1 << ProbeViewerCanvas::FFT_ORDER;
+    static const int FFT_TARGET_SAMPLE_RATE = 1000;
+#else
+	static constexpr int FFT_ORDER = 8;
+	static constexpr int FFT_SIZE = 1 << ProbeViewerCanvas::FFT_ORDER;
+	static constexpr int FFT_TARGET_SAMPLE_RATE = 1000;
+#endif
     
 private:
     class ProbeViewerNode* pvProcessor;
@@ -140,8 +146,8 @@ private:
     class CircularBuffer* dataBuffer;
     OwnedArray<Array<float>> partialBufferCache;
     
-    std::vector<std::size_t> inputDownsamplingIndex;
-    std::size_t numSamplesToChunk;
+    std::vector<size_t> inputDownsamplingIndex;
+    size_t numSamplesToChunk;
     
     
     kiss_fftr_cfg fft_cfg;
@@ -157,7 +163,7 @@ private:
         /**
          *
          */
-        FFTSampleCacheBuffer(std::size_t size);
+        FFTSampleCacheBuffer(int size);
         ~FFTSampleCacheBuffer();
         
         
@@ -178,7 +184,7 @@ private:
          *  resets the write and read indices, and reverts the structure
          *  to its initialization state at the new buffer size.
          */
-        void resize(std::size_t size);
+        void resize(int size);
         
         /**
          *  Push one new sample to the end of the buffer.
@@ -196,18 +202,18 @@ private:
          *                  the buffer will automatically adjust for the current
          *                  position of the internal readIdx.
          */
-        float readSample(std::size_t index) const;
+        float readSample(int index) const;
         
         
         /**
          *  Return the number of writable samples available to this buffer
          */
-        std::size_t size() { return bufferSize; }
+        int size() { return bufferSize; }
         
     private:
-        std::size_t bufferSize;
-        std::size_t writeIdx;
-        std::size_t readIdx;
+        int bufferSize;
+        int writeIdx;
+        int readIdx;
         
         std::vector<float> buffer;
     };

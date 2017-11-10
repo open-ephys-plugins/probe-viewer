@@ -1,51 +1,102 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="2.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="ProbeViewer">
       <UniqueIdentifier>{C230D02F-696B-CD32-AC48-8C6B2961631B}</UniqueIdentifier>
     </Filter>
     <Filter Include="ProbeViewer\Source">
-      <UniqueIdentifier>{E616179E-335B-544D-57E7-55BD78579720}</UniqueIdentifier>
+      <UniqueIdentifier>{dfdd8a96-dc19-44ba-9ee7-39f7d2ea400c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Juce Library Code">
-      <UniqueIdentifier>{8B4D1BAA-6DB4-CAEC-A0FA-271F354D5C61}</UniqueIdentifier>
+    <Filter Include="ProbeViewer\Source\ChannelViewCanvas">
+      <UniqueIdentifier>{9ccdaf83-6684-473d-b7a8-d2c068916b7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProbeViewer\Source\kissfft">
+      <UniqueIdentifier>{10b9be3f-1076-43c8-a32d-10bf60802f7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProbeViewer\Source\NeuropixInterface">
+      <UniqueIdentifier>{99f47bf7-9fc3-4179-8204-2f78a721e15e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProbeViewer\Source\TimeScale">
+      <UniqueIdentifier>{e596278e-1ab1-4406-b056-031463bec9c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProbeViewer\Source\Utilities">
+      <UniqueIdentifier>{b7258e91-36ac-45a2-94fc-a97dccbe81c2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\OpenEphysLib.cpp">
       <Filter>ProbeViewer\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ProbeViewerProcessor.cpp">
+    <ClCompile Include="..\..\Source\ProbeViewerCanvas.cpp">
       <Filter>ProbeViewer\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ProbeViewerProcessorEditor.cpp">
+    <ClCompile Include="..\..\Source\ProbeViewerEditor.cpp">
       <Filter>ProbeViewer\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ProbeViewerProcessorContentComponent.cpp">
+    <ClCompile Include="..\..\Source\ProbeViewerNode.cpp">
       <Filter>ProbeViewer\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ChannelViewCanvas\CanvasOptionsBar.cpp">
+      <Filter>ProbeViewer\Source\ChannelViewCanvas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ChannelViewCanvas\ChannelViewCanvas.cpp">
+      <Filter>ProbeViewer\Source\ChannelViewCanvas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\kissfft\kiss_fft.c">
+      <Filter>ProbeViewer\Source\kissfft</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\kissfft\kiss_fftr.c">
+      <Filter>ProbeViewer\Source\kissfft</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\NeuropixInterface\NeuropixInterface.cpp">
+      <Filter>ProbeViewer\Source\NeuropixInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utilities\CircularBuffer.cpp">
+      <Filter>ProbeViewer\Source\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utilities\ColourScheme.cpp">
+      <Filter>ProbeViewer\Source\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\TimeScale\ProbeViewerTimeScale.cpp">
+      <Filter>ProbeViewer\Source\TimeScale</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\ProbeViewerProcessor.h">
+    <ClInclude Include="..\..\Source\ProbeViewerCanvas.h">
       <Filter>ProbeViewer\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ProbeViewerProcessorEditor.h">
+    <ClInclude Include="..\..\Source\ProbeViewerEditor.h">
       <Filter>ProbeViewer\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ProbeViewerProcessorContentComponent.h">
+    <ClInclude Include="..\..\Source\ProbeViewerNode.h">
       <Filter>ProbeViewer\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h">
-      <Filter>Juce Library Code</Filter>
+    <ClInclude Include="..\..\Source\ChannelViewCanvas\CanvasOptionsBar.hpp">
+      <Filter>ProbeViewer\Source\ChannelViewCanvas</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h">
-      <Filter>Juce Library Code</Filter>
+    <ClInclude Include="..\..\Source\ChannelViewCanvas\ChannelViewCanvas.hpp">
+      <Filter>ProbeViewer\Source\ChannelViewCanvas</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include=".\resources.rc">
-      <Filter>Juce Library Code</Filter>
-    </ResourceCompile>
+    <ClInclude Include="..\..\Source\kissfft\_kiss_fft_guts.h">
+      <Filter>ProbeViewer\Source\kissfft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\kissfft\kiss_fft.h">
+      <Filter>ProbeViewer\Source\kissfft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\kissfft\kiss_fftr.h">
+      <Filter>ProbeViewer\Source\kissfft</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\NeuropixInterface\NeuropixInterface.hpp">
+      <Filter>ProbeViewer\Source\NeuropixInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utilities\CircularBuffer.hpp">
+      <Filter>ProbeViewer\Source\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utilities\ColourScheme.hpp">
+      <Filter>ProbeViewer\Source\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\TimeScale\ProbeViewerTimeScale.hpp">
+      <Filter>ProbeViewer\Source\TimeScale</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

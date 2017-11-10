@@ -21,6 +21,10 @@
  
  */
 
+#ifdef WIN32
+#define _USE_MATH_DEFINES
+#endif
+
 #include "ProbeViewerCanvas.h"
 
 #include "ProbeViewerNode.h"
@@ -128,7 +132,7 @@ void ProbeViewerCanvas::update()
     }
     
     // see note above ^
-    numSamplesToChunk = std::size_t(globalSampleRate / ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
+    numSamplesToChunk = int(globalSampleRate / ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
     
     optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
 }
@@ -387,7 +391,7 @@ const std::vector<float> ProbeViewerCanvas::fftWindow = []() -> std::vector<floa
 
 # pragma mark - ProbeViewerCanvas::FFTSampleCacheBuffer -
 
-ProbeViewerCanvas::FFTSampleCacheBuffer::FFTSampleCacheBuffer(std::size_t size)
+ProbeViewerCanvas::FFTSampleCacheBuffer::FFTSampleCacheBuffer(int size)
 : writeIdx(0)
 , readIdx(1)
 , bufferSize(size)
@@ -398,7 +402,7 @@ ProbeViewerCanvas::FFTSampleCacheBuffer::FFTSampleCacheBuffer(std::size_t size)
 ProbeViewerCanvas::FFTSampleCacheBuffer::~FFTSampleCacheBuffer()
 { }
 
-void ProbeViewerCanvas::FFTSampleCacheBuffer::resize(const std::size_t size)
+void ProbeViewerCanvas::FFTSampleCacheBuffer::resize(const int size)
 {
     bufferSize = size;
     buffer.clear();
@@ -409,7 +413,7 @@ void ProbeViewerCanvas::FFTSampleCacheBuffer::resize(const std::size_t size)
 }
 
 namespace {
-    void incrementIndices(std::size_t & writeIdx, std::size_t & readIdx, std::size_t bufferSize)
+    void incrementIndices(int & writeIdx, int & readIdx, int bufferSize)
     {
         writeIdx = readIdx++;
         
@@ -429,7 +433,7 @@ void ProbeViewerCanvas::FFTSampleCacheBuffer::pushSample(const float sample)
     incrementIndices(writeIdx, readIdx, bufferSize);
 }
 
-float ProbeViewerCanvas::FFTSampleCacheBuffer::readSample(std::size_t index) const
+float ProbeViewerCanvas::FFTSampleCacheBuffer::readSample(int index) const
 {
     jassert(index < bufferSize);
     

@@ -55,14 +55,14 @@ public:
     static const SortedSet<int> refNodes;
     
     static const unsigned int NUM_PROBE_READ_SITES;
-    static const unsigned int PROBE_GRAPHIC_CHAN1_POS;
+    static const unsigned int NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS;
     static const int PROBE_VIEW_X_OFFSET;
     static const Path shankPath;
 private:
     
     class ProbeViewerCanvas* canvas;
     
-    std::size_t numActiveChannels;
+    int numActiveChannels;
     
     ScopedPointer<struct ProbeGraphicZoomInfo> zoomInfo;
     
@@ -74,7 +74,7 @@ private:
     Rectangle<int> selectionBox;
     bool isSelectionActive = false;
     
-    Colour getChannelColour(uint channel);
+    Colour getChannelColour(uint32 channel);
     int getNearestChannelIdx(int x, int y);
     MouseCursor getMouseCursor();
     void updateProbeSitesRendering();

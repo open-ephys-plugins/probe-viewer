@@ -148,7 +148,7 @@ public:
 private:
     static const Colour backgroundColour;
     
-    size_t drawableSubprocessorIdx;
+    int drawableSubprocessorIdx;
     
     class ProbeViewerCanvas* canvas;
     

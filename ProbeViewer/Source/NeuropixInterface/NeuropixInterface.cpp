@@ -35,10 +35,10 @@ NeuropixInterface::NeuropixInterface(ProbeViewerCanvas* canvas_)
 , numActiveChannels(0)
 {
     zoomInfo = new ProbeGraphicZoomInfo;
-    zoomInfo->lowerBound = PROBE_GRAPHIC_CHAN1_POS;
+    zoomInfo->lowerBound = NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS;
     
     
-    for (std::size_t i = 0; i < NUM_PROBE_READ_SITES; ++i)
+    for (int i = 0; i < NUM_PROBE_READ_SITES; ++i)
     {
         ChannelState status;
 
@@ -55,7 +55,7 @@ NeuropixInterface::NeuropixInterface(ProbeViewerCanvas* canvas_)
         channelSelectionState.add(0);
     }
     
-    for (std::size_t i = 0; i < refNodes.size(); ++i)
+    for (int i = 0; i < refNodes.size(); ++i)
     {
         channelStatus.set(*(refNodes.begin() + i) - 1, ChannelState::reference);
     }
@@ -73,11 +73,11 @@ void NeuropixInterface::paint(Graphics& g)
     const int xOffset = 27;
     
     // draw zoomed out channels
-    for (std::size_t channel = 0; channel < channelStatus.size(); ++channel)
+    for (int channel = 0; channel < channelStatus.size(); ++channel)
     {
         g.setColour(getChannelColour(channel));
-        g.setPixel(xOffset + 3 + ((channel % 2)) * 2, PROBE_GRAPHIC_CHAN1_POS - (channel / 2));
-        g.setPixel(xOffset + 3 + ((channel % 2)) * 2 + 1, PROBE_GRAPHIC_CHAN1_POS - (channel / 2));
+        g.setPixel(xOffset + 3 + ((channel % 2)) * 2, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2));
+        g.setPixel(xOffset + 3 + ((channel % 2)) * 2 + 1, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2));
     }
     
     // draw channel numbers
@@ -85,7 +85,7 @@ void NeuropixInterface::paint(Graphics& g)
     g.setFont(12);
     
     int ch = 0;
-    for (std::size_t channel = PROBE_GRAPHIC_CHAN1_POS; channel > 30; channel -= 50)
+    for (int channel = NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS; channel > 30; channel -= 50)
     {
         g.drawLine(6, channel, 18, channel);
         g.drawLine(44, channel, 54, channel);
@@ -98,8 +98,8 @@ void NeuropixInterface::paint(Graphics& g)
     g.strokePath(shankPath, PathStrokeType(1.0));
     
     // draw zoomed channels
-    zoomInfo->lowestChan = (PROBE_GRAPHIC_CHAN1_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset)) * 2 - 1;
-    zoomInfo->highestChan = (PROBE_GRAPHIC_CHAN1_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight)) * 2 + 10;
+    zoomInfo->lowestChan = (NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset)) * 2 - 1;
+    zoomInfo->highestChan = (NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight)) * 2 + 10;
     
     float newChannelHeight = float(getHeight() - 2) / ((zoomInfo->highestChan - zoomInfo->lowestChan) / 2);
     if (zoomInfo->channelHeight != newChannelHeight)
@@ -433,7 +433,7 @@ int NeuropixInterface::getNumActiveChannels() const
     return numActiveChannels;
 }
 
-Colour NeuropixInterface::getChannelColour(uint channel)
+Colour NeuropixInterface::getChannelColour(uint32 channel)
 {
     switch (channelStatus[channel]) // not available
     {
@@ -482,7 +482,7 @@ void NeuropixInterface::updateProbeSitesRendering()
     auto upperLimit = numActiveChannels;
     
     // turn some channels on, starting at 0
-    for (std::size_t i = 0; i < upperLimit; ++i)
+    for (int i = 0; i < upperLimit; ++i)
     {
         if (channelStatus[i] == ChannelState::reference)
         {
@@ -494,7 +494,7 @@ void NeuropixInterface::updateProbeSitesRendering()
     }
     
     // turn the rest off
-    for (std::size_t i = upperLimit; i < NeuropixInterface::NUM_PROBE_READ_SITES; ++i)
+    for (int i = upperLimit; i < NeuropixInterface::NUM_PROBE_READ_SITES; ++i)
     {
         if (channelStatus[i] != ChannelState::reference)
         {
@@ -518,7 +518,7 @@ const unsigned int NeuropixInterface::MARGIN_WIDTH = 30;
 
 const unsigned int NeuropixInterface::NUM_PROBE_READ_SITES = 966;
 
-const unsigned int NeuropixInterface::PROBE_GRAPHIC_CHAN1_POS = 513;
+const unsigned int NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS = 513;
 
 const unsigned int NeuropixInterface::MAX_NUM_CHANNELS = 384;
 
@@ -549,9 +549,9 @@ const SortedSet<int> NeuropixInterface::refNodes = []() -> SortedSet<int> {
 const Path NeuropixInterface::shankPath = []() -> Path {
     Path p;
     p.startNewSubPath(27, 28);
-    p.lineTo(27, PROBE_GRAPHIC_CHAN1_POS + 1);
-    p.lineTo(27 + 5, PROBE_GRAPHIC_CHAN1_POS + 9);
-    p.lineTo(27 + 10, PROBE_GRAPHIC_CHAN1_POS + 1);
+    p.lineTo(27, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS + 1);
+    p.lineTo(27 + 5, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS + 9);
+    p.lineTo(27 + 10, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS + 1);
     p.lineTo(27 + 10, 28);
     p.closeSubPath();
     
