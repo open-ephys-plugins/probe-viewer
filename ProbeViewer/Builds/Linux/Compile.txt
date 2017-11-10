@@ -1,0 +1,3 @@
+To build this plugin, copy ../../ProbeViewer into your Open-Ephys Plugins folder alongside the core plugins.
+
+Then compile the application and plugins as normal.

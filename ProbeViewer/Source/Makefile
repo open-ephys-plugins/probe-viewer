@@ -1,4 +1,3 @@
-
 LIBNAME := $(notdir $(CURDIR))
 OBJDIR := $(OBJDIR)/$(LIBNAME)
 TARGET := $(LIBNAME).so
@@ -7,8 +6,9 @@ OS := $(shell uname)
 SRC_DIR := ${shell find ./ -type d -print}
 VPATH := $(SOURCE_DIRS)
 
-SRC := $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp))
+SRC := $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.c*))
 OBJ := $(addprefix $(OBJDIR)/,$(notdir $(SRC:.cpp=.o)))
+OBJ := $(OBJ:.c=.o)
 
 #Extra macros and libraries needed by the plugin
 #CXXFLAGS := $(CXXFLAGS) -D EXAMPLE_MACRO
@@ -29,11 +29,15 @@ $(OUTDIR)/$(TARGET): objdir $(OBJ)
 	@echo "Building $(TARGET)"
 	@$(BLDCMD)
 
+$(OBJDIR)/%.o : %.c
+	@echo "Compiling $<"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/%.o : %.cpp
 	@echo "Compiling $<"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-	
-	
+
+
 objdir:
 	-@mkdir -p $(OBJDIR)
 
