@@ -163,6 +163,9 @@ private:
     OwnedArray<BitmapRenderTile> displayBitmapTiles;
 
     int frontBackBufferPixelOffset;
+    int frontBufferIndex;
+    
+    bool fullRedraw;
 
     CriticalSection imageMutex;
 

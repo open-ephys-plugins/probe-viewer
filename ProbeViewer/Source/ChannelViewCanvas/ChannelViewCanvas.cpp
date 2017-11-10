@@ -40,11 +40,14 @@ ChannelViewCanvas::ChannelViewCanvas(ProbeViewerCanvas* canvas)
 , colourSchemeId(ColourSchemeId::INFERNO)
 , screenBufferImage(Image::RGB, CHANNEL_DISPLAY_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * 394, false)
 , renderMode(RenderMode::RMS)
-, frontBackBufferPixelOffset(CHANNEL_DISPLAY_TILE_WIDTH - 1)
+, frontBackBufferPixelOffset(0)
+, frontBufferIndex(0)
+, fullRedraw(false)
 {
     
-    // get number of tiles that covers *at least* the display width
-    int numTiles = ceil(ChannelViewCanvas::CHANNEL_DISPLAY_WIDTH / float(ChannelViewCanvas::CHANNEL_DISPLAY_TILE_WIDTH)) + 1;
+    // get number of tiles that covers display width, the drawing mechanics will need
+    // to be adapted for display widths other than the current fixed value of 1920 pixels wide
+    int numTiles = ceil(ChannelViewCanvas::CHANNEL_DISPLAY_WIDTH / float(ChannelViewCanvas::CHANNEL_DISPLAY_TILE_WIDTH));
     
     for (int i = 0; i < numTiles; ++i)
     {
@@ -70,12 +73,13 @@ void ChannelViewCanvas::paint(Graphics& g)
 
 void ChannelViewCanvas::resized()
 {
+    fullRedraw = true;
     repaint();
 }
 
 void ChannelViewCanvas::refresh()
 {
-    if (isDirty.get())
+    if (isDirty.get()) // isDirty is set true when a new pixel has been pushed, and false when all queued pix are drawn
     {
         while (numPixelUpdates > 0)
         {
@@ -102,39 +106,48 @@ void ChannelViewCanvas::renderTilesToScreenBufferImage()
 {
     // TODO: (kelly) clean this up after deciding whether to use Graphics::drawImageAt or Graphics::drawImageTransformed
     Graphics gScreenBuffer(screenBufferImage);
-    const auto tileImage = getFrontBufferPtr()->getTileForRenderMode(renderMode);
     
-    // auto transform = AffineTransform::translation(-frontBackBufferPixelOffset - 1, 0.0f);
-    float xPosition = -frontBackBufferPixelOffset - 1;
-    
-    gScreenBuffer.drawImageAt(*tileImage, xPosition, 0.0f);
-    // gScreenBuffer.drawImageTransformed(*tileImage, transform);
-    
-    // get each backbuffer (all bitmap tiles before the last tile in the list, in descending order)
-    for (int backBufferIdx = displayBitmapTiles.size() - 2;
-         backBufferIdx >= 0;
-         --backBufferIdx)
+    if (fullRedraw)
     {
-        // move right by one tile width
-        xPosition += CHANNEL_DISPLAY_TILE_WIDTH;
-        // transform = transform.translated(ChannelViewCanvas::CHANNEL_DISPLAY_TILE_WIDTH, 0.0f);
+        for (int backBufferIdx = 0; backBufferIdx < displayBitmapTiles.size(); ++backBufferIdx)
+        {
+            // draw each tile
+            gScreenBuffer.drawImageAt(*displayBitmapTiles[backBufferIdx]->getTileForRenderMode(renderMode), backBufferIdx * CHANNEL_DISPLAY_TILE_WIDTH, 0.0f);
+        }
         
-        // draw the backbuffer
-        // gScreenBuffer.drawImageTransformed(*displayBitmapTiles[backBufferIdx]->getTileForRenderMode(renderMode), transform);
-        gScreenBuffer.drawImageAt(*displayBitmapTiles[backBufferIdx]->getTileForRenderMode(renderMode), xPosition, 0.0f);
-        
+        fullRedraw = false;
     }
+    else
+    {
+        const bool shouldRedrawLastBufferToo = true;
+        
+        gScreenBuffer.drawImageAt(*getFrontBufferPtr()->getTileForRenderMode(renderMode), frontBufferIndex * CHANNEL_DISPLAY_TILE_WIDTH, 0.0f);
+        
+        if (shouldRedrawLastBufferToo)
+        {
+            const int prevIdx = (frontBufferIndex == 0 ? (displayBitmapTiles.size() - 1) : (frontBufferIndex - 1));
+            gScreenBuffer.drawImageAt(*displayBitmapTiles[prevIdx]->getTileForRenderMode(renderMode), prevIdx * CHANNEL_DISPLAY_TILE_WIDTH, 0.0f);
+        }
+    }
+    
+    // draw a scrubbing line to track the draw progress
+    gScreenBuffer.setColour(Colours::grey);
+    const int xPosition = frontBufferIndex * CHANNEL_DISPLAY_TILE_WIDTH + frontBackBufferPixelOffset;
+    const int yMax = screenBufferImage.getHeight();
+    gScreenBuffer.drawLine(xPosition, 0.0f, xPosition, yMax);
 }
 
 void ChannelViewCanvas::tick()
 {
-    if (--frontBackBufferPixelOffset < 0)
+//    if (--frontBackBufferPixelOffset < 0)
+    if (++frontBackBufferPixelOffset >= CHANNEL_DISPLAY_TILE_WIDTH)
     {
-        frontBackBufferPixelOffset = getFrontBufferPtr()->getTileForRenderMode(renderMode)->getWidth() - 1;
+//        frontBackBufferPixelOffset = getFrontBufferPtr()->getTileForRenderMode(renderMode)->getWidth() - 1;
+        frontBackBufferPixelOffset = 0;
         
-        auto prevFrontBuffer = displayBitmapTiles.getFirst();
-        displayBitmapTiles.remove(0, false);
-        displayBitmapTiles.add(prevFrontBuffer);
+        // advance the index for tile to draw to by one step
+        frontBufferIndex += 1;
+        if (frontBufferIndex >= displayBitmapTiles.size()) frontBufferIndex = 0;
     }
 }
 
@@ -169,7 +182,7 @@ void ChannelViewCanvas::setDisplayedSubprocessor(int subProcessorIdx)
 
 BitmapRenderTile* const ChannelViewCanvas::getFrontBufferPtr() const
 {
-    return displayBitmapTiles[displayBitmapTiles.size() - 1];
+    return displayBitmapTiles[frontBufferIndex];
 }
 
 int ChannelViewCanvas::getBufferOffsetPosition() const
@@ -185,6 +198,7 @@ RenderMode ChannelViewCanvas::getCurrentRenderMode() const
 void ChannelViewCanvas::setCurrentRenderMode(RenderMode r)
 {
     renderMode = r;
+    fullRedraw = true;
     repaint();
 }
 
