@@ -23,7 +23,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		6A8DEE58B831079F4F4E0502 /* JuceHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JuceHeader.h; path = ../../JuceLibraryCode/JuceHeader.h; sourceTree = SOURCE_ROOT; };
 		9391767D1FB4F89E00417218 /* ProbeViewer.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProbeViewer.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		9391767F1FB4F89E00417218 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		939176851FB4FBA300417218 /* CanvasOptionsBar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CanvasOptionsBar.cpp; sourceTree = "<group>"; };
@@ -51,7 +50,6 @@
 		939176A51FB4FBA300417218 /* CircularBuffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CircularBuffer.hpp; sourceTree = "<group>"; };
 		939176A61FB4FBA300417218 /* ColourScheme.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColourScheme.cpp; sourceTree = "<group>"; };
 		939176A71FB4FBA300417218 /* ColourScheme.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ColourScheme.hpp; sourceTree = "<group>"; };
-		C154F1DDD2D945BE10D8160B /* AppConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppConfig.h; path = ../../JuceLibraryCode/AppConfig.h; sourceTree = SOURCE_ROOT; };
 		F9375D2118CE6FC5CF305FC7 /* RecentFilesMenuTemplate.nib */ = {isa = PBXFileReference; lastKnownFileType = file.nib; path = RecentFilesMenuTemplate.nib; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -104,22 +102,12 @@
 		35E0132EDCB51E5E69C9626D /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				805F89C1454F2074E4118CB1 /* Juce Library Code */,
 				99C136D7A16A93A681C1CA56 /* Resources */,
 				9391767E1FB4F89E00417218 /* ProbeViewer */,
 				3122FE300F02075142FFD184 /* Frameworks */,
 				1FA960A594EB87AB7CB70157 /* Products */,
 			);
 			name = Source;
-			sourceTree = "<group>";
-		};
-		805F89C1454F2074E4118CB1 /* Juce Library Code */ = {
-			isa = PBXGroup;
-			children = (
-				C154F1DDD2D945BE10D8160B /* AppConfig.h */,
-				6A8DEE58B831079F4F4E0502 /* JuceHeader.h */,
-			);
-			name = "Juce Library Code";
 			sourceTree = "<group>";
 		};
 		9391767E1FB4F89E00417218 /* ProbeViewer */ = {

@@ -49,7 +49,8 @@ public:
 
     void setNumActiveChannels(int numChannels);
     int getNumActiveChannels() const;
-
+    
+    float getViewportScrollPositionRatio();
 
     static const unsigned int MAX_NUM_CHANNELS;
     static const SortedSet<int> refNodes;
@@ -73,6 +74,8 @@ private:
 
     Rectangle<int> selectionBox;
     bool isSelectionActive = false;
+    
+    bool isMouseActionLocked = false;
 
     Colour getChannelColour(uint32 channel);
     int getNearestChannelIdx(int x, int y);
@@ -106,6 +109,9 @@ struct ProbeGraphicZoomInfo
     int highestChan = {0};
 
     float channelHeight = {10};
+    
+    Point<int> lastPosition = {0, 0};
+    float viewportScrollPositionRatio = {1};
 };
 
 enum class ChannelState : int

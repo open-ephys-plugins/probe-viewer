@@ -123,6 +123,11 @@ public:
      *  rendered directly.
      */
     class ChannelViewCanvas* getChannelViewCanvasPtr();
+    
+    /**
+     *  Return a pointer for the neuropix interface component 
+     */
+    class NeuropixInterface* getNeuropixInterfacePtr();
 
     static const float TRANSPORT_WINDOW_TIMEBASE;
 #ifdef WIN32

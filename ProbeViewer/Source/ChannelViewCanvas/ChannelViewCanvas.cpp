@@ -104,7 +104,6 @@ void ChannelViewCanvas::refresh()
 
 void ChannelViewCanvas::renderTilesToScreenBufferImage()
 {
-    // TODO: (kelly) clean this up after deciding whether to use Graphics::drawImageAt or Graphics::drawImageTransformed
     Graphics gScreenBuffer(screenBufferImage);
     
     if (fullRedraw)
@@ -139,10 +138,8 @@ void ChannelViewCanvas::renderTilesToScreenBufferImage()
 
 void ChannelViewCanvas::tick()
 {
-//    if (--frontBackBufferPixelOffset < 0)
     if (++frontBackBufferPixelOffset >= CHANNEL_DISPLAY_TILE_WIDTH)
     {
-//        frontBackBufferPixelOffset = getFrontBufferPtr()->getTileForRenderMode(renderMode)->getWidth() - 1;
         frontBackBufferPixelOffset = 0;
         
         // advance the index for tile to draw to by one step
@@ -301,7 +298,7 @@ ProbeChannelDisplay::~ProbeChannelDisplay()
 void ProbeChannelDisplay::paint(Graphics& g)
 { }
 
-//void ProbeChannelDisplay::pxPaint(Image::BitmapData *bitmapData)
+// TODO: (kelly) @REFACTOR - this should be rewritten. hangups in other parts of the application could cause problems here
 void ProbeChannelDisplay::pxPaint()
 {
     // render RMS
@@ -375,23 +372,11 @@ void ProbeChannelDisplay::setChannelState(ChannelState status)
 
 void ProbeChannelDisplay::pushSamples(float rms, float spikeRate, float fft)
 {
-    // TODO: (kelly) @TESTING clean this up
-    if (this->rms.size() > 1024)
-    {
-        std::cout << "rms size is growing uncontrollably (" << this->rms.size() << ")" << std::endl;
-    }
-    
-    // TODO: (kelly) @TESTING clean this up
-    if (this->spikeRate.size() > 1024)
-    {
-        std::cout << "spikeRate size is growing uncontrollably (" << this->spikeRate.size() << ")" << std::endl;
-    }
-    
-    // TODO: (kelly) @TESTING clean this up
-    if (this->fft.size() > 1024)
-    {
-        std::cout << "fft size is growing uncontrollably (" << this->fft.size() << ")" << std::endl;
-    }
+    // If you reached any of these asserts, some other part of this plugin or open-ephys is
+    // causing rendering delays that is causing the sample queue to backup.
+    jassert (this->rms.size() < 1024);
+    jassert (this->spikeRate.size() < 1024);
+    jassert (this->fft.size() < 1024);
     
     this->rms.add(rms);
     this->spikeRate.add(spikeRate);

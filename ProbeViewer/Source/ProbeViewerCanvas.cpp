@@ -171,7 +171,14 @@ void ProbeViewerCanvas::resized()
     optionsBar->setMarginOffset(interface->getWidth());
     
     channelsView->setBounds(0, 0, viewport->getWidth(), channelsView->getChannelHeight() * channelsView->readSites.size());
-    viewport->setBounds(interface->getRight(), timeScale->getBottom() + 2, getWidth() - interface->getWidth(), getHeight() - timeScale->getHeight() - optionsBar->getHeight() - 4);
+    viewport->setBounds(interface->getRight(),
+                        timeScale->getBottom() + 2,
+                        getWidth() - interface->getWidth(),
+                        getHeight() - timeScale->getHeight() - optionsBar->getHeight() - 4);
+    
+    
+    viewport->setViewPositionProportionately(0, getNeuropixInterfacePtr()->getViewportScrollPositionRatio());
+    
 }
 
 void ProbeViewerCanvas::setNumChannels(int numChannels)
@@ -212,6 +219,11 @@ ProbeViewerViewport* ProbeViewerCanvas::getViewportPtr()
 ChannelViewCanvas* ProbeViewerCanvas::getChannelViewCanvasPtr()
 {
     return channelsView;
+}
+
+NeuropixInterface* ProbeViewerCanvas::getNeuropixInterfacePtr()
+{
+    return interface;
 }
 
 // TODO: (kelly) this should be implemented differently, as is it will shift the array after every pop
@@ -306,7 +318,6 @@ void ProbeViewerCanvas::updateScreenBuffers()
   
                     if (medianOffsetVal < spikeRateThreshold) numSpikesInPixel++;
                     
-//                    channelFFTSampleBuffer[channel].push_back(medianOffsetVal / 500);
                     if (inputDownsamplingIndex[channel]++ == 0)
                     {
                         channelFFTSampleBuffer[channel]->pushSample(medianOffsetVal / 500.0f);
@@ -356,10 +367,6 @@ void ProbeViewerCanvas::updateScreenBuffers()
         channelsView->isDirty.set(true);
         dataBuffer->clearSamplesReadyForDrawing();
         repaint(0, 0, getWidth(), getHeight());
-    }
-    else
-    {
-//        std::cout << Time::getCurrentTime().toString(false, true) << " No samples to draw" << std::endl;
     }
 }
 
@@ -465,6 +472,5 @@ ProbeViewerViewport::~ProbeViewerViewport()
 
 void ProbeViewerViewport::visibleAreaChanged(const Rectangle<int>& newVisibleArea)
 {
-//    float viewPosition = getViewPositionY() / float(channelsView->getHeight());
-//    setViewPosition(0, viewPosition);
+    canvas->repaint(getBoundsInParent());
 }

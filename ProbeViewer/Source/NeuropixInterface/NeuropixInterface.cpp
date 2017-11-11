@@ -105,7 +105,7 @@ void NeuropixInterface::paint(Graphics& g)
     if (zoomInfo->channelHeight != newChannelHeight)
     {
         zoomInfo->channelHeight = newChannelHeight;
-        canvas->setChannelHeight(newChannelHeight / 2);
+        canvas->setChannelHeight(newChannelHeight / 2.0f);
         canvas->resized();
     }
     
@@ -164,6 +164,8 @@ void NeuropixInterface::paint(Graphics& g)
 
 void NeuropixInterface::mouseMove(const MouseEvent &event)
 {
+    if (isMouseActionLocked) return;
+    
     float y = event.y;
     float x = event.x;
     
@@ -241,9 +243,17 @@ void NeuropixInterface::mouseDown(const MouseEvent &event)
 {
     zoomInfo->initialOffset = zoomInfo->zoomOffset;
     zoomInfo->initialHeight = zoomInfo->zoomHeight;
+    zoomInfo->lastPosition = event.getOffsetFromDragStart();
     
     if (!event.mods.isRightButtonDown())
     {
+        if (zoomInfo->isMouseOverZoomRegion
+            || zoomInfo->isMouseOverUpperBorder
+            || zoomInfo->isMouseOverLowerBorder)
+        {
+            isMouseActionLocked = true;
+        }
+        
         if (event.x > PROBE_VIEW_X_OFFSET && event.x < 400)
         {
             for (int i = 0; i < 966; ++i)
@@ -263,14 +273,13 @@ void NeuropixInterface::mouseDown(const MouseEvent &event)
         }
         repaint();
     }
-//    else
-//    {
-//        // Annotation specific stuff
-//    }
 }
 
 void NeuropixInterface::mouseDrag(const MouseEvent &event)
 {
+    if (event.getOffsetFromDragStart() == zoomInfo->lastPosition) return;
+    zoomInfo->lastPosition = event.getOffsetFromDragStart();
+    
     if (zoomInfo->isMouseOverZoomRegion)
     {
         if (zoomInfo->isMouseOverUpperBorder)
@@ -372,13 +381,27 @@ void NeuropixInterface::mouseDrag(const MouseEvent &event)
     if (zoomInfo->zoomHeight > 384/2)
         zoomInfo->zoomHeight = 384/2;
     
-    // TODO: (kelly) this code is still buggy - the viewport positioning gets wonky when changing the size
-    // of the zoom area
-    float ratio = 1.0f - (zoomInfo->zoomOffset) / (MAX_NUM_CHANNELS / 2.0f - zoomInfo->zoomHeight);
+    // draw zoomed channels
+    zoomInfo->lowestChan = (NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset)) * 2 - 1;
+    zoomInfo->highestChan = (NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight)) * 2 + 10;
+    
+    float newChannelHeight = float(getHeight() - 2) / ((zoomInfo->highestChan - zoomInfo->lowestChan) / 2);
+    if (zoomInfo->channelHeight != newChannelHeight)
+    {
+        zoomInfo->channelHeight = newChannelHeight;
+        canvas->setChannelHeight(newChannelHeight / 2.0f);
+        canvas->resized();
+    }
+    
+    // update the viewport
+    const float viewportHeight = (MAX_NUM_CHANNELS / 2.0f) - zoomInfo->zoomHeight;
+    const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
+    zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
+    
     auto viewport = canvas->getViewportPtr();
     if (viewport)
     {
-        viewport->setViewPositionProportionately(0, ratio);
+        viewport->setViewPositionProportionately(0, zoomInfo->viewportScrollPositionRatio);
     }
     
     repaint();
@@ -386,6 +409,8 @@ void NeuropixInterface::mouseDrag(const MouseEvent &event)
 
 void NeuropixInterface::mouseUp(const MouseEvent &event)
 {
+    isMouseActionLocked = false;
+    
     if (isSelectionActive)
     {
         isSelectionActive = false;
@@ -403,7 +428,6 @@ void NeuropixInterface::mouseWheelMove(const MouseEvent &event, const MouseWheel
         else
             zoomInfo->zoomOffset -= 2;
         
-        //std::cout << wheel.deltaY << " " << zoomOffset << std::endl;
         
         if (zoomInfo->zoomOffset < 0)
         {
@@ -413,9 +437,12 @@ void NeuropixInterface::mouseWheelMove(const MouseEvent &event, const MouseWheel
             zoomInfo->zoomOffset = (MAX_NUM_CHANNELS / 2) - zoomInfo->zoomHeight;
         }
         
-        auto ratio = 1.0f - (zoomInfo->zoomOffset) / (MAX_NUM_CHANNELS / 2.0f - zoomInfo->zoomHeight);
+        // update the viewport
+        const float viewportHeight = (MAX_NUM_CHANNELS / 2.0f) - zoomInfo->zoomHeight;
+        const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
+        zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
         auto viewport = canvas->getViewportPtr();
-        viewport->setViewPositionProportionately(0, ratio);
+        viewport->setViewPositionProportionately(0, zoomInfo->viewportScrollPositionRatio);
         
         repaint();
     }
@@ -431,6 +458,11 @@ void NeuropixInterface::setNumActiveChannels(int numChannels)
 int NeuropixInterface::getNumActiveChannels() const
 {
     return numActiveChannels;
+}
+
+float NeuropixInterface::getViewportScrollPositionRatio()
+{
+    return zoomInfo->viewportScrollPositionRatio;
 }
 
 Colour NeuropixInterface::getChannelColour(uint32 channel)
