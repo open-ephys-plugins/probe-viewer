@@ -92,7 +92,7 @@ void ProbeViewerCanvas::update()
     //               this will still work, but the center frequency combobox options will
     //               only be accurate for one of the sampleRates - currently, the first
     //               non-zero sample rate encountered
-    numChannels = jmax(pvProcessor->getNumInputs(), 0);
+    numChannels = jmax(pvProcessor->getNumSubprocessorChannels(), 0);
     setNumChannels(numChannels);
     
     channelsView->readSites.clear();
@@ -114,10 +114,10 @@ void ProbeViewerCanvas::update()
             ++referenceNodeOffsetCount;
         }
         
-        float sampleRate = 0;
-        const int procInputs = pvProcessor->getNumInputs();
-        if (procInputs > 0 && procInputs < getNumChannels()) sampleRate = pvProcessor->getDataChannel(i)->getSampleRate();
-        else sampleRate = 30000;
+		float sampleRate = pvProcessor->getSubprocessorSampleRate();
+        //const int procInputs = pvProcessor->getNumInputs();
+        //if (procInputs > 0 && procInputs < getNumChannels()) sampleRate = pvProcessor->getDataChannel(i)->getSampleRate();
+        //else sampleRate = 30000;
         
         auto channelDisplay = new ProbeChannelDisplay(channelsView, optionsBar, ChannelState::enabled, i, i + referenceNodeOffsetCount, sampleRate);
         

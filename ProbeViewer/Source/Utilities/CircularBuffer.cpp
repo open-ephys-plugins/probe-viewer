@@ -38,10 +38,16 @@ CircularBuffer::~CircularBuffer()
 
 void CircularBuffer::setSize(int numChannels, int numSamples, Array<bool> shouldDraw_)
 {
+
     bufferLengthSamples = numSamples;
     dataBuffer->setSize(numChannels, numSamples);
 
 	shouldDraw = shouldDraw_;
+
+	for (int i = 0; i < 10; i++)
+	{
+		std::cout << shouldDraw[i] << std::endl;
+	}
     
     readIndex.clear();
     readIndex.insertMultiple(0, 0, numChannels);
@@ -90,9 +96,10 @@ void CircularBuffer::pushBuffer(AudioSampleBuffer& input, int numSamples)
     
     for (int channel = 0; channel < input.getNumChannels(); ++channel)
     {
+		//std::cout << "Checking channel " << channel << std::endl;
 		if (shouldDraw[channel])
 		{
-
+			//std::cout << "Copying channel " << channel << std::endl;
 			channelIndex++; 
 
 			const int samplesLeft = bufferLengthSamples - writeIndex[channelIndex];

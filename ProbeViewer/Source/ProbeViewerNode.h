@@ -42,6 +42,7 @@ public:
 
 	void setDisplayedSubprocessor(int idx);
 	float getSubprocessorSampleRate();
+	int getNumSubprocessorChannels();
 
     bool enable() override;
     bool disable() override;

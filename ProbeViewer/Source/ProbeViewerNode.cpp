@@ -66,12 +66,14 @@ void ProbeViewerNode::updateSettings()
 {
     std::cout << "Setting num inputs on ProbeViewer to " << getNumInputs() << std::endl;
 
-	int numChannelsInSubprocessor = 0;
+	numChannelsInSubprocessor = 0;
 	int totalSubprocessors = 0;
 	int currentSubprocessor = -1;
 	lastChannelInSubprocessor = 0;
 
 	channelsToDraw.clear();
+
+	std::cout << "Subprocessor: " << subprocessorToDraw << std::endl;
 
 	for (int i = 0; i < getNumInputs(); i++)
 	{
@@ -85,6 +87,7 @@ void ProbeViewerNode::updateSettings()
 
 		if (channelSubprocessor == subprocessorToDraw)
 		{
+			//std::cout << "Found a match" << std::endl;
 			numChannelsInSubprocessor++;
 			subprocessorSampleRate = getDataChannel(i)->getSampleRate();
 			channelsToDraw.add(true);
@@ -102,6 +105,9 @@ void ProbeViewerNode::updateSettings()
 		ed->updateSubprocessorSelectorOptions();
 		numSubprocessors = totalSubprocessors;
 	}
+
+	//std::cout << "Resizing buffer!" << std::endl;
+	resizeBuffer();
 
 }
 
@@ -147,9 +153,14 @@ float ProbeViewerNode::getSubprocessorSampleRate()
 	return subprocessorSampleRate;
 }
 
+int ProbeViewerNode::getNumSubprocessorChannels()
+{
+	return numChannelsInSubprocessor;
+}
+
 bool ProbeViewerNode::resizeBuffer()
 {
-    int nSamples = (int) getSampleRate() * bufferLengthSeconds;
+	int nSamples = (int) subprocessorSampleRate * bufferLengthSeconds;
 	int nInputs = numChannelsInSubprocessor;
     
     std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
