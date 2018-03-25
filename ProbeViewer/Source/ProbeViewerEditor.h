@@ -52,6 +52,8 @@ public:
      */
     virtual Visualizer* createNewCanvas() override;
 
+	void updateSubprocessorSelectorOptions();
+
 private:
     HashMap<int, float> inputSampleRates; // hold the possible subprocessor sample rates
     SortedSet<int> inputSubprocessorIndices;
@@ -66,7 +68,7 @@ private:
     bool hasNoInputs;
 
     void setCanvasDrawableSubprocessor(int index);
-    void updateSubprocessorSelectorOptions();
+    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerEditor);
 };

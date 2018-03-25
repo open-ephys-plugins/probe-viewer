@@ -32,7 +32,7 @@ using namespace ProbeViewer;
 extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
-	info->name = "ProbeViewer";
+	info->name = "Probe Viewer";
 	info->libVersion = 1;
 	info->numPlugins = NUM_PLUGINS;
 }
@@ -43,7 +43,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 	{
 	case 0:
             info->type = Plugin::PLUGIN_TYPE_PROCESSOR;
-            info->processor.name = "ProbeViewer";
+            info->processor.name = "Probe Viewer";
             info->processor.type = Plugin::SinkProcessor;
             info->processor.creator = &(Plugin::createProcessor<ProbeViewer::ProbeViewerNode>);
 		break;

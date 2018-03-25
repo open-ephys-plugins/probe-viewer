@@ -39,6 +39,11 @@ ProbeViewerNode::ProbeViewerNode()
     // bind the get samples function
     using namespace std::placeholders;
     channelSampleCountPollFunction = std::bind(&ProbeViewerNode::getNumSamples, this, _1);
+
+	subprocessorToDraw = 0;
+	numSubprocessors = -1;
+	numChannelsInSubprocessor = 0;
+	lastChannelInSubprocessor = 0;
 }
 
 ProbeViewerNode::~ProbeViewerNode()
@@ -52,12 +57,52 @@ AudioProcessorEditor* ProbeViewerNode::createEditor()
 
 void ProbeViewerNode::process(AudioSampleBuffer& b)
 {
-    dataBuffer->pushBuffer(b, channelSampleCountPollFunction);
+	const int nSamples = getNumSamples(lastChannelInSubprocessor);
+
+	dataBuffer->pushBuffer(b, nSamples);
 }
 
 void ProbeViewerNode::updateSettings()
 {
     std::cout << "Setting num inputs on ProbeViewer to " << getNumInputs() << std::endl;
+
+	int numChannelsInSubprocessor = 0;
+	int totalSubprocessors = 0;
+	int currentSubprocessor = -1;
+	lastChannelInSubprocessor = 0;
+
+	channelsToDraw.clear();
+
+	for (int i = 0; i < getNumInputs(); i++)
+	{
+		int channelSubprocessor = getDataChannel(i)->getSubProcessorIdx();
+
+		if (currentSubprocessor != channelSubprocessor)
+		{
+			totalSubprocessors++;
+			currentSubprocessor = channelSubprocessor;
+		}
+
+		if (channelSubprocessor == subprocessorToDraw)
+		{
+			numChannelsInSubprocessor++;
+			subprocessorSampleRate = getDataChannel(i)->getSampleRate();
+			channelsToDraw.add(true);
+			lastChannelInSubprocessor = i;
+		}
+		else {
+			channelsToDraw.add(false);
+		}
+	}
+
+	// update the editor's subprocessor selection display, only if there's a mismatch in # of subprocessors
+	if (numSubprocessors != totalSubprocessors)
+	{
+		ProbeViewerEditor * ed = (ProbeViewerEditor*) getEditor();
+		ed->updateSubprocessorSelectorOptions();
+		numSubprocessors = totalSubprocessors;
+	}
+
 }
 
 bool ProbeViewerNode::enable()
@@ -91,16 +136,27 @@ void ProbeViewerNode::setParameter(int parameterIndex, float newValue)
         ed->canvas->setParameter (parameterIndex, newValue);
 }
 
+void ProbeViewerNode::setDisplayedSubprocessor(int idx)
+{
+	subprocessorToDraw = idx;
+	updateSettings();
+}
+
+float ProbeViewerNode::getSubprocessorSampleRate()
+{
+	return subprocessorSampleRate;
+}
+
 bool ProbeViewerNode::resizeBuffer()
 {
     int nSamples = (int) getSampleRate() * bufferLengthSeconds;
-    int nInputs = getNumInputs();
+	int nInputs = numChannelsInSubprocessor;
     
     std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
     
     if (nSamples > 0 && nInputs > 0)
     {
-        dataBuffer->setSize(nInputs, nSamples);
+        dataBuffer->setSize(nInputs, nSamples, channelsToDraw);
         return true;
     }
     

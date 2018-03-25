@@ -41,7 +41,7 @@ public:
      *  previously stored samples, and will reset the write and read indices to
      *  their initialization state.
      */
-    void setSize(int numChannels, int numSamples);
+    void setSize(int numChannels, int numSamples, Array<bool> shouldDraw_);
 
     /**
      *  Return the current location of the read point for a specific channel.
@@ -105,6 +105,7 @@ private:
 
     Array<int> readIndex;
     Array<int> writeIndex;
+	Array<bool> shouldDraw;
 
     Atomic<int> samplesReadyForDrawing;
 

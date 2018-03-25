@@ -36,10 +36,12 @@ CircularBuffer::CircularBuffer()
 CircularBuffer::~CircularBuffer()
 { }
 
-void CircularBuffer::setSize(int numChannels, int numSamples)
+void CircularBuffer::setSize(int numChannels, int numSamples, Array<bool> shouldDraw_)
 {
     bufferLengthSamples = numSamples;
     dataBuffer->setSize(numChannels, numSamples);
+
+	shouldDraw = shouldDraw_;
     
     readIndex.clear();
     readIndex.insertMultiple(0, 0, numChannels);
@@ -83,42 +85,50 @@ void CircularBuffer::pushBuffer(AudioSampleBuffer& input, int numSamples)
 {
     samplesReadyForDrawing.set(true);
     ScopedLock dataLock(dataMutex);
+
+	int channelIndex = -1;
     
     for (int channel = 0; channel < input.getNumChannels(); ++channel)
     {
-        const int samplesLeft = bufferLengthSamples - writeIndex[channel];
-        
-        if (numSamples < samplesLeft)
-        {
-            dataBuffer->copyFrom(channel,
-                                 writeIndex[channel],
-                                 input,
-                                 channel,
-                                 0,
-                                 numSamples);
-            
-            writeIndex.set(channel, writeIndex[channel] + numSamples);
-        }
-        else
-        {
-            const int extraSamples = numSamples - samplesLeft;
-            
-            dataBuffer->copyFrom(channel,
-                                 writeIndex[channel],
-                                 input,
-                                 channel,
-                                 0,
-                                 samplesLeft);
-            
-            dataBuffer->copyFrom(channel,
-                                 0,
-                                 input,
-                                 channel,
-                                 samplesLeft,
-                                 extraSamples);
-            
-            writeIndex.set(channel, extraSamples);
-        }
+		if (shouldDraw[channel])
+		{
+
+			channelIndex++; 
+
+			const int samplesLeft = bufferLengthSamples - writeIndex[channelIndex];
+
+			if (numSamples < samplesLeft)
+			{
+				dataBuffer->copyFrom(channel,
+					writeIndex[channelIndex],
+					input,
+					channelIndex,
+					0,
+					numSamples);
+
+				writeIndex.set(channelIndex, writeIndex[channelIndex] + numSamples);
+			}
+			else
+			{
+				const int extraSamples = numSamples - samplesLeft;
+
+				dataBuffer->copyFrom(channel,
+					writeIndex[channelIndex],
+					input,
+					channelIndex,
+					0,
+					samplesLeft);
+
+				dataBuffer->copyFrom(channel,
+					0,
+					input,
+					channelIndex,
+					samplesLeft,
+					extraSamples);
+
+				writeIndex.set(channelIndex, extraSamples);
+			}
+		}
     }
 }
 

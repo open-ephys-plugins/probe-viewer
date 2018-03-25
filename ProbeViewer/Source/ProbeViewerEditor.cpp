@@ -106,56 +106,71 @@ void ProbeViewerEditor::updateSubprocessorSelectorOptions()
     inputSampleRates.clear();
     subprocessorSelection->clear(dontSendNotification);
     
-    hasNoInputs = probeViewerProcessor->getTotalDataChannels() != 0;
-    
-    for (int i = 0, len = probeViewerProcessor->getTotalDataChannels(); i < len; ++i)
-    {
-        int subProcessorIdx = probeViewerProcessor->getDataChannel(i)->getSubProcessorIdx();
-        
-        bool success = inputSubprocessorIndices.add(subProcessorIdx);
-        
-        if (success) inputSampleRates.set(subProcessorIdx, probeViewerProcessor->getDataChannel(i)->getSampleRate());
-    }
-    
-    int subprocessorToSet = -1;
-    if (inputSubprocessorIndices.size() > 0)
-    {
-        subprocessorToSet = 0;
-    }
-    
-    for (int i = 0; i < inputSubprocessorIndices.size(); ++i)
-    {
-        subprocessorSelection->addItem (String (*(inputSubprocessorIndices.begin() + i)), i + 1);
-    }
-    
-    if (subprocessorToSet >= 0)
-    {
-        subprocessorSelection->setSelectedId(subprocessorToSet + 1, dontSendNotification);
-        
-        String sampleRateLabelText = "Sample Rate: ";
-        sampleRateLabelText += String(inputSampleRates[*(inputSubprocessorIndices.begin()+subprocessorToSet)]);
-        
-        subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-        setCanvasDrawableSubprocessor(subprocessorToSet);
-    }
-    else
-    {
-        subprocessorSelection->addItem ("None", 1);
-        subprocessorSelection->setSelectedId(1, dontSendNotification);
-        
-        String sampleRateLabelText = "Sample Rate: <not available>";
-        subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-        setCanvasDrawableSubprocessor(-1);
-    }
+	if (probeViewerProcessor->getTotalDataChannels() != 0)
+
+	{
+
+		for (int i = 0, len = probeViewerProcessor->getTotalDataChannels(); i < len; ++i)
+		{
+			int subProcessorIdx = probeViewerProcessor->getDataChannel(i)->getSubProcessorIdx();
+
+			bool success = inputSubprocessorIndices.add(subProcessorIdx);
+
+			if (success) inputSampleRates.set(subProcessorIdx, probeViewerProcessor->getDataChannel(i)->getSampleRate());
+		}
+
+		int subprocessorToSet = -1;
+		if (inputSubprocessorIndices.size() > 0)
+		{
+			subprocessorToSet = 0;
+		}
+
+		for (int i = 0; i < inputSubprocessorIndices.size(); ++i)
+		{
+			subprocessorSelection->addItem(String(*(inputSubprocessorIndices.begin() + i)), i + 1);
+		}
+
+		if (subprocessorToSet >= 0)
+		{
+			subprocessorSelection->setSelectedId(subprocessorToSet + 1, dontSendNotification);
+
+			String sampleRateLabelText = "Sample Rate: ";
+			sampleRateLabelText += String(inputSampleRates[*(inputSubprocessorIndices.begin() + subprocessorToSet)]);
+
+			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+			setCanvasDrawableSubprocessor(subprocessorToSet);
+		}
+		else
+		{
+			subprocessorSelection->addItem("None", 1);
+			subprocessorSelection->setSelectedId(1, dontSendNotification);
+
+			String sampleRateLabelText = "Sample Rate: <not available>";
+			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+			setCanvasDrawableSubprocessor(-1);
+		}
+	}
 }
 
 void ProbeViewerEditor::setCanvasDrawableSubprocessor(int index)
 {
-    if (canvas)
-    {
-        if (index >= 0)
-            ((ProbeViewerCanvas *) canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + index));
-        else
-            ((ProbeViewerCanvas *) canvas.get())->setDrawableSubprocessor(-1);
-    }
+	if (canvas)
+	{
+		if (index >= 0)
+		{
+			((ProbeViewerCanvas *)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + index));
+			float rate = probeViewerProcessor->getSubprocessorSampleRate();
+
+			String sampleRateLabelText = "Sample Rate: ";
+			sampleRateLabelText += String(rate);
+			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+
+			std::cout << sampleRateLabelText << std::endl;
+		}
+		else
+		{
+			((ProbeViewerCanvas *)canvas.get())->setDrawableSubprocessor(-1);
+		}
+
+	}
 }

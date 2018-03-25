@@ -40,6 +40,9 @@ public:
 
     void updateSettings() override;
 
+	void setDisplayedSubprocessor(int idx);
+	float getSubprocessorSampleRate();
+
     bool enable() override;
     bool disable() override;
 
@@ -57,6 +60,14 @@ private:
     std::function<int (int)> channelSampleCountPollFunction;
 
     bool resizeBuffer();
+
+	int subprocessorToDraw;
+	int numChannelsInSubprocessor;
+	int numSubprocessors;
+	float subprocessorSampleRate;
+	int lastChannelInSubprocessor;
+
+	Array<bool> channelsToDraw;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerNode);
 };

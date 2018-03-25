@@ -208,7 +208,8 @@ float ProbeViewerCanvas::getChannelSampleRate(int channel)
 
 void ProbeViewerCanvas::setDrawableSubprocessor(int idx)
 {
-    channelsView->setDisplayedSubprocessor(idx);
+	pvProcessor->setDisplayedSubprocessor(idx);
+    //channelsView->setDisplayedSubprocessor(idx);
 }
 
 ProbeViewerViewport* ProbeViewerCanvas::getViewportPtr()
