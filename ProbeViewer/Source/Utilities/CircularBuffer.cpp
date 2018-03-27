@@ -106,12 +106,12 @@ void CircularBuffer::pushBuffer(AudioSampleBuffer& input, int numSamples)
 
 			if (numSamples < samplesLeft)
 			{
-				dataBuffer->copyFrom(channel,
-					writeIndex[channelIndex],
-					input,
-					channelIndex,
-					0,
-					numSamples);
+				dataBuffer->copyFrom(channelIndex, // dest channel
+					writeIndex[channelIndex],      // dest startSample
+					input,                         // source
+					channel,                       // source channel
+					0,                             // source start sample
+					numSamples);                   // num samples
 
 				writeIndex.set(channelIndex, writeIndex[channelIndex] + numSamples);
 			}
@@ -119,17 +119,17 @@ void CircularBuffer::pushBuffer(AudioSampleBuffer& input, int numSamples)
 			{
 				const int extraSamples = numSamples - samplesLeft;
 
-				dataBuffer->copyFrom(channel,
+				dataBuffer->copyFrom(channelIndex,
 					writeIndex[channelIndex],
 					input,
-					channelIndex,
+					channel,
 					0,
 					samplesLeft);
 
-				dataBuffer->copyFrom(channel,
+				dataBuffer->copyFrom(channelIndex,
 					0,
 					input,
-					channelIndex,
+					channel,
 					samplesLeft,
 					extraSamples);
 

@@ -90,6 +90,9 @@ void ProbeViewerEditor::comboBoxChanged(ComboBox* cb)
     {
         setCanvasDrawableSubprocessor(cb->getSelectedId() - 1);
     }
+
+	if (canvas != nullptr)
+		canvas->update();
 }
 
 Visualizer* ProbeViewerEditor::createNewCanvas()
@@ -173,4 +176,14 @@ void ProbeViewerEditor::setCanvasDrawableSubprocessor(int index)
 		}
 
 	}
+}
+
+void ProbeViewerEditor::startAcquisition()
+{
+	subprocessorSelection->setEnabled(false);
+}
+
+void ProbeViewerEditor::stopAcquisition()
+{
+	subprocessorSelection->setEnabled(true);
 }

@@ -115,6 +115,7 @@ void ProbeViewerCanvas::update()
         }
         
 		float sampleRate = pvProcessor->getSubprocessorSampleRate();
+
         //const int procInputs = pvProcessor->getNumInputs();
         //if (procInputs > 0 && procInputs < getNumChannels()) sampleRate = pvProcessor->getDataChannel(i)->getSampleRate();
         //else sampleRate = 30000;

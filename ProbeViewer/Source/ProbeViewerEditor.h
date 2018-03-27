@@ -54,6 +54,10 @@ public:
 
 	void updateSubprocessorSelectorOptions();
 
+	void startAcquisition();
+	void stopAcquisition();
+
+
 private:
     HashMap<int, float> inputSampleRates; // hold the possible subprocessor sample rates
     SortedSet<int> inputSubprocessorIndices;
