@@ -110,7 +110,7 @@ struct ProbeGraphicZoomInfo
 
     float channelHeight = {10};
     
-    Point<int> lastPosition = {0, 0};
+    juce::Point<int> lastPosition = {0, 0};
     float viewportScrollPositionRatio = {1};
 };
 
