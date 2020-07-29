@@ -20,10 +20,9 @@ jobs:
         export CC=gcc-8
         export CXX=g++-8
         cd ../..
-        git clone https://github.com/open-ephys/plugin-GUI.git
+        git clone https://github.com/open-ephys/plugin-GUI.git --branch testing
+        sudo ./plugin-GUI/Resources/Scripts/install_linux_dependencies.sh
         cd plugin-GUI/Build && cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
-        cd ../Resources/Scripts
-        sudo ./install_linux_dependencies.sh
     - name: build
       run: |
         cd Build

@@ -17,12 +17,12 @@ jobs:
     - name: setup
       run: |
         cd ../..
-        git clone https://github.com/open-ephys/plugin-GUI.git
-        cd plugin-GUI/Build && cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Release ..
+        git clone https://github.com/open-ephys/plugin-GUI.git --branch testing
+        cd plugin-GUI/Build && cmake -G "Xcode" ..
     - name: build
       run: |
         cd Build
-        cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Release ..
+        cmake -G "Xcode" ..
         xcodebuild -configuration Release
 #    - name: test
 #      run: cd build && ctest
