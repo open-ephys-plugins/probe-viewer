@@ -19,7 +19,7 @@ CanvasOptionsBar::CanvasOptionsBar(class ChannelViewCanvas* channelsView)
 , marginWidth(0)
 , backgroundGradient(Colour(50,50,50), 0, 0, Colour(25,25,25), 0, 30, false)
 , foregroundColour(150, 150, 150)
-, labelFont("Default", 13.0f, Font::plain)
+, labelFont("Fira Code", "Regular", 16.0f)
 , labelColour(100, 100, 100)
 {
     rmsSubOptionComponent = new RMSSubOptionComponent(labelFont, labelColour);
@@ -29,7 +29,7 @@ CanvasOptionsBar::CanvasOptionsBar(class ChannelViewCanvas* channelsView)
     currentSubOptionComponent = rmsSubOptionComponent;
     addAndMakeVisible(currentSubOptionComponent);
     
-    renderModeSelectionLabel = new Label("renderModeSelectionLabel", "Display Render Mode");
+    renderModeSelectionLabel = new Label("renderModeSelectionLabel", "Render Mode");
     renderModeSelectionLabel->setFont(labelFont);
     renderModeSelectionLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(renderModeSelectionLabel);
@@ -45,7 +45,7 @@ CanvasOptionsBar::CanvasOptionsBar(class ChannelViewCanvas* channelsView)
     
     
     // colour scheme options
-    colourSchemeSelectionLabel = new Label("colourSchemeSelectionLabel", "Colour Scheme");
+    colourSchemeSelectionLabel = new Label("colourSchemeSelectionLabel", "Colour\nScheme");
     colourSchemeSelectionLabel->setFont(labelFont);
     colourSchemeSelectionLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(colourSchemeSelectionLabel);
@@ -80,10 +80,10 @@ void CanvasOptionsBar::resized()
     
     int colourSchemeOffset = 700;
     if (getWidth() > colourSchemeOffset) colourSchemeOffset = getWidth();
-    colourSchemeSelectionLabel->setBounds(colourSchemeOffset - 150, 0, 60, getHeight());
+    colourSchemeSelectionLabel->setBounds(colourSchemeOffset - 170, 0, 70, getHeight());
     colourSchemeSelection->setBounds(colourSchemeSelectionLabel->getRight(), 2, 90, getHeight() - 4);
     
-    Rectangle<int> subOptionBounds(marginWidth + 3, 0, colourSchemeOffset - marginWidth - 150 - 3, getHeight());
+    Rectangle<int> subOptionBounds(marginWidth + 3, 0, colourSchemeOffset - marginWidth - 170 - 3, getHeight());
     rmsSubOptionComponent->setBounds(subOptionBounds);
     fftSubOptionComponent->setBounds(subOptionBounds);
     spikeRateSubOptionComponent->setBounds(subOptionBounds);
@@ -300,7 +300,7 @@ void RMSSubOptionComponent::resized()
 {
     lowValueBoundLabel->setBounds(0, 0, 40, getHeight());
     lowValueBoundSelection->setBounds(lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
-    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight(), 0, 40, getHeight());
+    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight() + 10, 0, 50, getHeight());
     hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
 }
 
@@ -379,7 +379,7 @@ FFTSubOptionComponent::FFTSubOptionComponent(Font labelFont, Colour labelColour)
 , maxFreq(44100.0f / 2.0f)
 {
     // low value plotting threshold
-    lowValueBoundLabel = new Label("lowValueBoundLabel", "Low (dB)");
+    lowValueBoundLabel = new Label("lowValueBoundLabel", "Low (dB):");
     lowValueBoundLabel->setFont(labelFont);
     lowValueBoundLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(lowValueBoundLabel);
@@ -398,7 +398,7 @@ FFTSubOptionComponent::FFTSubOptionComponent(Font labelFont, Colour labelColour)
     
     
     // hi value plotting threshold
-    hiValueBoundLabel = new Label("hiValueBoundLabel", "High (dB)");
+    hiValueBoundLabel = new Label("hiValueBoundLabel", "High (dB):");
     hiValueBoundLabel->setFont(labelFont);
     hiValueBoundLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(hiValueBoundLabel);
@@ -417,7 +417,7 @@ FFTSubOptionComponent::FFTSubOptionComponent(Font labelFont, Colour labelColour)
     
     
     // bin selection
-    binSelectionLabel = new Label("binSelectionLabel", "Center Frequency");
+    binSelectionLabel = new Label("binSelectionLabel", "Center Frequency:");
     binSelectionLabel->setFont(labelFont);
     binSelectionLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(binSelectionLabel);
@@ -444,11 +444,13 @@ void FFTSubOptionComponent::paint(Graphics& g)
 
 void FFTSubOptionComponent::resized()
 {
-    lowValueBoundLabel->setBounds(0, 0, 40, getHeight());
+    lowValueBoundLabel->setBounds(0, 0, 70, getHeight());
     lowValueBoundSelection->setBounds(lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
-    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight(), 0, 40, getHeight());
+
+    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight() + 10, 0, 75, getHeight());
     hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
-    binSelectionLabel->setBounds(hiValueBoundSelection->getRight(), 0, 80, getHeight());
+
+    binSelectionLabel->setBounds(hiValueBoundSelection->getRight() + 10, 0, 130, getHeight());
     binSelection->setBounds(binSelectionLabel->getRight(), 2, 80, getHeight() - 4);
 }
 
@@ -586,7 +588,7 @@ SpikeRateSubOptionComponent::SpikeRateSubOptionComponent(Font labelFont, Colour 
     
     
     // spike onset threshold
-    thresholdSelectionLabel = new Label("thresholdSelectionLabel", "Spike Onset Threshold");
+    thresholdSelectionLabel = new Label("thresholdSelectionLabel", "Spike Onset Threshold:");
     thresholdSelectionLabel->setFont(labelFont);
     thresholdSelectionLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(thresholdSelectionLabel);
@@ -619,10 +621,11 @@ void SpikeRateSubOptionComponent::resized()
 {
     lowValueBoundLabel->setBounds(0, 0, 40, getHeight());
     lowValueBoundSelection->setBounds(lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
-    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight(), 0, 40, getHeight());
-    hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+
+    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight() + 10, 0, 50, getHeight());
+    hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 70, getHeight() - 4);
     
-    thresholdSelectionLabel->setBounds(hiValueBoundSelection->getRight(), 0, 90, getHeight());
+    thresholdSelectionLabel->setBounds(hiValueBoundSelection->getRight() + 10, 0, 150, getHeight());
     thresholdSelection->setBounds(thresholdSelectionLabel->getRight(), 2, 60, getHeight() - 4);
 }
 
