@@ -38,19 +38,20 @@ ProbeViewerEditor::ProbeViewerEditor(GenericProcessor* parentNode)
     
     desiredWidth = 180;
     
-    subprocessorSelection = new ComboBox("Subprocessor sample rate");
-    subprocessorSelection->setBounds(10, 30, 50, 22);
-    subprocessorSelection->addListener(this);
-    addAndMakeVisible(subprocessorSelection);
+    streamSelectionLabel = std::make_unique<Label>("Stream Selection Label", "Display Stream:");
+    streamSelectionLabel->setBounds(10, 30, 130, 24);
+    addAndMakeVisible(streamSelectionLabel.get());
+
+	streamSelection = std::make_unique<ComboBox>("Stream Selector");
+    streamSelection->setBounds(15, 60, 120, 20);
+    streamSelection->addListener(this);
+    addAndMakeVisible(streamSelection.get());
     
-    subprocessorSelectionLabel = new Label("subprocessorSelectionLabel", "Display Subproc.");
-    subprocessorSelectionLabel->setBounds(subprocessorSelection->getRight(), subprocessorSelection->getY(), 100, 20);
-    addAndMakeVisible(subprocessorSelectionLabel);
-    
-    subprocessorSampleRateLabel = new Label("subprocessorSampleRateLabel", "Sample Rate:");
-    subprocessorSampleRateLabel->setFont(Font(Font::getDefaultSerifFontName(), 14.0f, Font::plain));
-    subprocessorSampleRateLabel->setBounds(subprocessorSelection->getX(), subprocessorSelection->getBottom() + 10, 200, 40);
-    addAndMakeVisible(subprocessorSampleRateLabel);
+    streamSampleRateLabel = std::make_unique<Label>("Stream Sample Rate Label", "Sample Rate:");
+	streamSampleRateLabel->setFont(Font("Fira Code", "SemiBold", 16.0f));
+	streamSampleRateLabel->setJustificationType(Justification::centred);
+    streamSampleRateLabel->setBounds(10, 90, 160, 24);
+    addAndMakeVisible(streamSampleRateLabel.get());
 }
 
 ProbeViewerEditor::~ProbeViewerEditor()
@@ -59,7 +60,7 @@ ProbeViewerEditor::~ProbeViewerEditor()
 
 void ProbeViewerEditor::comboBoxChanged(ComboBox* cb)
 {
-    if (cb == subprocessorSelection)
+    if (cb == streamSelection.get())
     {
         setDrawableStream(cb->getSelectedId());
     }
@@ -77,7 +78,7 @@ void ProbeViewerEditor::updateStreamSelectorOptions()
 {
     // clear out the old data
     inputStreamIds.clear();
-    subprocessorSelection->clear(dontSendNotification);
+    streamSelection->clear(dontSendNotification);
     
 	if (probeViewerProcessor->getTotalContinuousChannels() != 0)
 
@@ -98,18 +99,18 @@ void ProbeViewerEditor::updateStreamSelectorOptions()
 
 		for (int i = 0; i < inputStreamIds.size(); ++i)
 		{
-			subprocessorSelection->addItem(probeViewerProcessor->getDataStream(inputStreamIds[i])->getName(),
+			streamSelection->addItem(probeViewerProcessor->getDataStream(inputStreamIds[i])->getName(),
 										   inputStreamIds[i]);
 		}
 
 		if (subprocessorToSet >= 0)
 		{
-			subprocessorSelection->setSelectedId(subprocessorToSet, dontSendNotification);
+			streamSelection->setSelectedId(subprocessorToSet, dontSendNotification);
 		}
 		else
 		{
-			subprocessorSelection->addItem("None", 1);
-			subprocessorSelection->setSelectedId(1, dontSendNotification);
+			streamSelection->addItem("None", 1);
+			streamSelection->setSelectedId(1, dontSendNotification);
 		}
 
 		setDrawableStream(subprocessorToSet);
@@ -125,23 +126,23 @@ void ProbeViewerEditor::setDrawableStream(int index)
 
 		String sampleRateLabelText = "Sample Rate: ";
 		sampleRateLabelText += String(rate);
-		subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+		streamSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
 	}
 	else
 	{
 		probeViewerProcessor->setDisplayedStream(-1);
 
 		String sampleRateLabelText = "Sample Rate: <not available>";
-		subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+		streamSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
 	}
 }
 
 void ProbeViewerEditor::startAcquisition()
 {
-	subprocessorSelection->setEnabled(false);
+	streamSelection->setEnabled(false);
 }
 
 void ProbeViewerEditor::stopAcquisition()
 {
-	subprocessorSelection->setEnabled(true);
+	streamSelection->setEnabled(true);
 }

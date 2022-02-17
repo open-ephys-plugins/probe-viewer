@@ -36,7 +36,7 @@ public:
     ProbeViewerEditor(GenericProcessor* parentNode);
     virtual ~ProbeViewerEditor() override;
 
-    /** Respond to user's subprocessor sample rate selection */
+    /** Respond to user's stream sample rate selection */
     void comboBoxChanged(ComboBox *cb) override;
 
     /** Called by the base calss VisualizerEditor to display the canvas
@@ -57,10 +57,10 @@ private:
 
     class ProbeViewerNode* probeViewerProcessor;
 
-    ScopedPointer<Label> subprocessorSelectionLabel;
-    ScopedPointer<ComboBox> subprocessorSelection;
+    std::unique_ptr<Label> streamSelectionLabel;
+    std::unique_ptr<ComboBox> streamSelection;
 
-    ScopedPointer<Label> subprocessorSampleRateLabel;
+    std::unique_ptr<Label> streamSampleRateLabel;
 
     bool hasNoInputs;
 
