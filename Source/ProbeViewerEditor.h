@@ -53,7 +53,7 @@ public:
 
 
 private:
-    SortedSet<int> inputStreamIds;
+    Array<int> inputStreamIds;
 
     class ProbeViewerNode* probeViewerProcessor;
 

@@ -76,31 +76,37 @@ Visualizer* ProbeViewerEditor::createNewCanvas()
 
 void ProbeViewerEditor::updateStreamSelectorOptions()
 {
-    // clear out the old data
-    inputStreamIds.clear();
-    streamSelection->clear(dontSendNotification);
-    
-	if (probeViewerProcessor->getTotalContinuousChannels() != 0)
+    bool needsUpdate = false;
 
+	for (auto stream: probeViewerProcessor->getDataStreams())
 	{
-
-		for (int i = 0, len = probeViewerProcessor->getTotalContinuousChannels(); i < len; ++i)
+		if(!inputStreamIds.contains(stream->getStreamId()))
 		{
-			int streamID = probeViewerProcessor->getContinuousChannel(i)->getStreamId();
+			needsUpdate = true;
+			break;
+		}
+	}
 
-			bool success = inputStreamIds.add(streamID);
+	if(probeViewerProcessor->getNumDataStreams() == 0)
+		needsUpdate = true;
+
+	if(needsUpdate)
+	{	
+		inputStreamIds.clear();
+		streamSelection->clear(dontSendNotification);
+
+		for (auto stream: probeViewerProcessor->getDataStreams())
+		{
+			int streamID = stream->getStreamId();
+
+			inputStreamIds.add(streamID);
+			streamSelection->addItem(stream->getName(), streamID);
 		}
 
 		int subprocessorToSet = -1;
 		if (inputStreamIds.size() > 0)
 		{
 			subprocessorToSet = inputStreamIds[0];
-		}
-
-		for (int i = 0; i < inputStreamIds.size(); ++i)
-		{
-			streamSelection->addItem(probeViewerProcessor->getDataStream(inputStreamIds[i])->getName(),
-										   inputStreamIds[i]);
 		}
 
 		if (subprocessorToSet >= 0)

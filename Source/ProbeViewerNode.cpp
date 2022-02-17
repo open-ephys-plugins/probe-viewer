@@ -69,13 +69,8 @@ void ProbeViewerNode::updateSettings()
 
 	channelsToDraw.clear();
 
-	// update the editor's subprocessor selection display, only if there's a mismatch in # of subprocessors
-	if (numStreams != getNumDataStreams())
-	{
-		numStreams = getNumDataStreams();
-		ProbeViewerEditor * ed = (ProbeViewerEditor*) getEditor();
-		ed->updateStreamSelectorOptions();
-	}
+	ProbeViewerEditor * ed = (ProbeViewerEditor*) getEditor();
+	ed->updateStreamSelectorOptions();
 
 	LOGD("Selected Stream ID: ", streamToDraw);
 
@@ -127,12 +122,18 @@ void ProbeViewerNode::setDisplayedStream(int idx)
 
 float ProbeViewerNode::getStreamSampleRate()
 {
-	return getDataStream(streamToDraw)->getSampleRate();
+	if(streamToDraw >= 0)
+		return getDataStream(streamToDraw)->getSampleRate();
+	else
+		return 0.0f;
 }
 
 int ProbeViewerNode::getNumStreamChannels()
 {
-	return getDataStream(streamToDraw)->getChannelCount() ;
+	if(streamToDraw >= 0)
+		return getDataStream(streamToDraw)->getChannelCount() ;
+	else
+		return 0;
 }
 
 bool ProbeViewerNode::resizeBuffer()
