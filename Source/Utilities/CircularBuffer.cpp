@@ -43,11 +43,6 @@ void CircularBuffer::setSize(int numChannels, int numSamples, Array<bool> should
     dataBuffer->setSize(numChannels, numSamples);
 
 	shouldDraw = shouldDraw_;
-
-	for (int i = 0; i < 10; i++)
-	{
-		std::cout << shouldDraw[i] << std::endl;
-	}
     
     readIndex.clear();
     readIndex.insertMultiple(0, 0, numChannels);

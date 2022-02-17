@@ -69,7 +69,15 @@ void ProbeViewerNode::updateSettings()
 
 	channelsToDraw.clear();
 
-	std::cout << "Subprocessor: " << streamToDraw << std::endl;
+	// update the editor's subprocessor selection display, only if there's a mismatch in # of subprocessors
+	if (numStreams != getNumDataStreams())
+	{
+		numStreams = getNumDataStreams();
+		ProbeViewerEditor * ed = (ProbeViewerEditor*) getEditor();
+		ed->updateStreamSelectorOptions();
+	}
+
+	LOGD("Selected Stream ID: ", streamToDraw);
 
 	for (int i = 0; i < getNumInputs(); i++)
 	{
@@ -79,21 +87,12 @@ void ProbeViewerNode::updateSettings()
 		if (channelStream == streamToDraw)
 		{
 			//std::cout << "Found a match" << std::endl;
-			streamSampleRate = chan->getSampleRate();
 			channelsToDraw.add(true);
 			lastChannelInStream = i;
 		}
 		else {
 			channelsToDraw.add(false);
 		}
-	}
-
-	// update the editor's subprocessor selection display, only if there's a mismatch in # of subprocessors
-	if (numStreams != getNumDataStreams())
-	{
-		ProbeViewerEditor * ed = (ProbeViewerEditor*) getEditor();
-		ed->updateSubprocessorSelectorOptions();
-		numStreams = getNumDataStreams();
 	}
 
 	//std::cout << "Resizing buffer!" << std::endl;
@@ -120,7 +119,7 @@ bool ProbeViewerNode::stopAcquisition()
     return true;
 }
 
-void ProbeViewerNode::setDisplayedSubprocessor(int idx)
+void ProbeViewerNode::setDisplayedStream(int idx)
 {
 	streamToDraw = idx;
 	updateSettings();
@@ -128,21 +127,20 @@ void ProbeViewerNode::setDisplayedSubprocessor(int idx)
 
 float ProbeViewerNode::getStreamSampleRate()
 {
-	return streamSampleRate;
+	return getDataStream(streamToDraw)->getSampleRate();
 }
 
 int ProbeViewerNode::getNumStreamChannels()
 {
-	LOGC("STREAM TO DRAW: ", streamToDraw);
 	return getDataStream(streamToDraw)->getChannelCount() ;
 }
 
 bool ProbeViewerNode::resizeBuffer()
 {
-	int nSamples = (int) streamSampleRate * bufferLengthSeconds;
+	int nSamples = (int) getStreamSampleRate() * bufferLengthSeconds;
 	int nInputs = getNumStreamChannels();
     
-    std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
+    LOGD("Resizing buffer. Samples: ", nSamples, ", Inputs: ", nInputs);
     
     if (nSamples > 0 && nInputs > 0)
     {

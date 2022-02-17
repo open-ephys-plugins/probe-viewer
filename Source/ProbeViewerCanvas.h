@@ -102,12 +102,6 @@ public:
     float getChannelSampleRate(int channel);
 
     /**
-     *  Delegates a stream id for drawing to the LfpDisplay referenced
-     *  by this canvas
-     */
-    void setDrawableSubprocessor(int idx);
-
-    /**
      *  Return a pointer for the viewport wrapping the channel canvas area
      */
     class ProbeViewerViewport* getViewportPtr();

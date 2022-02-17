@@ -46,14 +46,13 @@ public:
      */
     virtual Visualizer* createNewCanvas() override;
 
-	void updateSubprocessorSelectorOptions();
+	void updateStreamSelectorOptions();
 
 	void startAcquisition();
 	void stopAcquisition();
 
 
 private:
-    HashMap<int, float> inputSampleRates; // hold the possible subprocessor sample rates
     SortedSet<int> inputStreamIds;
 
     class ProbeViewerNode* probeViewerProcessor;
@@ -65,7 +64,7 @@ private:
 
     bool hasNoInputs;
 
-    void setCanvasDrawableSubprocessor(int index);
+    void setDrawableStream(int index);
     
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerEditor);

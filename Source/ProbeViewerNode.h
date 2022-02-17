@@ -40,7 +40,7 @@ public:
 
     void updateSettings() override;
 
-	void setDisplayedSubprocessor(int idx);
+	void setDisplayedStream(int idx);
 	float getStreamSampleRate();
 	int getNumStreamChannels();
 
@@ -62,7 +62,6 @@ private:
 
 	int streamToDraw;
 	int numStreams;
-	float streamSampleRate;
 	int lastChannelInStream;
 
 	Array<bool> channelsToDraw;

@@ -61,7 +61,7 @@ void ProbeViewerEditor::comboBoxChanged(ComboBox* cb)
 {
     if (cb == subprocessorSelection)
     {
-        setCanvasDrawableSubprocessor(cb->getSelectedId());
+        setDrawableStream(cb->getSelectedId());
     }
 
 	if (canvas != nullptr)
@@ -73,11 +73,10 @@ Visualizer* ProbeViewerEditor::createNewCanvas()
     return new ProbeViewerCanvas(probeViewerProcessor);
 }
 
-void ProbeViewerEditor::updateSubprocessorSelectorOptions()
+void ProbeViewerEditor::updateStreamSelectorOptions()
 {
     // clear out the old data
     inputStreamIds.clear();
-    inputSampleRates.clear();
     subprocessorSelection->clear(dontSendNotification);
     
 	if (probeViewerProcessor->getTotalContinuousChannels() != 0)
@@ -89,8 +88,6 @@ void ProbeViewerEditor::updateSubprocessorSelectorOptions()
 			int streamID = probeViewerProcessor->getContinuousChannel(i)->getStreamId();
 
 			bool success = inputStreamIds.add(streamID);
-
-			if (success) inputSampleRates.set(streamID, probeViewerProcessor->getContinuousChannel(i)->getSampleRate());
 		}
 
 		int subprocessorToSet = -1;
@@ -108,45 +105,34 @@ void ProbeViewerEditor::updateSubprocessorSelectorOptions()
 		if (subprocessorToSet >= 0)
 		{
 			subprocessorSelection->setSelectedId(subprocessorToSet, dontSendNotification);
-
-			String sampleRateLabelText = "Sample Rate: ";
-			sampleRateLabelText += String(inputSampleRates[subprocessorToSet]);
-
-			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-			setCanvasDrawableSubprocessor(subprocessorToSet);
 		}
 		else
 		{
 			subprocessorSelection->addItem("None", 1);
 			subprocessorSelection->setSelectedId(1, dontSendNotification);
-
-			String sampleRateLabelText = "Sample Rate: <not available>";
-			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-			setCanvasDrawableSubprocessor(-1);
 		}
+
+		setDrawableStream(subprocessorToSet);
 	}
 }
 
-void ProbeViewerEditor::setCanvasDrawableSubprocessor(int index)
+void ProbeViewerEditor::setDrawableStream(int index)
 {
-	if (canvas)
+	if (index >= 0)
 	{
-		if (index >= 0)
-		{
-			((ProbeViewerCanvas *)canvas.get())->setDrawableSubprocessor(index);
-			float rate = probeViewerProcessor->getStreamSampleRate();
+		probeViewerProcessor->setDisplayedStream(index);
+		float rate = probeViewerProcessor->getStreamSampleRate();
 
-			String sampleRateLabelText = "Sample Rate: ";
-			sampleRateLabelText += String(rate);
-			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+		String sampleRateLabelText = "Sample Rate: ";
+		sampleRateLabelText += String(rate);
+		subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+	}
+	else
+	{
+		probeViewerProcessor->setDisplayedStream(-1);
 
-			std::cout << sampleRateLabelText << std::endl;
-		}
-		else
-		{
-			((ProbeViewerCanvas *)canvas.get())->setDrawableSubprocessor(-1);
-		}
-
+		String sampleRateLabelText = "Sample Rate: <not available>";
+		subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
 	}
 }
 
