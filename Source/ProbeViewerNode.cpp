@@ -33,17 +33,16 @@ using namespace ProbeViewer;
 ProbeViewerNode::ProbeViewerNode()
 : GenericProcessor ("Probe Viewer")
 {
-    setProcessorType(PROCESSOR_TYPE_SINK);
+    setProcessorType(Plugin::Processor::SINK);
     dataBuffer = new CircularBuffer;
     
     // bind the get samples function
     using namespace std::placeholders;
     channelSampleCountPollFunction = std::bind(&ProbeViewerNode::getNumSamples, this, _1);
 
-	subprocessorToDraw = 0;
-	numSubprocessors = -1;
-	numChannelsInSubprocessor = 0;
-	lastChannelInSubprocessor = 0;
+	streamToDraw = 0;
+	numStreams = -1;
+	lastChannelInStream = 0;
 }
 
 ProbeViewerNode::~ProbeViewerNode()
@@ -51,47 +50,38 @@ ProbeViewerNode::~ProbeViewerNode()
 
 AudioProcessorEditor* ProbeViewerNode::createEditor()
 {
-    editor = new ProbeViewerEditor (this, true);
-    return editor;
+    editor = std::make_unique<ProbeViewerEditor> (this);
+    return editor.get();
 }
 
 void ProbeViewerNode::process(AudioSampleBuffer& b)
 {
-	const int nSamples = getNumSamples(lastChannelInSubprocessor);
+	const int nSamples = getNumSamples(lastChannelInStream);
 
 	dataBuffer->pushBuffer(b, nSamples);
 }
 
 void ProbeViewerNode::updateSettings()
 {
-    std::cout << "Setting num inputs on ProbeViewer to " << getNumInputs() << std::endl;
+    LOGD("Setting num inputs on ProbeViewer to ", getNumInputs());
 
-	numChannelsInSubprocessor = 0;
-	int totalSubprocessors = 0;
-	int currentSubprocessor = -1;
-	lastChannelInSubprocessor = 0;
+	lastChannelInStream = 0;
 
 	channelsToDraw.clear();
 
-	std::cout << "Subprocessor: " << subprocessorToDraw << std::endl;
+	std::cout << "Subprocessor: " << streamToDraw << std::endl;
 
 	for (int i = 0; i < getNumInputs(); i++)
 	{
-		int channelSubprocessor = getDataChannel(i)->getSubProcessorIdx();
+		auto chan = continuousChannels[i];
+		int channelStream = chan->getStreamId();
 
-		if (currentSubprocessor != channelSubprocessor)
-		{
-			totalSubprocessors++;
-			currentSubprocessor = channelSubprocessor;
-		}
-
-		if (channelSubprocessor == subprocessorToDraw)
+		if (channelStream == streamToDraw)
 		{
 			//std::cout << "Found a match" << std::endl;
-			numChannelsInSubprocessor++;
-			subprocessorSampleRate = getDataChannel(i)->getSampleRate();
+			streamSampleRate = chan->getSampleRate();
 			channelsToDraw.add(true);
-			lastChannelInSubprocessor = i;
+			lastChannelInStream = i;
 		}
 		else {
 			channelsToDraw.add(false);
@@ -99,11 +89,11 @@ void ProbeViewerNode::updateSettings()
 	}
 
 	// update the editor's subprocessor selection display, only if there's a mismatch in # of subprocessors
-	if (numSubprocessors != totalSubprocessors)
+	if (numStreams != getNumDataStreams())
 	{
 		ProbeViewerEditor * ed = (ProbeViewerEditor*) getEditor();
 		ed->updateSubprocessorSelectorOptions();
-		numSubprocessors = totalSubprocessors;
+		numStreams = getNumDataStreams();
 	}
 
 	//std::cout << "Resizing buffer!" << std::endl;
@@ -111,7 +101,7 @@ void ProbeViewerNode::updateSettings()
 
 }
 
-bool ProbeViewerNode::enable()
+bool ProbeViewerNode::startAcquisition()
 {
     if (resizeBuffer())
     {
@@ -124,44 +114,33 @@ bool ProbeViewerNode::enable()
     return false;
 }
 
-bool ProbeViewerNode::disable()
+bool ProbeViewerNode::stopAcquisition()
 {
     ((ProbeViewerEditor*) getEditor())->disable();
     return true;
 }
 
-void ProbeViewerNode::setParameter(int parameterIndex, float newValue)
-{
-    editor->updateParameterButtons(parameterIndex);
-    
-    // Sets Parameters array for processor
-    parameters[parameterIndex]->setValue(newValue, currentChannel);
-    
-    ProbeViewerEditor* ed = (ProbeViewerEditor*) getEditor();
-    if(ed->canvas != 0)
-        ed->canvas->setParameter (parameterIndex, newValue);
-}
-
 void ProbeViewerNode::setDisplayedSubprocessor(int idx)
 {
-	subprocessorToDraw = idx;
+	streamToDraw = idx;
 	updateSettings();
 }
 
-float ProbeViewerNode::getSubprocessorSampleRate()
+float ProbeViewerNode::getStreamSampleRate()
 {
-	return subprocessorSampleRate;
+	return streamSampleRate;
 }
 
-int ProbeViewerNode::getNumSubprocessorChannels()
+int ProbeViewerNode::getNumStreamChannels()
 {
-	return numChannelsInSubprocessor;
+	LOGC("STREAM TO DRAW: ", streamToDraw);
+	return getDataStream(streamToDraw)->getChannelCount() ;
 }
 
 bool ProbeViewerNode::resizeBuffer()
 {
-	int nSamples = (int) subprocessorSampleRate * bufferLengthSeconds;
-	int nInputs = numChannelsInSubprocessor;
+	int nSamples = (int) streamSampleRate * bufferLengthSeconds;
+	int nInputs = getNumStreamChannels();
     
     std::cout << "Resizing buffer. Samples: " << nSamples << ", Inputs: " << nInputs << std::endl;
     

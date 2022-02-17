@@ -21,7 +21,7 @@
  
  */
 
-#ifdef WIN32
+#ifdef _WIN32
 #define _USE_MATH_DEFINES
 #endif
 
@@ -88,7 +88,7 @@ void ProbeViewerCanvas::update()
     //               this will still work, but the center frequency combobox options will
     //               only be accurate for one of the sampleRates - currently, the first
     //               non-zero sample rate encountered
-    numChannels = jmax(pvProcessor->getNumSubprocessorChannels(), 0);
+    numChannels = jmax(pvProcessor->getNumStreamChannels(), 0);
     setNumChannels(numChannels);
 
     channelsView->readSites.clear();
@@ -110,7 +110,7 @@ void ProbeViewerCanvas::update()
             ++referenceNodeOffsetCount;
         }
 
-        float sampleRate = pvProcessor->getSubprocessorSampleRate();
+        float sampleRate = pvProcessor->getStreamSampleRate();
 
         //const int procInputs = pvProcessor->getNumInputs();
         //if (procInputs > 0 && procInputs < getNumChannels()) sampleRate = pvProcessor->getDataChannel(i)->getSampleRate();

@@ -76,8 +76,8 @@ void NeuropixInterface::paint(Graphics& g)
     for (int channel = 0; channel < channelStatus.size(); ++channel)
     {
         g.setColour(getChannelColour(channel));
-        g.setPixel(xOffset + 3 + ((channel % 2)) * 2, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2));
-        g.setPixel(xOffset + 3 + ((channel % 2)) * 2 + 1, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2));
+        g.fillRect(xOffset + 3 + ((channel % 2)) * 2, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2), 1, 1);
+        g.fillRect(xOffset + 3 + ((channel % 2)) * 2 + 1, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2), 1, 1);
     }
     
     // draw channel numbers

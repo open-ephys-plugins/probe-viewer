@@ -29,18 +29,12 @@
 namespace ProbeViewer {
 
 class ProbeViewerEditor
-    : public VisualizerEditor
-    , public ComboBox::Listener
+    : public VisualizerEditor,
+      public ComboBox::Listener
 {
 public:
-    ProbeViewerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors=true);
+    ProbeViewerEditor(GenericProcessor* parentNode);
     virtual ~ProbeViewerEditor() override;
-
-    /** Override the default VisualizerEditor behavior slightly, only for initialization */
-    void buttonClicked(Button* button) override;
-
-    /** Override the custom button event callback */
-    void buttonEvent(Button* button);
 
     /** Respond to user's subprocessor sample rate selection */
     void comboBoxChanged(ComboBox *cb) override;
@@ -60,7 +54,7 @@ public:
 
 private:
     HashMap<int, float> inputSampleRates; // hold the possible subprocessor sample rates
-    SortedSet<int> inputSubprocessorIndices;
+    SortedSet<int> inputStreamIds;
 
     class ProbeViewerNode* probeViewerProcessor;
 

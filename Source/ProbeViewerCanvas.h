@@ -57,12 +57,6 @@ public:
     /** Called when data acquisition ends.*/
     virtual void endAnimation() override;
 
-    /** Called by an editor to initiate a parameter change.*/
-    virtual void setParameter(int, float) override {}               // unused
-
-    /** Called by an editor to initiate a parameter change.*/
-    virtual void setParameter(int, int, int, float) override {}     // unused
-
 
 
     /**
@@ -108,7 +102,7 @@ public:
     float getChannelSampleRate(int channel);
 
     /**
-     *  Delegates a subprocessor index for drawing to the LfpDisplay referenced
+     *  Delegates a stream id for drawing to the LfpDisplay referenced
      *  by this canvas
      */
     void setDrawableSubprocessor(int idx);

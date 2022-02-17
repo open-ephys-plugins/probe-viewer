@@ -41,13 +41,11 @@ public:
     void updateSettings() override;
 
 	void setDisplayedSubprocessor(int idx);
-	float getSubprocessorSampleRate();
-	int getNumSubprocessorChannels();
+	float getStreamSampleRate();
+	int getNumStreamChannels();
 
-    bool enable() override;
-    bool disable() override;
-
-    void setParameter(int parameterIndex, float newValue) override;
+    bool startAcquisition() override;
+    bool stopAcquisition() override;
 
     class CircularBuffer* getCircularBufferPtr() { return dataBuffer; }
 //    CriticalSection* getMutex() { return &displayMutex; }
@@ -62,11 +60,10 @@ private:
 
     bool resizeBuffer();
 
-	int subprocessorToDraw;
-	int numChannelsInSubprocessor;
-	int numSubprocessors;
-	float subprocessorSampleRate;
-	int lastChannelInSubprocessor;
+	int streamToDraw;
+	int numStreams;
+	float streamSampleRate;
+	int lastChannelInStream;
 
 	Array<bool> channelsToDraw;
 

@@ -28,9 +28,9 @@
 
 using namespace ProbeViewer;
 
-ProbeViewerEditor::ProbeViewerEditor(GenericProcessor* parentNode, bool useDefaultParameterEditors)
-: VisualizerEditor(parentNode, useDefaultParameterEditors)
-, hasNoInputs(true)
+ProbeViewerEditor::ProbeViewerEditor(GenericProcessor* parentNode)
+					: VisualizerEditor(parentNode),
+					  hasNoInputs(true)
 {
     probeViewerProcessor = (ProbeViewerNode *)parentNode;
     
@@ -56,39 +56,12 @@ ProbeViewerEditor::ProbeViewerEditor(GenericProcessor* parentNode, bool useDefau
 ProbeViewerEditor::~ProbeViewerEditor()
 { }
 
-void ProbeViewerEditor::buttonClicked(Button* button)
-{
-    // duplicate default VisualizerEditor behavior, except...
-    if (canvas == nullptr)
-    {
-        canvas = createNewCanvas();
-        
-        // initialize the subprocessor sample rate filtering before canvas updates
-        // (else) initialization errors. lots of time-critical cross dependencies here,
-        // should be cleaned up
-        // !! much of this is duplicated from LfpDisplayEditor
-        updateSubprocessorSelectorOptions();
-        
-        canvas->update();
-        
-        if (isPlaying)
-            canvas->beginAnimation();
-    }
-    
-    // resume default behavior
-    VisualizerEditor::buttonClicked(button);
-}
-
-void ProbeViewerEditor::buttonEvent(Button* button)
-{
-    // nothing to do here
-}
 
 void ProbeViewerEditor::comboBoxChanged(ComboBox* cb)
 {
     if (cb == subprocessorSelection)
     {
-        setCanvasDrawableSubprocessor(cb->getSelectedId() - 1);
+        setCanvasDrawableSubprocessor(cb->getSelectedId());
     }
 
 	if (canvas != nullptr)
@@ -97,48 +70,47 @@ void ProbeViewerEditor::comboBoxChanged(ComboBox* cb)
 
 Visualizer* ProbeViewerEditor::createNewCanvas()
 {
-    canvas = new ProbeViewerCanvas(probeViewerProcessor);
-    updateSubprocessorSelectorOptions();
-    return canvas;
+    return new ProbeViewerCanvas(probeViewerProcessor);
 }
 
 void ProbeViewerEditor::updateSubprocessorSelectorOptions()
 {
     // clear out the old data
-    inputSubprocessorIndices.clear();
+    inputStreamIds.clear();
     inputSampleRates.clear();
     subprocessorSelection->clear(dontSendNotification);
     
-	if (probeViewerProcessor->getTotalDataChannels() != 0)
+	if (probeViewerProcessor->getTotalContinuousChannels() != 0)
 
 	{
 
-		for (int i = 0, len = probeViewerProcessor->getTotalDataChannels(); i < len; ++i)
+		for (int i = 0, len = probeViewerProcessor->getTotalContinuousChannels(); i < len; ++i)
 		{
-			int subProcessorIdx = probeViewerProcessor->getDataChannel(i)->getSubProcessorIdx();
+			int streamID = probeViewerProcessor->getContinuousChannel(i)->getStreamId();
 
-			bool success = inputSubprocessorIndices.add(subProcessorIdx);
+			bool success = inputStreamIds.add(streamID);
 
-			if (success) inputSampleRates.set(subProcessorIdx, probeViewerProcessor->getDataChannel(i)->getSampleRate());
+			if (success) inputSampleRates.set(streamID, probeViewerProcessor->getContinuousChannel(i)->getSampleRate());
 		}
 
 		int subprocessorToSet = -1;
-		if (inputSubprocessorIndices.size() > 0)
+		if (inputStreamIds.size() > 0)
 		{
-			subprocessorToSet = 0;
+			subprocessorToSet = inputStreamIds[0];
 		}
 
-		for (int i = 0; i < inputSubprocessorIndices.size(); ++i)
+		for (int i = 0; i < inputStreamIds.size(); ++i)
 		{
-			subprocessorSelection->addItem(String(*(inputSubprocessorIndices.begin() + i)), i + 1);
+			subprocessorSelection->addItem(probeViewerProcessor->getDataStream(inputStreamIds[i])->getName(),
+										   inputStreamIds[i]);
 		}
 
 		if (subprocessorToSet >= 0)
 		{
-			subprocessorSelection->setSelectedId(subprocessorToSet + 1, dontSendNotification);
+			subprocessorSelection->setSelectedId(subprocessorToSet, dontSendNotification);
 
 			String sampleRateLabelText = "Sample Rate: ";
-			sampleRateLabelText += String(inputSampleRates[*(inputSubprocessorIndices.begin() + subprocessorToSet)]);
+			sampleRateLabelText += String(inputSampleRates[subprocessorToSet]);
 
 			subprocessorSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
 			setCanvasDrawableSubprocessor(subprocessorToSet);
@@ -161,8 +133,8 @@ void ProbeViewerEditor::setCanvasDrawableSubprocessor(int index)
 	{
 		if (index >= 0)
 		{
-			((ProbeViewerCanvas *)canvas.get())->setDrawableSubprocessor(*(inputSubprocessorIndices.begin() + index));
-			float rate = probeViewerProcessor->getSubprocessorSampleRate();
+			((ProbeViewerCanvas *)canvas.get())->setDrawableSubprocessor(index);
+			float rate = probeViewerProcessor->getStreamSampleRate();
 
 			String sampleRateLabelText = "Sample Rate: ";
 			sampleRateLabelText += String(rate);
