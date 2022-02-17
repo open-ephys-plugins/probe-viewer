@@ -108,9 +108,6 @@ private:
 
     float marginWidth;
 
-    ColourGradient backgroundGradient;
-    Colour foregroundColour;
-
     Font labelFont;
     Colour labelColour;
 

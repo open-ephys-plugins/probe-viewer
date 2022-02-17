@@ -29,9 +29,6 @@ ProbeViewerTimeScale::ProbeViewerTimeScale(float timeScale, float resolution)
 : timeScale(timeScale)
 , resolution(resolution)
 , marginWidth(0)
-, backgroundGradient(Colour(50,50,50), 0, 0, Colour(25,25,25), 0, 30, false)
-, backgroundColour(58, 58, 58)
-, foregroundColour(150, 150, 150)
 , font("Default", 16, Font::plain)
 {
     
@@ -42,14 +39,7 @@ ProbeViewerTimeScale::~ProbeViewerTimeScale()
 
 void ProbeViewerTimeScale::paint(Graphics& g)
 {
-    if (backgroundFillType == GRADIENT)
-    {
-        g.setGradientFill(backgroundGradient);
-    }
-    else
-    {
-        g.setColour(backgroundColour);
-    }
+    g.setColour(Colour(35, 35, 35));
     
     g.fillRect(0, 0, getWidth(), 30);
     
@@ -58,7 +48,7 @@ void ProbeViewerTimeScale::paint(Graphics& g)
     
     // draw left-most zero baseline
     g.setFont(font);
-    g.setColour(foregroundColour);
+    g.setColour(Colour(150, 150, 150));
     g.drawLine(marginWidth, 0, marginWidth, getHeight(), 3);
     
     g.drawText("s:", marginWidth - 25, 0, 100, getHeight(), Justification::left, false);
@@ -86,23 +76,6 @@ void ProbeViewerTimeScale::paint(Graphics& g)
 
 void ProbeViewerTimeScale::resized()
 { }
-
-void ProbeViewerTimeScale::setBackgroundColour(Colour background)
-{
-    backgroundColour = background;
-    backgroundFillType = SOLID;
-}
-
-void ProbeViewerTimeScale::setBackgroundColourGradient(ColourGradient background)
-{
-    backgroundGradient = background;
-    backgroundFillType = GRADIENT;
-}
-
-void ProbeViewerTimeScale::setForegroundColour(Colour foreground)
-{
-    
-}
 
 void ProbeViewerTimeScale::setMarginOffset(float marginOffset)
 {

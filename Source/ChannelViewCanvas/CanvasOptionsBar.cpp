@@ -17,8 +17,6 @@ using namespace ProbeViewer;
 CanvasOptionsBar::CanvasOptionsBar(class ChannelViewCanvas* channelsView)
 : channelsView(channelsView)
 , marginWidth(0)
-, backgroundGradient(Colour(50,50,50), 0, 0, Colour(25,25,25), 0, 30, false)
-, foregroundColour(150, 150, 150)
 , labelFont("Fira Code", "Regular", 16.0f)
 , labelColour(100, 100, 100)
 {
@@ -66,7 +64,7 @@ CanvasOptionsBar::~CanvasOptionsBar()
 
 void CanvasOptionsBar::paint(Graphics& g)
 {
-    g.setGradientFill(backgroundGradient);
+    g.setColour(Colour(25, 25, 25));
     g.fillRect(0, 0, getWidth(), getHeight());
     
     g.setColour(Colour(80, 80, 80));

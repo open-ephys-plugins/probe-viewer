@@ -37,27 +37,12 @@ public:
     void paint(Graphics& g) override;
     void resized() override;
 
-    void setBackgroundColour(Colour background);
-    void setBackgroundColourGradient(ColourGradient background);
-    void setForegroundColour(Colour foreground);
-
     void setMarginOffset(float marginOffset);
 
 private:
     float timeScale;
     float resolution;
     float marginWidth;
-
-    enum BackgroundFillType
-    {
-        GRADIENT,
-        SOLID
-    };
-    BackgroundFillType backgroundFillType;
-
-    ColourGradient backgroundGradient;
-    Colour backgroundColour;
-    Colour foregroundColour;
 
     Font font;
 
