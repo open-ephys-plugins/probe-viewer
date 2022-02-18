@@ -40,7 +40,7 @@ ProbeViewerNode::ProbeViewerNode()
     using namespace std::placeholders;
     channelSampleCountPollFunction = std::bind(&ProbeViewerNode::getNumSamples, this, _1);
 
-	streamToDraw = 0;
+	streamToDraw = -1;
 	numStreams = -1;
 	lastChannelInStream = 0;
 }

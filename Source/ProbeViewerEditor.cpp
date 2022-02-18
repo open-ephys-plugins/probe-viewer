@@ -77,6 +77,7 @@ Visualizer* ProbeViewerEditor::createNewCanvas()
 void ProbeViewerEditor::updateStreamSelectorOptions()
 {
     bool needsUpdate = false;
+	int subprocessorToSet = streamSelection->getSelectedId();
 
 	for (auto stream: probeViewerProcessor->getDataStreams())
 	{
@@ -87,34 +88,35 @@ void ProbeViewerEditor::updateStreamSelectorOptions()
 		}
 	}
 
-	if(probeViewerProcessor->getNumDataStreams() == 0)
+	if(probeViewerProcessor->getNumDataStreams() != inputStreamIds.size())
 		needsUpdate = true;
 
-	if(needsUpdate)
+	if(needsUpdate || subprocessorToSet == 0)
 	{	
 		inputStreamIds.clear();
 		streamSelection->clear(dontSendNotification);
 
+		// Add all datastreams to combobox
 		for (auto stream: probeViewerProcessor->getDataStreams())
 		{
 			int streamID = stream->getStreamId();
 
 			inputStreamIds.add(streamID);
-			streamSelection->addItem(stream->getName(), streamID);
+			streamSelection->addItem("[" + String(stream->getSourceNodeId()) + "] " +
+									 stream->getName(), streamID);
 		}
 
-		int subprocessorToSet = -1;
+		// Check and select datastream if available
 		if (inputStreamIds.size() > 0)
 		{
-			subprocessorToSet = inputStreamIds[0];
-		}
+			if(subprocessorToSet == 0)
+				subprocessorToSet = inputStreamIds[0];
 
-		if (subprocessorToSet >= 0)
-		{
 			streamSelection->setSelectedId(subprocessorToSet, dontSendNotification);
 		}
 		else
 		{
+			subprocessorToSet = -1;
 			streamSelection->addItem("None", 1);
 			streamSelection->setSelectedId(1, dontSendNotification);
 		}
@@ -125,7 +127,7 @@ void ProbeViewerEditor::updateStreamSelectorOptions()
 
 void ProbeViewerEditor::setDrawableStream(int index)
 {
-	if (index >= 0)
+	if (index > 0)
 	{
 		probeViewerProcessor->setDisplayedStream(index);
 		float rate = probeViewerProcessor->getStreamSampleRate();
@@ -138,7 +140,7 @@ void ProbeViewerEditor::setDrawableStream(int index)
 	{
 		probeViewerProcessor->setDisplayedStream(-1);
 
-		String sampleRateLabelText = "Sample Rate: <not available>";
+		String sampleRateLabelText = "Sample Rate: <NA>";
 		streamSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
 	}
 }
