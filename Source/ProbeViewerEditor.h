@@ -33,22 +33,30 @@ class ProbeViewerEditor
       public ComboBox::Listener
 {
 public:
+
+    /** Constructor */
     ProbeViewerEditor(GenericProcessor* parentNode);
+
+    /** Destructor */
     virtual ~ProbeViewerEditor() override;
 
-    /** Respond to user's stream sample rate selection */
+    /** Sets the drawable stream */
     void comboBoxChanged(ComboBox *cb) override;
 
-    /** Called by the base calss VisualizerEditor to display the canvas
+    /** Called by the base class VisualizerEditor to display the canvas
         when the user chooses to display one
 
         @see VisualizerEditor::buttonClicked
      */
     virtual Visualizer* createNewCanvas() override;
 
+    /** Updates available streams*/
 	void updateStreamSelectorOptions();
 
+    /** Disables stream selection*/
 	void startAcquisition();
+
+    /** Enables stream selection */
 	void stopAcquisition();
 
 

@@ -54,7 +54,7 @@ AudioProcessorEditor* ProbeViewerNode::createEditor()
     return editor.get();
 }
 
-void ProbeViewerNode::process(AudioSampleBuffer& b)
+void ProbeViewerNode::process(AudioBuffer<float>& b)
 {
 	const int nSamples = getNumSamples(lastChannelInStream);
 

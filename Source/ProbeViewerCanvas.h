@@ -32,11 +32,12 @@ namespace ProbeViewer {
 class ProbeViewerCanvas : public Visualizer
 {
 public:
+
+    /** Constructor */
     ProbeViewerCanvas(class ProbeViewerNode*);
 
+    /** Destructor */
     virtual ~ProbeViewerCanvas() override;
-
-
 
     /**
      *  Required overrides from Visualizer
@@ -57,16 +58,12 @@ public:
     /** Called when data acquisition ends.*/
     virtual void endAnimation() override;
 
-
-
     /**
      *  Overrides from juce::Component
      */
 
     void paint(Graphics& g) override;
     void resized() override;
-
-
 
     /**
      *  Custom member methods

@@ -31,29 +31,42 @@ namespace ProbeViewer {
 class ProbeViewerNode : public GenericProcessor
 {
 public:
+
+    /** Constructor */
     ProbeViewerNode();
+
+    /** Destructor */
     virtual ~ProbeViewerNode() override;
 
+    /** Creates the editor UI */
     AudioProcessorEditor* createEditor() override;
 
-    void process(AudioSampleBuffer& buffer) override;
+    /** Pushes samples to the data buffer*/
+    void process(AudioBuffer<float>& buffer) override;
 
+    /** Updates settings */
     void updateSettings() override;
 
+    /** Updates the displayed stream, then calls updateSettings() */
 	void setDisplayedStream(int idx);
+
+    /** Returns the sample rate of the currently selected stream*/
 	float getStreamSampleRate();
+
+    /** Returns the number of samples in the currently selected stream*/
 	int getNumStreamChannels();
 
+    /** Enables the editor */
     bool startAcquisition() override;
+
+    /** Disables the editor*/
     bool stopAcquisition() override;
 
     class CircularBuffer* getCircularBufferPtr() { return dataBuffer; }
-//    CriticalSection* getMutex() { return &displayMutex; }
 
 private:
     static const float bufferLengthSeconds;
 
-//    CriticalSection displayMutex;
     ScopedPointer<class CircularBuffer> dataBuffer;
 
     std::function<int (int)> channelSampleCountPollFunction;

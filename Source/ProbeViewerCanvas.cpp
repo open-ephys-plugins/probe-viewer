@@ -106,17 +106,25 @@ void ProbeViewerCanvas::update()
     {
         if (NeuropixInterface::refNodes.contains(i + referenceNodeOffsetCount + 1))
         {
-            channelsView->readSites.add(new ProbeChannelDisplay(channelsView, optionsBar, ChannelState::reference, -1, i + referenceNodeOffsetCount, 0));
+            channelsView->readSites.add(
+                new ProbeChannelDisplay(channelsView, 
+                                        optionsBar, 
+                                        ChannelState::reference, 
+                                        -1, 
+                                        i + referenceNodeOffsetCount, 
+                                        0));
             ++referenceNodeOffsetCount;
         }
 
         float sampleRate = pvProcessor->getStreamSampleRate();
 
-        //const int procInputs = pvProcessor->getNumInputs();
-        //if (procInputs > 0 && procInputs < getNumChannels()) sampleRate = pvProcessor->getDataChannel(i)->getSampleRate();
-        //else sampleRate = 30000;
-
-        auto channelDisplay = new ProbeChannelDisplay(channelsView, optionsBar, ChannelState::enabled, i, i + referenceNodeOffsetCount, sampleRate);
+        auto channelDisplay = 
+            new ProbeChannelDisplay(channelsView, 
+                                    optionsBar, 
+                                    ChannelState::enabled, 
+                                    i, 
+                                    i + referenceNodeOffsetCount, 
+                                    sampleRate);
 
         channelsView->readSites.add(channelDisplay);
         channelsView->channels.add(channelDisplay);
@@ -237,7 +245,7 @@ void ProbeViewerCanvas::updateScreenBuffers()
         ScopedLock drawLock(*dataBuffer->getMutex());
         int numTicks = 0;
 
-        for (int channel = 0; channel < numChannels; ++channel)
+        for (int channel = 0; channel < NeuropixInterface::MAX_NUM_CHANNELS; ++channel)
         {
             const int numSamplesToRead = dataBuffer->getNumSamplesReadyForDrawing(channel);
             const int numCachedSamples = getNumCachedSamples(channel);
