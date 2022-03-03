@@ -34,10 +34,6 @@ jobs:
       shell: bash
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
-    - name: build-gui
-      run: |
-        cd ../../plugin-GUI/Build
-        msbuild open-ephys.vcxproj -p:Configuration=Release -p:Platform=x64
     - name: build-plugin
       run: |
         cd Build
@@ -47,7 +43,6 @@ jobs:
 #    - name: test
 #      run: cd build && ctest
     - name: deploy
-      if: github.ref == 'refs/heads/master'
       env:
         artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
         build_dir: "Build/Release"
