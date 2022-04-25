@@ -29,13 +29,11 @@
 using namespace ProbeViewer;
 
 ProbeViewerEditor::ProbeViewerEditor(GenericProcessor* parentNode)
-					: VisualizerEditor(parentNode),
+					: VisualizerEditor(parentNode, "ProbeViewer"),
 					  hasNoInputs(true)
 {
     probeViewerProcessor = (ProbeViewerNode *)parentNode;
-    
-    tabText = "ProbeViewer";
-    
+        
     desiredWidth = 180;
     
     streamSelectionLabel = std::make_unique<Label>("Stream Selection Label", "Display Stream:");

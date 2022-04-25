@@ -35,10 +35,6 @@ ProbeViewerNode::ProbeViewerNode()
 {
     setProcessorType(Plugin::Processor::SINK);
     dataBuffer = new CircularBuffer;
-    
-    // bind the get samples function
-    using namespace std::placeholders;
-    channelSampleCountPollFunction = std::bind(&ProbeViewerNode::getNumSamples, this, _1);
 
 	streamToDraw = -1;
 	numStreams = -1;
@@ -56,9 +52,14 @@ AudioProcessorEditor* ProbeViewerNode::createEditor()
 
 void ProbeViewerNode::process(AudioBuffer<float>& b)
 {
-	const int nSamples = getNumSamples(lastChannelInStream);
-
-	dataBuffer->pushBuffer(b, nSamples);
+	for (auto stream : getDataStreams())
+    {
+		if(stream->getStreamId() == streamToDraw)
+		{
+			const int nSamples = getNumSamplesInBlock(streamToDraw);
+			dataBuffer->pushBuffer(b, nSamples);
+		}
+	}
 }
 
 void ProbeViewerNode::updateSettings()

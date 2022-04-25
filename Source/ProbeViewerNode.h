@@ -69,8 +69,6 @@ private:
 
     ScopedPointer<class CircularBuffer> dataBuffer;
 
-    std::function<int (int)> channelSampleCountPollFunction;
-
     bool resizeBuffer();
 
 	int streamToDraw;
