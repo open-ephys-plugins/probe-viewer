@@ -21,20 +21,20 @@
 
  */
 
-#ifndef NeuropixInterface_hpp
-#define NeuropixInterface_hpp
+#ifndef ChannelBrowser_hpp
+#define ChannelBrowser_hpp
 
 #include "VisualizerWindowHeaders.h"
 
 namespace ProbeViewer {
 
-class NeuropixInterface : public Component
+class ChannelBrowser : public Component
 {
 public:
     static const unsigned int MARGIN_WIDTH;
 
-    NeuropixInterface(class ProbeViewerCanvas* canvas);
-    virtual ~NeuropixInterface() override;
+    ChannelBrowser(class ProbeViewerCanvas* canvas);
+    virtual ~ChannelBrowser() override;
 
     void paint(Graphics&) override;
 
@@ -76,12 +76,12 @@ private:
     MouseCursor getMouseCursor();
     void updateProbeSitesRendering();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NeuropixInterface);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChannelBrowser);
 };
 
 /**
  *  A data struct for encapsulating the state specific to zooming and
- *  scrolling on the probe interface display.
+ *  scrolling on the Channel Browser display.
  */
 struct ProbeGraphicZoomInfo
 {
@@ -110,4 +110,4 @@ struct ProbeGraphicZoomInfo
 
 }
 
-#endif /* NeuropixInterface_hpp */
+#endif /* ChannelBrowser_hpp */

@@ -21,7 +21,7 @@
  
  */
 
-#include "NeuropixInterface.hpp"
+#include "ChannelBrowser.hpp"
 
 #include "../ProbeViewerCanvas.h"
 
@@ -29,14 +29,14 @@
 
 using namespace ProbeViewer;
 
-NeuropixInterface::NeuropixInterface(ProbeViewerCanvas* canvas_)
+ChannelBrowser::ChannelBrowser(ProbeViewerCanvas* canvas_)
 : canvas(canvas_)
 , cursorType(MouseCursor::NormalCursor)
 , numActiveChannels(0)
 , graphicBottomPos(0)
 {
     zoomInfo = new ProbeGraphicZoomInfo;
-    // zoomInfo->lowerBound = NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS;
+    // zoomInfo->lowerBound = ChannelBrowser::PROBE_GRAPHIC_BOTTOM_POS;
     
     
     // for (int i = 0; i < refNodes.size(); ++i)
@@ -49,10 +49,10 @@ NeuropixInterface::NeuropixInterface(ProbeViewerCanvas* canvas_)
     setBufferedToImage(true);
 }
 
-NeuropixInterface::~NeuropixInterface()
+ChannelBrowser::~ChannelBrowser()
 { }
 
-void NeuropixInterface::paint(Graphics& g)
+void ChannelBrowser::paint(Graphics& g)
 {
     if(numActiveChannels <= 0)
         return;
@@ -64,7 +64,7 @@ void NeuropixInterface::paint(Graphics& g)
     {
         g.setColour(getChannelColour(channel));
         g.fillRect(xOffset + 3, graphicBottomPos - channel, 4, 1);
-        // g.fillRect(xOffset + 3 + ((channel % 2)) * 2 + 1, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2), 1, 1);
+        // g.fillRect(xOffset + 3 + ((channel % 2)) * 2 + 1, ChannelBrowser::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2), 1, 1);
     }
     
     // draw channel numbers
@@ -153,7 +153,7 @@ void NeuropixInterface::paint(Graphics& g)
 
 }
 
-void NeuropixInterface::mouseMove(const MouseEvent &event)
+void ChannelBrowser::mouseMove(const MouseEvent &event)
 {
     if (isMouseActionLocked) return;
     
@@ -230,7 +230,7 @@ void NeuropixInterface::mouseMove(const MouseEvent &event)
     }
 }
 
-void NeuropixInterface::mouseDown(const MouseEvent &event)
+void ChannelBrowser::mouseDown(const MouseEvent &event)
 {
     zoomInfo->initialOffset = zoomInfo->zoomOffset;
     zoomInfo->initialHeight = zoomInfo->zoomHeight;
@@ -249,7 +249,7 @@ void NeuropixInterface::mouseDown(const MouseEvent &event)
     }
 }
 
-void NeuropixInterface::mouseDrag(const MouseEvent &event)
+void ChannelBrowser::mouseDrag(const MouseEvent &event)
 {
     if (event.getOffsetFromDragStart() == zoomInfo->lastPosition) return;
     zoomInfo->lastPosition = event.getOffsetFromDragStart();
@@ -328,7 +328,7 @@ void NeuropixInterface::mouseDrag(const MouseEvent &event)
     repaint();
 }
 
-void NeuropixInterface::mouseUp(const MouseEvent &event)
+void ChannelBrowser::mouseUp(const MouseEvent &event)
 {
     isMouseActionLocked = false;
     
@@ -339,7 +339,7 @@ void NeuropixInterface::mouseUp(const MouseEvent &event)
     }
 }
 
-void NeuropixInterface::mouseWheelMove(const MouseEvent &event, const MouseWheelDetails& wheel)
+void ChannelBrowser::mouseWheelMove(const MouseEvent &event, const MouseWheelDetails& wheel)
 {
     if (event.x > 100 && event.x < 450)
     {
@@ -369,43 +369,43 @@ void NeuropixInterface::mouseWheelMove(const MouseEvent &event, const MouseWheel
     }
 }
 
-void NeuropixInterface::setNumActiveChannels(int numChannels)
+void ChannelBrowser::setNumActiveChannels(int numChannels)
 {
     numActiveChannels = numChannels;
     
     updateProbeSitesRendering();
 }
 
-int NeuropixInterface::getNumActiveChannels() const
+int ChannelBrowser::getNumActiveChannels() const
 {
     return numActiveChannels;
 }
 
-float NeuropixInterface::getViewportScrollPositionRatio()
+float ChannelBrowser::getViewportScrollPositionRatio()
 {
     return zoomInfo->viewportScrollPositionRatio;
 }
 
-Colour NeuropixInterface::getChannelColour(int channel)
+Colour ChannelBrowser::getChannelColour(int channel)
 {
     return Colours::yellow.interpolatedWith(Colours::purple, (float)channel/(float)numActiveChannels);
 }
 
-int NeuropixInterface::getNearestChannelIdx(int x, int y)
+int ChannelBrowser::getNearestChannelIdx(int x, int y)
 {
     int chan = ((getHeight() - zoomInfo->channelHeight - y) / zoomInfo->channelHeight) + zoomInfo->lowestChan + 1;
     
     return chan;
 }
 
-MouseCursor NeuropixInterface::getMouseCursor()
+MouseCursor ChannelBrowser::getMouseCursor()
 {
     MouseCursor c = MouseCursor(cursorType);
     
     return c;
 }
 
-void NeuropixInterface::updateProbeSitesRendering()
+void ChannelBrowser::updateProbeSitesRendering()
 {
     graphicBottomPos = numActiveChannels + 10;
     zoomInfo->lowerBound = graphicBottomPos;
@@ -414,8 +414,8 @@ void NeuropixInterface::updateProbeSitesRendering()
 }
 
 
-#pragma mark - NeuropixInterface Constants
+#pragma mark - ChannelBrowser Constants
 
-const unsigned int NeuropixInterface::MARGIN_WIDTH = 30;
+const unsigned int ChannelBrowser::MARGIN_WIDTH = 30;
 
-const int NeuropixInterface::PROBE_VIEW_X_OFFSET = 150;
+const int ChannelBrowser::PROBE_VIEW_X_OFFSET = 150;

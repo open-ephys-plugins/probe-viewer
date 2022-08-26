@@ -24,7 +24,7 @@
 #include "ChannelViewCanvas.hpp"
 #include "../ProbeViewerCanvas.h"
 
-#include "../NeuropixInterface/NeuropixInterface.hpp"
+#include "../ChannelBrowser/ChannelBrowser.hpp"
 #include "../Utilities/ColourScheme.hpp"
 #include "CanvasOptionsBar.hpp"
 

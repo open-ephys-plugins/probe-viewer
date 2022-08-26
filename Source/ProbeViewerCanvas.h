@@ -110,9 +110,9 @@ public:
     class ChannelViewCanvas* getChannelViewCanvasPtr();
     
     /**
-     *  Return a pointer for the neuropix interface component 
+     *  Return a pointer for the Channel Browser component 
      */
-    class NeuropixInterface* getNeuropixInterfacePtr();
+    class ChannelBrowser* getChannelBrowserPtr();
 
     static const float TRANSPORT_WINDOW_TIMEBASE;
 #ifdef WIN32
@@ -127,7 +127,7 @@ public:
 
 private:
     class ProbeViewerNode* pvProcessor;
-    ScopedPointer<class NeuropixInterface> interface;
+    ScopedPointer<class ChannelBrowser> channelBrowser;
     ScopedPointer<class ChannelViewCanvas> channelsView;
     ScopedPointer<class ProbeViewerTimeScale> timeScale;
     ScopedPointer<class CanvasOptionsBar> optionsBar;

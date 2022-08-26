@@ -30,7 +30,7 @@
 #include "ProbeViewerNode.h"
 #include "ProbeViewerEditor.h"
 
-#include "NeuropixInterface/NeuropixInterface.hpp"
+#include "ChannelBrowser/ChannelBrowser.hpp"
 #include "ChannelViewCanvas/ChannelViewCanvas.hpp"
 #include "ChannelViewCanvas/CanvasOptionsBar.hpp"
 #include "TimeScale/ProbeViewerTimeScale.hpp"
@@ -45,8 +45,8 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode *processor_)
 {
     dataBuffer = pvProcessor->getCircularBufferPtr();
 
-    interface = new NeuropixInterface(this);
-    addAndMakeVisible(interface);
+    channelBrowser = new ChannelBrowser(this);
+    addAndMakeVisible(channelBrowser);
 
     timeScale = new ProbeViewerTimeScale(ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE, 0.5f);
     addAndMakeVisible(timeScale);
@@ -156,23 +156,23 @@ void ProbeViewerCanvas::resized()
     timeScale->setBounds(0, 0, getWidth(), 30);
     optionsBar->setBounds(0, getHeight() - 30, getWidth(), 30);
 
-    interface->setBounds(0, timeScale->getBottom(), 200, getHeight() - timeScale->getHeight() - optionsBar->getHeight());
-    timeScale->setMarginOffset(interface->getWidth());
-    optionsBar->setMarginOffset(interface->getWidth());
+    channelBrowser->setBounds(0, timeScale->getBottom(), 200, getHeight() - timeScale->getHeight() - optionsBar->getHeight());
+    timeScale->setMarginOffset(channelBrowser->getWidth());
+    optionsBar->setMarginOffset(channelBrowser->getWidth());
 
     channelsView->setBounds(0, 0, viewport->getWidth(), channelsView->getChannelHeight() * channelsView->channels.size());
-    viewport->setBounds(interface->getRight(),
+    viewport->setBounds(channelBrowser->getRight(),
                         timeScale->getBottom() + 2,
-                        getWidth() - interface->getWidth(),
+                        getWidth() - channelBrowser->getWidth(),
                         getHeight() - timeScale->getHeight() - optionsBar->getHeight() - 4);
 
-    viewport->setViewPositionProportionately(0, getNeuropixInterfacePtr()->getViewportScrollPositionRatio());
+    viewport->setViewPositionProportionately(0, getChannelBrowserPtr()->getViewportScrollPositionRatio());
 }
 
 void ProbeViewerCanvas::setNumChannels(int numChannels)
 {
     this->numChannels = numChannels;
-    interface->setNumActiveChannels(numChannels);
+    channelBrowser->setNumActiveChannels(numChannels);
 }
 
 int ProbeViewerCanvas::getNumChannels()
@@ -205,9 +205,9 @@ ChannelViewCanvas *ProbeViewerCanvas::getChannelViewCanvasPtr()
     return channelsView;
 }
 
-NeuropixInterface *ProbeViewerCanvas::getNeuropixInterfacePtr()
+ChannelBrowser *ProbeViewerCanvas::getChannelBrowserPtr()
 {
-    return interface;
+    return channelBrowser;
 }
 
 // TODO: (kelly) this should be implemented differently, as is it will shift the array after every pop
