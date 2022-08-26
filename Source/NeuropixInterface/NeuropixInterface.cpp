@@ -33,34 +33,18 @@ NeuropixInterface::NeuropixInterface(ProbeViewerCanvas* canvas_)
 : canvas(canvas_)
 , cursorType(MouseCursor::NormalCursor)
 , numActiveChannels(0)
+, graphicBottomPos(0)
 {
     zoomInfo = new ProbeGraphicZoomInfo;
-    zoomInfo->lowerBound = NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS;
+    // zoomInfo->lowerBound = NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS;
     
     
-    for (int i = 0; i < NUM_PROBE_READ_SITES; ++i)
-    {
-        ChannelState status;
-
-        if (i < 960)
-        {
-            status = ChannelState::disabled;
-        }
-        else
-        {
-            status = ChannelState::not_available;
-        }
-        
-        channelStatus.add(status);
-        channelSelectionState.add(0);
-    }
+    // for (int i = 0; i < refNodes.size(); ++i)
+    // {
+    //     channelStatus.set(*(refNodes.begin() + i) - 1, ChannelState::reference);
+    // }
     
-    for (int i = 0; i < refNodes.size(); ++i)
-    {
-        channelStatus.set(*(refNodes.begin() + i) - 1, ChannelState::reference);
-    }
-    
-    addMouseListener(this, true);
+    // addMouseListener(this, true);
     
     setBufferedToImage(true);
 }
@@ -70,14 +54,17 @@ NeuropixInterface::~NeuropixInterface()
 
 void NeuropixInterface::paint(Graphics& g)
 {
+    if(numActiveChannels <= 0)
+        return;
+    
     const int xOffset = 27;
     
     // draw zoomed out channels
-    for (int channel = 0; channel < channelStatus.size(); ++channel)
+    for (int channel = 0; channel < numActiveChannels; ++channel)
     {
         g.setColour(getChannelColour(channel));
-        g.fillRect(xOffset + 3 + ((channel % 2)) * 2, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2), 1, 1);
-        g.fillRect(xOffset + 3 + ((channel % 2)) * 2 + 1, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2), 1, 1);
+        g.fillRect(xOffset + 3, graphicBottomPos - channel, 4, 1);
+        // g.fillRect(xOffset + 3 + ((channel % 2)) * 2 + 1, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2), 1, 1);
     }
     
     // draw channel numbers
@@ -85,63 +72,73 @@ void NeuropixInterface::paint(Graphics& g)
     g.setFont(12);
     
     int ch = 0;
-    for (int channel = NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS; channel > 30; channel -= 50)
+    for (int channel = graphicBottomPos; channel > 30; channel -= 50)
     {
         g.drawLine(6, channel, 18, channel);
         g.drawLine(44, channel, 54, channel);
         g.drawText(String(ch), 59, int(channel) - 6, 100, 12, Justification::left, false);
-        ch += 100;
+        ch += 50;
     }
     
     // draw shank outline
     g.setColour(Colours::lightgrey);
-    g.strokePath(shankPath, PathStrokeType(1.0));
+    g.drawRect(xOffset, 8, 10, graphicBottomPos - 4);
+    // g.strokePath(shankPath, PathStrokeType(1.0));
     
     // draw zoomed channels
-    zoomInfo->lowestChan = (NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset)) * 2 - 1;
-    zoomInfo->highestChan = (NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight)) * 2 + 10;
+    zoomInfo->lowestChan = graphicBottomPos - (zoomInfo->lowerBound - zoomInfo->zoomOffset);
+    zoomInfo->highestChan = (graphicBottomPos - (zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight));
     
-    float newChannelHeight = float(getHeight() - 2) / ((zoomInfo->highestChan - zoomInfo->lowestChan) / 2);
+    float newChannelHeight = float(getHeight() - 2) / ((zoomInfo->highestChan - zoomInfo->lowestChan));
     if (zoomInfo->channelHeight != newChannelHeight)
     {
         zoomInfo->channelHeight = newChannelHeight;
-        canvas->setChannelHeight(newChannelHeight / 2.0f);
+        canvas->setChannelHeight(newChannelHeight);
         canvas->resized();
     }
     
-    
+    // LOGC("*********** LOW CHANNEL: ", zoomInfo->lowestChan, " HIGH CHANNEL: ", zoomInfo->highestChan);
     for (int channel = zoomInfo->lowestChan; channel <= zoomInfo->highestChan; ++channel)
     {
-        if (channel >= 0 && channel < NUM_PROBE_READ_SITES)
+        if (channel >= 0 && channel < numActiveChannels)
         {
-            float xLocation = PROBE_VIEW_X_OFFSET - zoomInfo->channelHeight * (1 - (channel % 2));
-            float yLocation = getHeight() - zoomInfo->channelHeight - ((channel - zoomInfo->lowestChan - (channel % 2)) / 2 * zoomInfo->channelHeight);
+            float xLocation = PROBE_VIEW_X_OFFSET - (zoomInfo->channelHeight / 2);
+            float yLocation = getHeight() - zoomInfo->channelHeight - ((channel - zoomInfo->lowestChan) * zoomInfo->channelHeight);
             
-            if (channelSelectionState[channel])
-            {
-                g.setColour(Colours::white);
-                g.fillRect(xLocation, yLocation, zoomInfo->channelHeight, zoomInfo->channelHeight);
-            }
+            g.setColour(Colours::black);
+            g.drawEllipse(xLocation, yLocation, zoomInfo->channelHeight, zoomInfo->channelHeight, 1.0f);
             
             g.setColour(getChannelColour(channel));
-            g.fillRect(xLocation + 1,
+            g.fillEllipse(xLocation + 1,
                        yLocation + 1,
                        zoomInfo->channelHeight - 2,
                        zoomInfo->channelHeight - 2);
+            
+            if(zoomInfo->channelHeight > 26.0f)
+            {
+                g.setColour(Colours::black);
+                g.setFont(Font("Silkscreen", "Regular", 10.0f));
+                g.drawText(String(channel),
+                    xLocation + 2,
+                    yLocation + 2,
+                    zoomInfo->channelHeight - 4,
+                    zoomInfo->channelHeight - 4,
+                    Justification::centred);
+            }
         }
     }
     
     // draw borders around zoom area
     
     g.setColour(Colours::darkgrey.withAlpha(0.7f));
-    g.fillRect(25, 0, 15, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight - 2);
+    g.fillRect(25, 0, 15, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight);
     g.fillRect(25, zoomInfo->lowerBound - zoomInfo->zoomOffset, 15, zoomInfo->zoomOffset + 10);
     
-    g.setColour(Colours::darkgrey);
+    g.setColour(Colours::grey);
     
     Path upperBorder;
-    upperBorder.startNewSubPath(5, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight - 3);
-    upperBorder.lineTo(54, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight - 3);
+    upperBorder.startNewSubPath(5, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight);
+    upperBorder.lineTo(54, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight);
     upperBorder.lineTo(100, 1);
     upperBorder.lineTo(200, 1);
     
@@ -153,13 +150,7 @@ void NeuropixInterface::paint(Graphics& g)
     
     g.strokePath(upperBorder, PathStrokeType(2.0));
     g.strokePath(lowerBorder, PathStrokeType(2.0));
-    
-    // draw selection zone
-    if (isSelectionActive)
-    {
-        g.setColour(Colours::white.withAlpha(0.5f));
-        g.drawRect(selectionBox);
-    }
+
 }
 
 void NeuropixInterface::mouseMove(const MouseEvent &event)
@@ -254,23 +245,6 @@ void NeuropixInterface::mouseDown(const MouseEvent &event)
             isMouseActionLocked = true;
         }
         
-        if (event.x > PROBE_VIEW_X_OFFSET && event.x < 400)
-        {
-            for (int i = 0; i < 966; ++i)
-            {
-                channelSelectionState.set(i, 0);
-            }
-        }
-        
-        if (event.x > PROBE_VIEW_X_OFFSET - zoomInfo->channelHeight && event.x < PROBE_VIEW_X_OFFSET + zoomInfo->channelHeight)
-        {
-            auto chan = getNearestChannelIdx(event.x, event.y);
-            
-            if (chan >= 0 && chan < 966)
-            {
-                channelSelectionState.set(chan, 1);
-            }
-        }
         repaint();
     }
 }
@@ -286,8 +260,8 @@ void NeuropixInterface::mouseDrag(const MouseEvent &event)
         {
             zoomInfo->zoomHeight = zoomInfo->initialHeight - event.getDistanceFromDragStartY();
             
-            if (zoomInfo->zoomHeight > zoomInfo->lowerBound - zoomInfo->zoomOffset - 18)
-                zoomInfo->zoomHeight = zoomInfo->lowerBound - zoomInfo->zoomOffset - 18;
+            if (zoomInfo->zoomHeight > zoomInfo->lowerBound - zoomInfo->zoomOffset)
+                zoomInfo->zoomHeight = zoomInfo->lowerBound - zoomInfo->zoomOffset;
         }
         else if (zoomInfo->isMouseOverLowerBorder)
         {
@@ -310,65 +284,10 @@ void NeuropixInterface::mouseDrag(const MouseEvent &event)
             if (zoomInfo->zoomOffset < 0) zoomInfo->zoomOffset = 0;
         }
     }
-    else if (event.x > PROBE_VIEW_X_OFFSET && event.x < PROBE_VIEW_X_OFFSET + 100)
-    {
-        int w = event.getDistanceFromDragStartX();
-        int h = event.getDistanceFromDragStartY();
-        int x = event.getMouseDownX();
-        int y = event.getMouseDownY();
-        
-        if (w < 0)
-        {
-            x = x + w; w = -w;
-        }
-        
-        if (h < 0)
-        {
-            y = y + h; h = -h;
-        }
-        
-        selectionBox = Rectangle<int>(x, y, w, h);
-        isSelectionActive = true;
-        
-        
-        int chanStart = getNearestChannelIdx(100, y + h);
-        int chanEnd = getNearestChannelIdx(100, y) + 1;
-        
-        if (x < PROBE_VIEW_X_OFFSET + zoomInfo->channelHeight)
-        {
-            for (int i = 0; i < 966; i++)
-            {
-                if (i >= chanStart && i <= chanEnd)
-                {
-                    if (i % 2 == 1)
-                    {
-                        if ((x + w > PROBE_VIEW_X_OFFSET) || (x > PROBE_VIEW_X_OFFSET && x < PROBE_VIEW_X_OFFSET + zoomInfo->channelHeight))
-                            channelSelectionState.set(i, 1);
-                        else
-                            channelSelectionState.set(i, 0);
-                    } else {
-                        if ((x < PROBE_VIEW_X_OFFSET) && (x + w > (PROBE_VIEW_X_OFFSET - zoomInfo->channelHeight)))
-                            channelSelectionState.set(i, 1);
-                        else
-                            channelSelectionState.set(i, 0);
-                    }
-                } else {
-                    if (!event.mods.isShiftDown())
-                        channelSelectionState.set(i, 0);
-                }
-            }
-        } else {
-            for (int i = 0; i < 966; i++)
-            {
-                if (!event.mods.isShiftDown())
-                    channelSelectionState.set(i, 0);
-            }
-        }
-    }
     
-    if (zoomInfo->zoomOffset > (MAX_NUM_CHANNELS / 2) - zoomInfo->zoomHeight)
+    if (zoomInfo->zoomOffset > numActiveChannels - zoomInfo->zoomHeight)
     {
-        zoomInfo->zoomOffset = (MAX_NUM_CHANNELS / 2) - zoomInfo->zoomHeight;
+        zoomInfo->zoomOffset = numActiveChannels - zoomInfo->zoomHeight;
     }
     
     if (zoomInfo->zoomOffset < 0)
@@ -378,23 +297,25 @@ void NeuropixInterface::mouseDrag(const MouseEvent &event)
     
     if (zoomInfo->zoomHeight < 10)
         zoomInfo->zoomHeight = 10;
-    if (zoomInfo->zoomHeight > 384/2)
-        zoomInfo->zoomHeight = 384/2;
+
+    int maxZoomHeight = numActiveChannels > 64 ? (numActiveChannels/2) : numActiveChannels;
+    if (zoomInfo->zoomHeight > maxZoomHeight)
+        zoomInfo->zoomHeight = maxZoomHeight;
     
     // draw zoomed channels
-    zoomInfo->lowestChan = (NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset)) * 2 - 1;
-    zoomInfo->highestChan = (NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS - (zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight)) * 2 + 10;
+    zoomInfo->lowestChan = graphicBottomPos - (zoomInfo->lowerBound - zoomInfo->zoomOffset);
+    zoomInfo->highestChan = (graphicBottomPos - (zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight));
     
-    float newChannelHeight = float(getHeight() - 2) / ((zoomInfo->highestChan - zoomInfo->lowestChan) / 2);
+    float newChannelHeight = float(getHeight() - 2) / (zoomInfo->highestChan - zoomInfo->lowestChan);
     if (zoomInfo->channelHeight != newChannelHeight)
     {
         zoomInfo->channelHeight = newChannelHeight;
-        canvas->setChannelHeight(newChannelHeight / 2.0f);
+        canvas->setChannelHeight(newChannelHeight);
         canvas->resized();
     }
     
     // update the viewport
-    const float viewportHeight = (MAX_NUM_CHANNELS / 2.0f) - zoomInfo->zoomHeight;
+    const float viewportHeight = (numActiveChannels) - zoomInfo->zoomHeight;
     const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
     zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
     
@@ -432,13 +353,13 @@ void NeuropixInterface::mouseWheelMove(const MouseEvent &event, const MouseWheel
         if (zoomInfo->zoomOffset < 0)
         {
             zoomInfo->zoomOffset = 0;
-        } else if (zoomInfo->zoomOffset > (MAX_NUM_CHANNELS / 2) - zoomInfo->zoomHeight)
+        } else if (zoomInfo->zoomOffset > (numActiveChannels - zoomInfo->zoomHeight))
         {
-            zoomInfo->zoomOffset = (MAX_NUM_CHANNELS / 2) - zoomInfo->zoomHeight;
+            zoomInfo->zoomOffset = numActiveChannels - zoomInfo->zoomHeight;
         }
         
         // update the viewport
-        const float viewportHeight = (MAX_NUM_CHANNELS / 2.0f) - zoomInfo->zoomHeight;
+        const float viewportHeight = numActiveChannels - zoomInfo->zoomHeight;
         const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
         zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
         auto viewport = canvas->getViewportPtr();
@@ -450,7 +371,7 @@ void NeuropixInterface::mouseWheelMove(const MouseEvent &event, const MouseWheel
 
 void NeuropixInterface::setNumActiveChannels(int numChannels)
 {
-    numActiveChannels = jmin(jmax(numChannels, 0), (int)NeuropixInterface::MAX_NUM_CHANNELS);
+    numActiveChannels = numChannels;
     
     updateProbeSitesRendering();
 }
@@ -465,39 +386,14 @@ float NeuropixInterface::getViewportScrollPositionRatio()
     return zoomInfo->viewportScrollPositionRatio;
 }
 
-Colour NeuropixInterface::getChannelColour(uint32 channel)
+Colour NeuropixInterface::getChannelColour(int channel)
 {
-    switch (channelStatus[channel]) // not available
-    {
-        case ChannelState::not_available:
-            return Colours::grey;
-            
-        case ChannelState::disabled:
-            return Colours::maroon;
-            
-        case ChannelState::enabled:
-            return Colours::yellow;
-            
-        case ChannelState::reference:
-            return Colours::black;
-            
-        case ChannelState::not_selectable:
-        default:
-            break;
-    }
-    
-    return Colours::brown;
+    return Colours::yellow.interpolatedWith(Colours::purple, (float)channel/(float)numActiveChannels);
 }
 
 int NeuropixInterface::getNearestChannelIdx(int x, int y)
 {
-    int chan = ((getHeight() - zoomInfo->channelHeight - y) * 2 / zoomInfo->channelHeight) + zoomInfo->lowestChan + 2;
-    
-    if (chan % 2 == 1)
-        chan += 1;
-    
-    if (x > 225)
-        chan += 1;
+    int chan = ((getHeight() - zoomInfo->channelHeight - y) / zoomInfo->channelHeight) + zoomInfo->lowestChan + 1;
     
     return chan;
 }
@@ -511,81 +407,15 @@ MouseCursor NeuropixInterface::getMouseCursor()
 
 void NeuropixInterface::updateProbeSitesRendering()
 {
-    auto upperLimit = numActiveChannels;
-    
-    // turn some channels on, starting at 0
-    for (int i = 0; i < upperLimit; ++i)
-    {
-        if (channelStatus[i] == ChannelState::reference)
-        {
-            ++upperLimit;
-            continue;
-        }
-        
-        channelStatus.set(i, ChannelState::enabled);
-    }
-    
-    // turn the rest off
-    for (int i = upperLimit; i < NeuropixInterface::NUM_PROBE_READ_SITES; ++i)
-    {
-        if (channelStatus[i] != ChannelState::reference)
-        {
-            channelStatus.set(i, ChannelState::disabled);
-        }
-    }
-    
+    graphicBottomPos = numActiveChannels + 10;
+    zoomInfo->lowerBound = graphicBottomPos;
+    zoomInfo->zoomHeight = numActiveChannels > 128 ? 50 : 16;
     repaint();
 }
-
-
-
-
-
-
 
 
 #pragma mark - NeuropixInterface Constants
 
 const unsigned int NeuropixInterface::MARGIN_WIDTH = 30;
 
-const unsigned int NeuropixInterface::NUM_PROBE_READ_SITES = 966;
-
-const unsigned int NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS = 513;
-
-const unsigned int NeuropixInterface::MAX_NUM_CHANNELS = 384;
-
 const int NeuropixInterface::PROBE_VIEW_X_OFFSET = 150;
-
-const SortedSet<int> NeuropixInterface::refNodes = []() -> SortedSet<int> {
-    Array<int> r {
-        37, 76,
-        113, 152,
-        189, 228,
-        265, 304,
-        341, 380,
-        421, 460,
-        497, 536,
-        573, 612,
-        649, 688,
-        725, 805,
-        844, 881,
-        920, 957
-    };
-    
-    SortedSet<int> s;
-    s.addArray(r.begin(), r.size());
-    
-    return s;
-}();
-
-const Path NeuropixInterface::shankPath = []() -> Path {
-    Path p;
-    p.startNewSubPath(27, 28);
-    p.lineTo(27, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS + 1);
-    p.lineTo(27 + 5, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS + 9);
-    p.lineTo(27 + 10, NeuropixInterface::PROBE_GRAPHIC_BOTTOM_POS + 1);
-    p.lineTo(27 + 10, 28);
-    p.closeSubPath();
-    
-    return p;
-}();

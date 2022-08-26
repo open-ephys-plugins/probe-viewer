@@ -43,17 +43,9 @@ ChannelViewCanvas::ChannelViewCanvas(ProbeViewerCanvas* canvas)
 , frontBackBufferPixelOffset(0)
 , frontBufferIndex(0)
 , fullRedraw(false)
+, numChannels(0)
 {
     
-    // get number of tiles that covers display width, the drawing mechanics will need
-    // to be adapted for display widths other than the current fixed value of 1920 pixels wide
-    int numTiles = ceil(ChannelViewCanvas::CHANNEL_DISPLAY_WIDTH / float(ChannelViewCanvas::CHANNEL_DISPLAY_TILE_WIDTH));
-    
-    for (int i = 0; i < numTiles; ++i)
-    {
-        auto tile = new BitmapRenderTile(CHANNEL_DISPLAY_TILE_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * 394);
-        displayBitmapTiles.add(tile);
-    }
 }
 
 ChannelViewCanvas::~ChannelViewCanvas()
@@ -63,7 +55,7 @@ void ChannelViewCanvas::paint(Graphics& g)
 {
     renderTilesToScreenBufferImage();
     
-    const float verticalScale = (getChannelHeight() * ChannelViewCanvas::NUM_READ_SITES_FOR_MAX_CHANNELS) / getFrontBufferPtr()->height;
+    const float verticalScale = (getChannelHeight() * numChannels) / getFrontBufferPtr()->height;
     const float horizontalScale = getWidth() / float(ChannelViewCanvas::CHANNEL_DISPLAY_WIDTH);
     
     const auto transform = AffineTransform::scale(horizontalScale, verticalScale);
@@ -99,6 +91,29 @@ void ChannelViewCanvas::refresh()
         }
         repaint(0, 0, getWidth(), getHeight());
         isDirty.set(false);
+    }
+}
+
+void ChannelViewCanvas::updateViewSettings()
+{
+    numChannels = canvas->getNumChannels();
+
+    displayBitmapTiles.clear();
+
+    if(numChannels > 0)
+    {
+
+        screenBufferImage = Image(Image::RGB, CHANNEL_DISPLAY_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * numChannels, false);
+
+        // get number of tiles that covers display width, the drawing mechanics will need
+        // to be adapted for display widths other than the current fixed value of 1920 pixels wide
+        int numTiles = ceil(ChannelViewCanvas::CHANNEL_DISPLAY_WIDTH / float(ChannelViewCanvas::CHANNEL_DISPLAY_TILE_WIDTH));
+        
+        for (int i = 0; i < numTiles; ++i)
+        {
+            auto tile = new BitmapRenderTile(CHANNEL_DISPLAY_TILE_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * numChannels, numChannels);
+            displayBitmapTiles.add(tile);
+        }
     }
 }
 
@@ -152,10 +167,10 @@ void ChannelViewCanvas::setChannelHeight(float height)
 {
     channelHeight = height;
     
-    for (int readSiteId = 0; readSiteId < readSites.size(); ++readSiteId)
+    for (int channelId = 0; channelId < channels.size(); ++channelId)
     {
-        readSites[readSiteId]->setBounds(30.0f,
-                   getHeight() - (readSiteId / 2 + 1) * (getChannelHeight() * 2) + (readSiteId % 2 == 0 ? getChannelHeight() : 0),
+        channels[channelId]->setBounds(30.0f,
+                   getHeight() - (channelId / 2 + 1) * (getChannelHeight() * 2) + (channelId % 2 == 0 ? getChannelHeight() : 0),
                    getWidth() - 30.0f,
                    getChannelHeight());
     }
@@ -214,7 +229,6 @@ void ChannelViewCanvas::setCurrentColourScheme(ColourSchemeId schemeId)
 
 # pragma mark - ChannelViewCanvas Constants
 
-const int ChannelViewCanvas::NUM_READ_SITES_FOR_MAX_CHANNELS = 394;
 const int ChannelViewCanvas::CHANNEL_DISPLAY_MAX_HEIGHT = 2; // more efficient than scaling down, but slightly lossy in definition (cross channel bleed)
 const int ChannelViewCanvas::CHANNEL_DISPLAY_WIDTH = 1920;
 const int ChannelViewCanvas::CHANNEL_DISPLAY_TILE_WIDTH = 64;
@@ -225,15 +239,16 @@ const Colour ChannelViewCanvas::backgroundColour(0, 18, 43);
 
 # pragma mark - BitmapRenderTile -
 
-BitmapRenderTile::BitmapRenderTile(int width, int height)
+BitmapRenderTile::BitmapRenderTile(int width, int height, int numChannels)
 : width(width)
 , height(height)
+, numChannels(numChannels)
 {
     rms = new Image(Image::RGB, width, height, false);
     spikeRate = new Image(Image::RGB, width, height, false);
     fft = new Image(Image::RGB, width, height, false);
     
-    const int subImageHeight = height / ChannelViewCanvas::NUM_READ_SITES_FOR_MAX_CHANNELS;
+    const int subImageHeight = height / numChannels;
     
     for (auto img : {rms.get(), spikeRate.get(), fft.get()})
     {
@@ -241,11 +256,11 @@ BitmapRenderTile::BitmapRenderTile(int width, int height)
         g.setColour(Colours::black);
         g.fillRect(0, 0, width, height);
         
-        readSiteSubImage.add(new Array<Image>());
-        for (int readSite = 0; readSite < ChannelViewCanvas::NUM_READ_SITES_FOR_MAX_CHANNELS; ++readSite)
+        channelSubImage.add(new Array<Image>());
+        for (int readSite = 0; readSite < numChannels; ++readSite)
         {
             auto subImage = img->getClippedImage(Rectangle<int>(0, height - (readSite + 1) * subImageHeight, width, subImageHeight));
-            readSiteSubImage.getLast()->add(subImage);
+            channelSubImage.getLast()->add(subImage);
         }
     }
     
@@ -259,7 +274,7 @@ Image* const BitmapRenderTile::getTileForRenderMode(RenderMode mode)
     return spikeRate;
 }
 
-Image& BitmapRenderTile::getReadSiteSubImageForRenderMode(int readSite, RenderMode mode)
+Image& BitmapRenderTile::getChannelSubImageForRenderMode(int channel, RenderMode mode)
 {
     int modeIdx = 0;
     if (mode == RenderMode::RMS)
@@ -269,7 +284,7 @@ Image& BitmapRenderTile::getReadSiteSubImageForRenderMode(int readSite, RenderMo
     else // if mode is FFT
         modeIdx = 2;
     
-    return readSiteSubImage[modeIdx]->getReference(readSite);
+    return channelSubImage[modeIdx]->getReference(channel);
 }
 
 
@@ -277,19 +292,14 @@ Image& BitmapRenderTile::getReadSiteSubImageForRenderMode(int readSite, RenderMo
 
 # pragma mark - ProbeChannelDisplay -
 
-ProbeChannelDisplay::ProbeChannelDisplay(ChannelViewCanvas* channelsView, CanvasOptionsBar* optionsBar, ChannelState status, int channelID, int readSiteID, float sampleRate)
+ProbeChannelDisplay::ProbeChannelDisplay(ChannelViewCanvas* channelsView, CanvasOptionsBar* optionsBar, int channelID, float sampleRate)
 : channelsView(channelsView)
 , optionsBar(optionsBar)
 , sampleRate(sampleRate)
 , samplesPerPixel(0)
-, channelState(status)
 , channelID(channelID)
-, readSiteID(readSiteID)
 {
-    yBitmapPos = (ChannelViewCanvas::NUM_READ_SITES_FOR_MAX_CHANNELS * ChannelViewCanvas::CHANNEL_DISPLAY_MAX_HEIGHT) - (readSiteID + 1) * ChannelViewCanvas::CHANNEL_DISPLAY_MAX_HEIGHT;
-    
-    if (channelState != ChannelState::reference)
-        samplesPerPixel = sampleRate * ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE / float(ChannelViewCanvas::CHANNEL_DISPLAY_WIDTH);
+    samplesPerPixel = sampleRate * ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE / float(ChannelViewCanvas::CHANNEL_DISPLAY_WIDTH);
 }
 
 ProbeChannelDisplay::~ProbeChannelDisplay()
@@ -303,7 +313,7 @@ void ProbeChannelDisplay::pxPaint()
 {
     // render RMS
     {
-        Image::BitmapData bdSubImage(channelsView->getFrontBufferPtr()->getReadSiteSubImageForRenderMode(readSiteID, RenderMode::RMS), Image::BitmapData::ReadWriteMode::writeOnly);
+        Image::BitmapData bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImageForRenderMode(channelID, RenderMode::RMS), Image::BitmapData::ReadWriteMode::writeOnly);
         
         float boundSpread = optionsBar->getRMSBoundSpread();
         if (boundSpread == 0) boundSpread = 1;
@@ -320,7 +330,7 @@ void ProbeChannelDisplay::pxPaint()
     
     // render SPIKE_RATE
     {
-        Image::BitmapData bdSubImage(channelsView->getFrontBufferPtr()->getReadSiteSubImageForRenderMode(readSiteID, RenderMode::SPIKE_RATE), Image::BitmapData::ReadWriteMode::writeOnly);
+        Image::BitmapData bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImageForRenderMode(channelID, RenderMode::SPIKE_RATE), Image::BitmapData::ReadWriteMode::writeOnly);
         
         float boundSpread = optionsBar->getSpikeRateBoundSpread();
         if (boundSpread == 0) boundSpread = 1;
@@ -337,7 +347,7 @@ void ProbeChannelDisplay::pxPaint()
     
     // render FFT
     {
-        Image::BitmapData bdSubImage(channelsView->getFrontBufferPtr()->getReadSiteSubImageForRenderMode(readSiteID, RenderMode::FFT), Image::BitmapData::ReadWriteMode::writeOnly);
+        Image::BitmapData bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImageForRenderMode(channelID, RenderMode::FFT), Image::BitmapData::ReadWriteMode::writeOnly);
         
         float boundSpread = optionsBar->getFFTBoundSpread();
         if (boundSpread == 0) boundSpread = 1;
@@ -358,16 +368,6 @@ void ProbeChannelDisplay::pxPaint()
         spikeRate.clear();
         fft.clear();
     }
-}
-
-ChannelState ProbeChannelDisplay::getChannelState() const
-{
-    return channelState;
-}
-
-void ProbeChannelDisplay::setChannelState(ChannelState status)
-{
-    channelState = status;
 }
 
 void ProbeChannelDisplay::pushSamples(float rms, float spikeRate, float fft)
@@ -391,16 +391,6 @@ int ProbeChannelDisplay::getChannelId() const
 void ProbeChannelDisplay::setChannelId(int id)
 {
     channelID = id;
-}
-
-int ProbeChannelDisplay::getReadSiteId() const
-{
-    return readSiteID;
-}
-
-void ProbeChannelDisplay::setReadSiteId(int id)
-{
-    readSiteID = id;
 }
 
 float ProbeChannelDisplay::getSampleRate()

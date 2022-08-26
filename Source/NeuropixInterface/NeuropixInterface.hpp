@@ -28,8 +28,6 @@
 
 namespace ProbeViewer {
 
-enum class ChannelState : int;
-
 class NeuropixInterface : public Component
 {
 public:
@@ -52,32 +50,28 @@ public:
     
     float getViewportScrollPositionRatio();
 
-    static const unsigned int MAX_NUM_CHANNELS;
-    static const SortedSet<int> refNodes;
-
     static const unsigned int NUM_PROBE_READ_SITES;
-    static const unsigned int PROBE_GRAPHIC_BOTTOM_POS;
     static const int PROBE_VIEW_X_OFFSET;
-    static const Path shankPath;
+
 private:
 
     class ProbeViewerCanvas* canvas;
 
     int numActiveChannels;
+    int graphicBottomPos;
 
     ScopedPointer<struct ProbeGraphicZoomInfo> zoomInfo;
 
-    Array<ChannelState> channelStatus;
-    Array<int> channelSelectionState;
-
     MouseCursor::StandardCursorType cursorType;
+
+    Path shankPath;
 
     Rectangle<int> selectionBox;
     bool isSelectionActive = false;
     
     bool isMouseActionLocked = false;
 
-    Colour getChannelColour(uint32 channel);
+    Colour getChannelColour(int channel);
     int getNearestChannelIdx(int x, int y);
     MouseCursor getMouseCursor();
     void updateProbeSitesRendering();
@@ -98,12 +92,12 @@ struct ProbeGraphicZoomInfo
     bool isMouseOverLowerBorder = {false};
     bool isMouseOverChannel = {false};
 
-    int zoomHeight = {50};
+    int zoomHeight = {16};
     int zoomOffset = {0};
     int initialOffset = {0};
     int initialHeight = {0};
     int lowerBound = {513};
-    int dragZoneWidth = {10};
+    int dragZoneWidth = {8};
 
     int lowestChan = {0};
     int highestChan = {0};
@@ -112,15 +106,6 @@ struct ProbeGraphicZoomInfo
     
     juce::Point<int> lastPosition = {0, 0};
     float viewportScrollPositionRatio = {1};
-};
-
-enum class ChannelState : int
-{
-    reference = -2,
-    not_available = -1,
-    disabled = 0,
-    enabled = 1,
-    not_selectable
 };
 
 }

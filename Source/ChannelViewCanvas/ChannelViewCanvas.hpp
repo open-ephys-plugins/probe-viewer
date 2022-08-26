@@ -133,14 +133,18 @@ public:
      */
     void setCurrentColourScheme(ColourSchemeId schemeId);
 
-    OwnedArray<class ProbeChannelDisplay> readSites;
-    Array<class ProbeChannelDisplay*> channels;
+    /**
+     *  Set number of channels for the view
+     *  and regenrate Bitmap render tiles
+     */
+    void updateViewSettings();
+
+    OwnedArray<class ProbeChannelDisplay> channels;
     Atomic<int> isDirty;
     int numPixelUpdates;
 
     class CanvasOptionsBar* optionsBar;
 
-    static const int NUM_READ_SITES_FOR_MAX_CHANNELS;
     static const int CHANNEL_DISPLAY_MAX_HEIGHT;
     static const int CHANNEL_DISPLAY_WIDTH;
     static const int CHANNEL_DISPLAY_TILE_WIDTH;
@@ -149,6 +153,7 @@ private:
     static const Colour backgroundColour;
 
     int drawableSubprocessorIdx;
+    int numChannels;
 
     class ProbeViewerCanvas* canvas;
 
@@ -178,19 +183,20 @@ struct BitmapRenderTile
     ScopedPointer<Image> spikeRate;
     ScopedPointer<Image> fft;
 
-    OwnedArray<Array<Image>> readSiteSubImage;
+    OwnedArray<Array<Image>> channelSubImage;
 
     const int width;
     const int height;
+    const int numChannels;
 
     /**
      *  Create a new BitmapRenderTile with the given dimensions.
      *
      *  The params must not be zero, as this object allocates Image memory
-     *  directly from width and height. These values are not checked for
+     *  directly from width, height, and number of channels. These values are not checked for
      *  valid input.
      */
-    BitmapRenderTile(int width, int height);
+    BitmapRenderTile(int width, int height, int numChannels);
     ~BitmapRenderTile() = default;
 
     /**
@@ -200,14 +206,14 @@ struct BitmapRenderTile
     Image* const getTileForRenderMode(RenderMode mode);
 
     /**
-     *  Return an Image reference that wraps only the given readSite's drawable
+     *  Return an Image reference that wraps only the given channel's drawable
      *  area on the currently active front buffer, and for the given RenderMode.
      *
-     *  @param readSite     The index of the readsite to draw to
+     *  @param channel      The index of the channel to draw to
      *  @param mode         The RenderMode which must be drawn to for
      *                      this tile
      */
-    Image& getReadSiteSubImageForRenderMode(int readSite, RenderMode mode);
+    Image& getChannelSubImageForRenderMode(int channel, RenderMode mode);
 
     /**
      *  BitmapRenderTiles are non-copyable and non-moveable.
@@ -217,8 +223,6 @@ struct BitmapRenderTile
     BitmapRenderTile& operator=(const BitmapRenderTile &) = delete;
     BitmapRenderTile& operator=(BitmapRenderTile &&) = delete;
 };
-
-enum class ChannelState : int;
 
 enum class RenderMode : int
 {
@@ -230,25 +234,13 @@ enum class RenderMode : int
 class ProbeChannelDisplay : public Component
 {
 public:
-    ProbeChannelDisplay(ChannelViewCanvas* channelsView, class CanvasOptionsBar* optionsBar, ChannelState status, int channelID, int readSiteID, float sampleRate);
+    ProbeChannelDisplay(ChannelViewCanvas* channelsView, class CanvasOptionsBar* optionsBar, int channelID, float sampleRate);
     virtual ~ProbeChannelDisplay() override;
 
     void paint(Graphics& g) override;
 
     //void pxPaint(Image::BitmapData *bitmapData);
     void pxPaint();
-
-    /**
-     *  Return a value describing whether this channel represents a refer-
-     *  ence node or a data acquisition node.
-     */
-    ChannelState getChannelState() const;
-
-    /**
-     *  Set this channel's state to reflect whether it is a reference node
-     *  or an active data acquiring node.
-     */
-    void setChannelState(ChannelState status);
 
     /**
      *  Accept and queue one pixel worth of updates on this channel for
@@ -269,19 +261,6 @@ public:
     void setChannelId(int id);
 
     /**
-     *  Return the index number of this channel, relative to the
-     *  complete set of channels available on the probe (including
-     *  reference nodes).
-     */
-    int getReadSiteId() const;
-
-    /**
-     *  Set the index relative to data and reference nodes to the given
-     *  param
-     */
-    void setReadSiteId(int id);
-
-    /**
      *  Return the sample rate of this channel, or 0 if this is a
      *  reference channel with no data stream.
      */
@@ -300,9 +279,7 @@ private:
     float sampleRate;
     int samplesPerPixel;
 
-    ChannelState channelState;
     int channelID;
-    int readSiteID;
 
     int yBitmapPos;
 

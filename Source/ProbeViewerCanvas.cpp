@@ -88,45 +88,28 @@ void ProbeViewerCanvas::update()
     //               this will still work, but the center frequency combobox options will
     //               only be accurate for one of the sampleRates - currently, the first
     //               non-zero sample rate encountered
-    numChannels = jmax(pvProcessor->getNumStreamChannels(), 0);
-    setNumChannels(numChannels);
+    int nChans = jmax(pvProcessor->getNumStreamChannels(), 0);
+    if (nChans != getNumChannels())
+        setNumChannels(nChans);
 
-    channelsView->readSites.clear();
+    channelsView->updateViewSettings();
     channelsView->channels.clear();
     partialBufferCache.clear();
     channelFFTSampleBuffer.clear();
     inputDownsamplingIndex.clear();
 
-    if (numChannels != interface->getNumActiveChannels())
-        interface->setNumActiveChannels(numChannels);
-
-    int referenceNodeOffsetCount = 0;
     float globalSampleRate = 0;
-    for (int i = 0; i < NeuropixInterface::MAX_NUM_CHANNELS; ++i)
+    for (int i = 0; i < numChannels; ++i)
     {
-        if (NeuropixInterface::refNodes.contains(i + referenceNodeOffsetCount + 1))
-        {
-            channelsView->readSites.add(
-                new ProbeChannelDisplay(channelsView, 
-                                        optionsBar, 
-                                        ChannelState::reference, 
-                                        -1, 
-                                        i + referenceNodeOffsetCount, 
-                                        0));
-            ++referenceNodeOffsetCount;
-        }
 
         float sampleRate = pvProcessor->getStreamSampleRate();
 
         auto channelDisplay = 
             new ProbeChannelDisplay(channelsView, 
                                     optionsBar, 
-                                    ChannelState::enabled, 
-                                    i, 
-                                    i + referenceNodeOffsetCount, 
+                                    i,
                                     sampleRate);
 
-        channelsView->readSites.add(channelDisplay);
         channelsView->channels.add(channelDisplay);
         partialBufferCache.add(new Array<float>());
 
@@ -177,7 +160,7 @@ void ProbeViewerCanvas::resized()
     timeScale->setMarginOffset(interface->getWidth());
     optionsBar->setMarginOffset(interface->getWidth());
 
-    channelsView->setBounds(0, 0, viewport->getWidth(), channelsView->getChannelHeight() * channelsView->readSites.size());
+    channelsView->setBounds(0, 0, viewport->getWidth(), channelsView->getChannelHeight() * channelsView->channels.size());
     viewport->setBounds(interface->getRight(),
                         timeScale->getBottom() + 2,
                         getWidth() - interface->getWidth(),
@@ -189,6 +172,7 @@ void ProbeViewerCanvas::resized()
 void ProbeViewerCanvas::setNumChannels(int numChannels)
 {
     this->numChannels = numChannels;
+    interface->setNumActiveChannels(numChannels);
 }
 
 int ProbeViewerCanvas::getNumChannels()
@@ -245,7 +229,7 @@ void ProbeViewerCanvas::updateScreenBuffers()
         ScopedLock drawLock(*dataBuffer->getMutex());
         int numTicks = 0;
 
-        for (int channel = 0; channel < NeuropixInterface::MAX_NUM_CHANNELS; ++channel)
+        for (int channel = 0; channel < numChannels; ++channel)
         {
             const int numSamplesToRead = dataBuffer->getNumSamplesReadyForDrawing(channel);
             const int numCachedSamples = getNumCachedSamples(channel);
