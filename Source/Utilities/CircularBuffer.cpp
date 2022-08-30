@@ -25,24 +25,47 @@
 
 using namespace ProbeViewer;
 
-CircularBuffer::CircularBuffer()
-: samplesReadyForDrawing(false)
+CircularBuffer::CircularBuffer(int id_, float sampleRate_, int bufferLengthInSec) : 
+    samplesReadyForDrawing(false),
+    id(id_),
+    sampleRate(sampleRate_),
+    isNeeded(true)
 {
-    dataBuffer = new AudioSampleBuffer(8, 100);
-    readIndex.insertMultiple(0, 0, 8);
-    writeIndex.insertMultiple(0, 0, 8);
+    numChannels = 0;
+    previousSize = 0;
+    bufferLengthSamples = sampleRate * bufferLengthInSec;
+    dataBuffer = std::make_unique<AudioSampleBuffer>();
 }
 
 CircularBuffer::~CircularBuffer()
 { }
 
-void CircularBuffer::setSize(int numChannels, int numSamples, Array<bool> shouldDraw_)
+
+void CircularBuffer::prepareToUpdate()
+{
+    previousSize = numChannels;
+    numChannels = 0;
+    channelMetadata.clear();
+    isNeeded = false;
+} 
+
+void CircularBuffer::addChannel(String name, int channelNum, float yPos)
+{
+    ChannelMetadata cm = ChannelMetadata();
+    cm.name = name;
+    cm.yPos = yPos;
+
+    channelMetadata.add(cm);
+    numChannels++;
+    isNeeded = true;
+}
+
+
+void CircularBuffer::update()
 {
 
-    bufferLengthSamples = numSamples;
-    dataBuffer->setSize(numChannels, numSamples);
-
-	shouldDraw = shouldDraw_;
+    dataBuffer->setSize(numChannels, bufferLengthSamples);
+    dataBuffer->clear();
     
     readIndex.clear();
     readIndex.insertMultiple(0, 0, numChannels);
@@ -82,100 +105,44 @@ void CircularBuffer::clearSamplesReadyForDrawing()
     }
 }
 
-void CircularBuffer::pushBuffer(AudioSampleBuffer& input, int numSamples)
+
+void CircularBuffer::addData(AudioBuffer<float>& input, int localChanId, int globalChanId, int numSamples)
 {
     samplesReadyForDrawing.set(true);
-    ScopedLock dataLock(dataMutex);
+    ScopedLock dataLock(dataMutex);    
 
-	int channelIndex = -1;
-    
-    for (int channel = 0; channel < input.getNumChannels(); ++channel)
+    const int samplesLeft = bufferLengthSamples - writeIndex[localChanId];
+
+    if (numSamples < samplesLeft)
     {
-		//std::cout << "Checking channel " << channel << std::endl;
-		if (shouldDraw[channel])
-		{
-			//std::cout << "Copying channel " << channel << std::endl;
-			channelIndex++; 
+        dataBuffer->copyFrom(localChanId, // dest channel
+            writeIndex[localChanId],      // dest startSample
+            input,                         // source
+            globalChanId,                       // source channel
+            0,                             // source start sample
+            numSamples);                   // num samples
 
-			const int samplesLeft = bufferLengthSamples - writeIndex[channelIndex];
-
-			if (numSamples < samplesLeft)
-			{
-				dataBuffer->copyFrom(channelIndex, // dest channel
-					writeIndex[channelIndex],      // dest startSample
-					input,                         // source
-					channel,                       // source channel
-					0,                             // source start sample
-					numSamples);                   // num samples
-
-				writeIndex.set(channelIndex, writeIndex[channelIndex] + numSamples);
-			}
-			else
-			{
-				const int extraSamples = numSamples - samplesLeft;
-
-				dataBuffer->copyFrom(channelIndex,
-					writeIndex[channelIndex],
-					input,
-					channel,
-					0,
-					samplesLeft);
-
-				dataBuffer->copyFrom(channelIndex,
-					0,
-					input,
-					channel,
-					samplesLeft,
-					extraSamples);
-
-				writeIndex.set(channelIndex, extraSamples);
-			}
-		}
+        writeIndex.set(localChanId, writeIndex[localChanId] + numSamples);
     }
-}
-
-void CircularBuffer::pushBuffer(AudioSampleBuffer& input, std::function<int (int)> getNumSamples)
-{
-    samplesReadyForDrawing.set(true);
-    
-    ScopedLock dataLock(dataMutex);
-    
-    for (int channel = 0; channel < input.getNumChannels(); ++channel)
+    else
     {
-        const int samplesLeft = bufferLengthSamples - writeIndex[channel];
-        const int numSamples = getNumSamples(channel);
-        
-        if (numSamples < samplesLeft)
-        {
-            dataBuffer->copyFrom(channel,
-                                 writeIndex[channel],
-                                 input,
-                                 channel,
-                                 0,
-                                 numSamples);
-            
-            writeIndex.set(channel, writeIndex[channel] + numSamples);
-        }
-        else
-        {
-            const int extraSamples = numSamples - samplesLeft;
-            
-            dataBuffer->copyFrom(channel,
-                                 writeIndex[channel],
-                                 input,
-                                 channel,
-                                 0,
-                                 samplesLeft);
-            
-            dataBuffer->copyFrom(channel,
-                                 0,
-                                 input,
-                                 channel,
-                                 samplesLeft,
-                                 extraSamples);
-            
-            writeIndex.set(channel, extraSamples);
-        }
+        const int extraSamples = numSamples - samplesLeft;
+
+        dataBuffer->copyFrom(localChanId,
+            writeIndex[localChanId],
+            input,
+            globalChanId,
+            0,
+            samplesLeft);
+
+        dataBuffer->copyFrom(localChanId,
+            0,
+            input,
+            globalChanId,
+            samplesLeft,
+            extraSamples);
+
+        writeIndex.set(localChanId, extraSamples);
     }
 }
 

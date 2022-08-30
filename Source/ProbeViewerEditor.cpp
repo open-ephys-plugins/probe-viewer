@@ -142,13 +142,3 @@ void ProbeViewerEditor::setDrawableStream(int index)
 		streamSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
 	}
 }
-
-void ProbeViewerEditor::startAcquisition()
-{
-	streamSelection->setEnabled(false);
-}
-
-void ProbeViewerEditor::stopAcquisition()
-{
-	streamSelection->setEnabled(true);
-}

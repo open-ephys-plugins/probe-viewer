@@ -53,12 +53,6 @@ public:
     /** Updates available streams*/
 	void updateStreamSelectorOptions();
 
-    /** Disables stream selection*/
-	void startAcquisition();
-
-    /** Enables stream selection */
-	void stopAcquisition();
-
 
 private:
     Array<int> inputStreamIds;

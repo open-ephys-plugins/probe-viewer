@@ -26,19 +26,13 @@
 #include "ProbeViewerEditor.h"
 #include "ProbeViewerCanvas.h"
 
-#include "Utilities/CircularBuffer.hpp"
-
 using namespace ProbeViewer;
 
 ProbeViewerNode::ProbeViewerNode()
 : GenericProcessor ("Probe Viewer")
 {
-    setProcessorType(Plugin::Processor::SINK);
-    dataBuffer = new CircularBuffer;
-
 	streamToDraw = -1;
 	numStreams = -1;
-	lastChannelInStream = 0;
 }
 
 ProbeViewerNode::~ProbeViewerNode()
@@ -50,15 +44,16 @@ AudioProcessorEditor* ProbeViewerNode::createEditor()
     return editor.get();
 }
 
-void ProbeViewerNode::process(AudioBuffer<float>& b)
+void ProbeViewerNode::process(AudioBuffer<float>& buffer)
 {
-	for (auto stream : getDataStreams())
+	for (int chan = 0; chan < buffer.getNumChannels(); chan++)
     {
-		if(stream->getStreamId() == streamToDraw)
-		{
-			const int nSamples = getNumSamplesInBlock(streamToDraw);
-			dataBuffer->pushBuffer(b, nSamples);
-		}
+		uint16 streamId = continuousChannels[chan]->getStreamId();
+		int localId = continuousChannels[chan]->getLocalIndex();
+		int globalId = continuousChannels[chan]->getGlobalIndex();
+		uint32 nSamples = getNumSamplesInBlock(streamId);
+
+		dataBufferMap[streamId]->addData(buffer, localId, globalId, nSamples);
 	}
 }
 
@@ -66,47 +61,63 @@ void ProbeViewerNode::updateSettings()
 {
     LOGD("Setting num inputs on ProbeViewer to ", getNumInputs());
 
-	lastChannelInStream = 0;
-
-	channelsToDraw.clear();
-
 	ProbeViewerEditor * ed = (ProbeViewerEditor*) getEditor();
 	ed->updateStreamSelectorOptions();
 
 	LOGD("Selected Stream ID: ", streamToDraw);
-
-	for (int i = 0; i < getNumInputs(); i++)
+	
+	for(auto stream : getDataStreams())
 	{
-		auto chan = continuousChannels[i];
-		int channelStream = chan->getStreamId();
+		uint16 streamId = stream->getStreamId();
 
-		if (channelStream == streamToDraw)
+		if(dataBufferMap.count(streamId) == 0)
 		{
-			//std::cout << "Found a match" << std::endl;
-			channelsToDraw.add(true);
-			lastChannelInStream = i;
+			dataBuffers.add(new CircularBuffer(streamId, stream->getSampleRate(), bufferLengthSeconds));
+			dataBufferMap[streamId] = dataBuffers.getLast();
 		}
-		else {
-			channelsToDraw.add(false);
+		else
+		{
+			dataBufferMap[streamId]->sampleRate = stream->getSampleRate();
+			dataBufferMap[streamId]->prepareToUpdate();
 		}
+		
+		for (int i = 0; i < stream->getChannelCount(); i++)
+		{
+			auto chan =stream->getContinuousChannels()[i];
+
+			dataBufferMap[streamId]->addChannel(chan->getName(), i, chan->position.y);
+		}
+
 	}
 
-	//std::cout << "Resizing buffer!" << std::endl;
-	resizeBuffer();
+	Array<CircularBuffer*> toDelete;
+
+    for (auto dataBuffer : dataBuffers)
+    {
+
+        if (dataBuffer->isNeeded)
+        {
+            dataBuffer->update();
+        }
+        else
+		{
+            dataBufferMap.erase(dataBuffer->id);
+            toDelete.add(dataBuffer);
+        }
+
+    }
+
+    for (auto dataBuffer : toDelete)
+    {
+        dataBuffers.removeObject(dataBuffer, true);
+    }
 
 }
 
 bool ProbeViewerNode::startAcquisition()
 {
-    if (resizeBuffer())
-    {
-        auto editor = (ProbeViewerEditor*) getEditor();
-        
-        editor->enable();
-        return true;
-    }
-    
-    return false;
+	((ProbeViewerEditor*) getEditor())->enable();
+    return true;
 }
 
 bool ProbeViewerNode::stopAcquisition()
@@ -118,7 +129,6 @@ bool ProbeViewerNode::stopAcquisition()
 void ProbeViewerNode::setDisplayedStream(int idx)
 {
 	streamToDraw = idx;
-	updateSettings();
 }
 
 float ProbeViewerNode::getStreamSampleRate()
@@ -137,20 +147,12 @@ int ProbeViewerNode::getNumStreamChannels()
 		return 0;
 }
 
-bool ProbeViewerNode::resizeBuffer()
+CircularBuffer* ProbeViewerNode::getCircularBufferPtr()
 {
-	int nSamples = (int) getStreamSampleRate() * bufferLengthSeconds;
-	int nInputs = getNumStreamChannels();
-    
-    LOGD("Resizing buffer. Samples: ", nSamples, ", Inputs: ", nInputs);
-    
-    if (nSamples > 0 && nInputs > 0)
-    {
-        dataBuffer->setSize(nInputs, nSamples, channelsToDraw);
-        return true;
-    }
-    
-    return false;
+	if(streamToDraw >= 0)
+		return dataBufferMap[streamToDraw];
+	else
+		return nullptr;
 }
 
 const float ProbeViewerNode::bufferLengthSeconds = 10.0f;

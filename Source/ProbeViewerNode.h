@@ -25,6 +25,7 @@
 #define __PROBEVIEWERNODE_H__
 
 #include "ProcessorHeaders.h"
+#include "Utilities/CircularBuffer.hpp"
 
 namespace ProbeViewer {
 
@@ -62,14 +63,15 @@ public:
     /** Disables the editor*/
     bool stopAcquisition() override;
 
-    class CircularBuffer* getCircularBufferPtr() { return dataBuffer; }
+    /** Returns the buffer for the currently selected stream*/
+    CircularBuffer* getCircularBufferPtr();
 
 private:
     static const float bufferLengthSeconds;
 
-    ScopedPointer<class CircularBuffer> dataBuffer;
+    OwnedArray<CircularBuffer> dataBuffers;
 
-    bool resizeBuffer();
+    std::map<uint16, CircularBuffer*> dataBufferMap;
 
 	int streamToDraw;
 	int numStreams;

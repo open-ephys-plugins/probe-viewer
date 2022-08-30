@@ -100,6 +100,8 @@ void ChannelViewCanvas::updateViewSettings()
 
     displayBitmapTiles.clear();
 
+    frontBufferIndex = 0;
+
     if(numChannels > 0)
     {
 
@@ -145,7 +147,7 @@ void ChannelViewCanvas::renderTilesToScreenBufferImage()
     }
     
     // draw a scrubbing line to track the draw progress
-    gScreenBuffer.setColour(Colours::grey);
+    gScreenBuffer.setColour(Colours::yellow);
     const int xPosition = frontBufferIndex * CHANNEL_DISPLAY_TILE_WIDTH + frontBackBufferPixelOffset;
     const int yMax = screenBufferImage.getHeight();
     gScreenBuffer.drawLine(xPosition, 0.0f, xPosition, yMax);
@@ -185,11 +187,6 @@ float ChannelViewCanvas::getChannelHeight()
 void ChannelViewCanvas::pushPixelValueForChannel(int channel, float rms, float spikeRate, float fft)
 {
     channels[channel]->pushSamples(rms, spikeRate, fft);
-}
-
-void ChannelViewCanvas::setDisplayedSubprocessor(int subProcessorIdx)
-{
-    drawableSubprocessorIdx = subProcessorIdx;
 }
 
 BitmapRenderTile* const ChannelViewCanvas::getFrontBufferPtr() const

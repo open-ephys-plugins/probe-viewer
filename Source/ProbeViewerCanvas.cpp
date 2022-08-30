@@ -70,6 +70,8 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode *processor_)
     }
 
     setBufferedToImage(true);
+
+    isUpdating = false;
 }
 
 ProbeViewerCanvas::~ProbeViewerCanvas()
@@ -88,6 +90,12 @@ void ProbeViewerCanvas::update()
     //               this will still work, but the center frequency combobox options will
     //               only be accurate for one of the sampleRates - currently, the first
     //               non-zero sample rate encountered
+    isUpdating = true;
+
+    dataBuffer = pvProcessor->getCircularBufferPtr();
+    if(dataBuffer)
+        dataBuffer->clearSamplesReadyForDrawing();
+
     int nChans = jmax(pvProcessor->getNumStreamChannels(), 0);
     if (nChans != getNumChannels())
         setNumChannels(nChans);
@@ -124,6 +132,8 @@ void ProbeViewerCanvas::update()
     numSamplesToChunk = int(globalSampleRate / ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
 
     optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
+
+    isUpdating = false;
 }
 
 void ProbeViewerCanvas::refresh()
@@ -224,6 +234,9 @@ float ProbeViewerCanvas::popFrontCachedSampleForChannel(int channel)
 
 void ProbeViewerCanvas::updateScreenBuffers()
 {
+    if(!dataBuffer || isUpdating)
+        return;
+    
     if (dataBuffer->hasSamplesReadyForDrawing())
     {
         ScopedLock drawLock(*dataBuffer->getMutex());

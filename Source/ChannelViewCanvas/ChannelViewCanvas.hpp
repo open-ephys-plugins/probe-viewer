@@ -86,12 +86,6 @@ public:
     void pushPixelValueForChannel(int channel, float rms, float spikeRate, float fft);
 
     /**
-     *  Set the index of the specific subprocessor for which to render
-     *  probe channels.
-     */
-    void setDisplayedSubprocessor(int subProcessorIdx);
-
-    /**
      *  Returns a pointer the BitmapRenderTile that is currently flagged
      *  for pixel updates.
      */

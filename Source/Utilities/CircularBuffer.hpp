@@ -31,17 +31,19 @@ namespace ProbeViewer {
 class CircularBuffer
 {
 public:
-    CircularBuffer();
+    CircularBuffer(int id, float sampleRate, int bufferLengthSec);
     virtual ~CircularBuffer();
 
-    /**
-     *  Set the dimensions of the internal buffer memory, channels x samples.
-     *
-     *  Calling this method may clear the current contents of some or all of
-     *  previously stored samples, and will reset the write and read indices to
-     *  their initialization state.
-     */
-    void setSize(int numChannels, int numSamples, Array<bool> shouldDraw_);
+    /** Resets buffer*/
+    void prepareToUpdate();
+
+    /** Updates buffer settings*/
+    void update();
+
+    /** Adds a continuous channel to the buffer*/
+    void addChannel(String chanName, 
+                    int channelNum,
+                    float ypos = 0);
 
     /**
      *  Return the current location of the read point for a specific channel.
@@ -67,21 +69,8 @@ public:
      */
     void clearSamplesReadyForDrawing();
 
-    /**
-     *  Read and store a fixed number of samples for all channels in an
-     *  AudioSampleBuffer.
-     */
-    void pushBuffer(AudioSampleBuffer& input, int numSamples);
-
-    /**
-     *  Read and store all necessary samples from an AudioSampleBuffer.
-     *
-     *  The channels may have different numbers of samples available, due
-     *  to differing sample rates. The second argument is a wrapper for the
-     *  source processor's getNumSamples function and is used to check how many
-     *  samples should be grabbed for each channel.
-     */
-    void pushBuffer(AudioSampleBuffer& input, std::function<int (int)> getNumSamples);
+     /** Adds continuous data*/
+    void addData(AudioBuffer<float>& buffer, int localChanId, int globalChanId, int nSamples);
 
     /**
      *  Return a single sample at a specific index and from a specific channel.
@@ -98,16 +87,31 @@ public:
      *  This is not necessary to use when using ::pushBuffer, as it locks itself.
      */
     CriticalSection* getMutex() { return &dataMutex; }
-private:
-    ScopedPointer<AudioSampleBuffer> dataBuffer;
 
+
+    struct ChannelMetadata {
+        String name = "";
+        float yPos = 0;
+    };
+
+    Array<ChannelMetadata> channelMetadata;
+
+    int id;
     int bufferLengthSamples;
+    float sampleRate;
+    bool isNeeded;
+
+private:
+    std::unique_ptr<AudioBuffer<float>> dataBuffer;
 
     Array<int> readIndex;
     Array<int> writeIndex;
 	Array<bool> shouldDraw;
 
     Atomic<int> samplesReadyForDrawing;
+
+    int numChannels;
+    int previousSize;
 
     CriticalSection dataMutex;
 

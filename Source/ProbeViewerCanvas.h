@@ -213,6 +213,7 @@ private:
     static const std::vector<float> fftWindow;
 
     int numChannels;
+    bool isUpdating;
 
     void updateScreenBuffers();
     int getNumCachedSamples(int channel);
