@@ -93,25 +93,23 @@ void ProbeViewerCanvas::update()
     isUpdating = true;
 
     dataBuffer = pvProcessor->getCircularBufferPtr();
+
     if(dataBuffer)
         dataBuffer->clearSamplesReadyForDrawing();
 
-    int nChans = jmax(pvProcessor->getNumStreamChannels(), 0);
-    if (nChans != getNumChannels())
-        setNumChannels(nChans);
+    numChannels = jmax(pvProcessor->getNumStreamChannels(), 0);
 
     channelsView->updateViewSettings();
     channelsView->channels.clear();
     partialBufferCache.clear();
     channelFFTSampleBuffer.clear();
     inputDownsamplingIndex.clear();
+    channelBrowser->reset();
 
-    float globalSampleRate = 0;
+    float sampleRate = pvProcessor->getStreamSampleRate();
+    
     for (int i = 0; i < numChannels; ++i)
     {
-
-        float sampleRate = pvProcessor->getStreamSampleRate();
-
         auto channelDisplay = 
             new ProbeChannelDisplay(channelsView, 
                                     optionsBar, 
@@ -124,14 +122,16 @@ void ProbeViewerCanvas::update()
         channelFFTSampleBuffer.add(new FFTSampleCacheBuffer(ProbeViewerCanvas::FFT_SIZE));
         inputDownsamplingIndex.push_back(0);
 
-        if (globalSampleRate == 0)
-            globalSampleRate = sampleRate;
+        if(dataBuffer)
+            channelBrowser->addChannel(i, dataBuffer->channelMetadata[i].name);
     }
 
     // see note above ^
-    numSamplesToChunk = int(globalSampleRate / ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
+    numSamplesToChunk = int(sampleRate / ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
 
     optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
+
+    channelBrowser->updateChannelSitesRendering();
 
     isUpdating = false;
 }
@@ -177,12 +177,6 @@ void ProbeViewerCanvas::resized()
                         getHeight() - timeScale->getHeight() - optionsBar->getHeight() - 4);
 
     viewport->setViewPositionProportionately(0, getChannelBrowserPtr()->getViewportScrollPositionRatio());
-}
-
-void ProbeViewerCanvas::setNumChannels(int numChannels)
-{
-    this->numChannels = numChannels;
-    channelBrowser->setNumActiveChannels(numChannels);
 }
 
 int ProbeViewerCanvas::getNumChannels()

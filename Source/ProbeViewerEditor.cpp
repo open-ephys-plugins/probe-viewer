@@ -107,7 +107,7 @@ void ProbeViewerEditor::updateStreamSelectorOptions()
 		// Check and select datastream if available
 		if (inputStreamIds.size() > 0)
 		{
-			if(subprocessorToSet == 0)
+			if(!inputStreamIds.contains(subprocessorToSet))
 				subprocessorToSet = inputStreamIds[0];
 
 			streamSelection->setSelectedId(subprocessorToSet, dontSendNotification);
@@ -115,8 +115,6 @@ void ProbeViewerEditor::updateStreamSelectorOptions()
 		else
 		{
 			subprocessorToSet = -1;
-			streamSelection->addItem("None", 1);
-			streamSelection->setSelectedId(1, dontSendNotification);
 		}
 
 		setDrawableStream(subprocessorToSet);

@@ -44,9 +44,12 @@ public:
     void mouseUp(const MouseEvent& event);
     void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
 
-
-    void setNumActiveChannels(int numChannels);
+    void addChannel(int channelNum, String channelName);    
     int getNumActiveChannels() const;
+
+    void reset();
+
+    void updateChannelSitesRendering();
     
     float getViewportScrollPositionRatio();
 
@@ -57,7 +60,7 @@ private:
 
     class ProbeViewerCanvas* canvas;
 
-    int numActiveChannels;
+    int numChannels;
     int graphicBottomPos;
 
     ScopedPointer<struct ProbeGraphicZoomInfo> zoomInfo;
@@ -71,10 +74,16 @@ private:
     
     bool isMouseActionLocked = false;
 
+    struct ChannelMetadata{
+        int num = -1;
+        String name = "";
+    };
+
+    Array<ChannelMetadata> channelMetadata;
+
     Colour getChannelColour(int channel);
     int getNearestChannelIdx(int x, int y);
     MouseCursor getMouseCursor();
-    void updateProbeSitesRendering();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChannelBrowser);
 };

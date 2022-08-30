@@ -32,7 +32,7 @@ using namespace ProbeViewer;
 ChannelBrowser::ChannelBrowser(ProbeViewerCanvas* canvas_)
 : canvas(canvas_)
 , cursorType(MouseCursor::NormalCursor)
-, numActiveChannels(0)
+, numChannels(0)
 , graphicBottomPos(0)
 {
     zoomInfo = new ProbeGraphicZoomInfo;
@@ -54,13 +54,13 @@ ChannelBrowser::~ChannelBrowser()
 
 void ChannelBrowser::paint(Graphics& g)
 {
-    if(numActiveChannels <= 0)
+    if(numChannels <= 0)
         return;
     
     const int xOffset = 27;
     
     // draw zoomed out channels
-    for (int channel = 0; channel < numActiveChannels; ++channel)
+    for (int channel = 0; channel < numChannels; ++channel)
     {
         g.setColour(getChannelColour(channel));
         g.fillRect(xOffset + 3, graphicBottomPos - channel, 4, 1);
@@ -72,12 +72,13 @@ void ChannelBrowser::paint(Graphics& g)
     g.setFont(12);
     
     int ch = 0;
-    for (int channel = graphicBottomPos; channel > 30; channel -= 50)
+    for (int channel = graphicBottomPos; channel > 10; channel -= 50)
     {
         g.drawLine(6, channel, 18, channel);
-        g.drawLine(44, channel, 54, channel);
-        g.drawText(String(ch), 59, int(channel) - 6, 100, 12, Justification::left, false);
-        ch += 50;
+        g.drawLine(44, channel, 56, channel);
+        g.drawText(channelMetadata[ch].name, 45, int(channel) - 12, 100, 12, Justification::left, false);
+
+        ch == 0 ? ch += 49 : ch += 50;
     }
     
     // draw shank outline
@@ -97,10 +98,13 @@ void ChannelBrowser::paint(Graphics& g)
         canvas->resized();
     }
     
+    Font chanFont = Font("Fira Code", "Bold", 12.0f);
+    g.setFont(chanFont);
+
     // LOGC("*********** LOW CHANNEL: ", zoomInfo->lowestChan, " HIGH CHANNEL: ", zoomInfo->highestChan);
     for (int channel = zoomInfo->lowestChan; channel <= zoomInfo->highestChan; ++channel)
     {
-        if (channel >= 0 && channel < numActiveChannels)
+        if (channel >= 0 && channel < numChannels)
         {
             float xLocation = PROBE_VIEW_X_OFFSET - (zoomInfo->channelHeight / 2);
             float yLocation = getHeight() - zoomInfo->channelHeight - ((channel - zoomInfo->lowestChan) * zoomInfo->channelHeight);
@@ -114,16 +118,21 @@ void ChannelBrowser::paint(Graphics& g)
                        zoomInfo->channelHeight - 2,
                        zoomInfo->channelHeight - 2);
             
-            if(zoomInfo->channelHeight > 26.0f)
+            bool showChannelNum = false;
+
+            if(channel == 0 || (channel+1) % 10 == 0)
+                showChannelNum = true; 
+            
+            if(zoomInfo->channelHeight > 14.0f && showChannelNum)
             {
-                g.setColour(Colours::black);
-                g.setFont(Font("Silkscreen", "Regular", 10.0f));
-                g.drawText(String(channel),
-                    xLocation + 2,
+                g.setColour(Colours::grey);
+                float stringWidth = chanFont.getStringWidth(channelMetadata[channel].name);
+                g.drawText(channelMetadata[channel].name,
+                    xLocation - stringWidth - 5,
                     yLocation + 2,
+                    stringWidth,
                     zoomInfo->channelHeight - 4,
-                    zoomInfo->channelHeight - 4,
-                    Justification::centred);
+                    Justification::centredRight);
             }
         }
     }
@@ -285,9 +294,9 @@ void ChannelBrowser::mouseDrag(const MouseEvent &event)
         }
     }
     
-    if (zoomInfo->zoomOffset > numActiveChannels - zoomInfo->zoomHeight)
+    if (zoomInfo->zoomOffset > numChannels - zoomInfo->zoomHeight)
     {
-        zoomInfo->zoomOffset = numActiveChannels - zoomInfo->zoomHeight;
+        zoomInfo->zoomOffset = numChannels - zoomInfo->zoomHeight;
     }
     
     if (zoomInfo->zoomOffset < 0)
@@ -298,7 +307,7 @@ void ChannelBrowser::mouseDrag(const MouseEvent &event)
     if (zoomInfo->zoomHeight < 10)
         zoomInfo->zoomHeight = 10;
 
-    int maxZoomHeight = numActiveChannels > 64 ? (numActiveChannels/2) : numActiveChannels;
+    int maxZoomHeight = numChannels > 64 ? (numChannels/2) : numChannels;
     if (zoomInfo->zoomHeight > maxZoomHeight)
         zoomInfo->zoomHeight = maxZoomHeight;
     
@@ -315,7 +324,7 @@ void ChannelBrowser::mouseDrag(const MouseEvent &event)
     }
     
     // update the viewport
-    const float viewportHeight = (numActiveChannels) - zoomInfo->zoomHeight;
+    const float viewportHeight = (numChannels) - zoomInfo->zoomHeight;
     const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
     zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
     
@@ -353,13 +362,13 @@ void ChannelBrowser::mouseWheelMove(const MouseEvent &event, const MouseWheelDet
         if (zoomInfo->zoomOffset < 0)
         {
             zoomInfo->zoomOffset = 0;
-        } else if (zoomInfo->zoomOffset > (numActiveChannels - zoomInfo->zoomHeight))
+        } else if (zoomInfo->zoomOffset > (numChannels - zoomInfo->zoomHeight))
         {
-            zoomInfo->zoomOffset = numActiveChannels - zoomInfo->zoomHeight;
+            zoomInfo->zoomOffset = numChannels - zoomInfo->zoomHeight;
         }
         
         // update the viewport
-        const float viewportHeight = numActiveChannels - zoomInfo->zoomHeight;
+        const float viewportHeight = numChannels - zoomInfo->zoomHeight;
         const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
         zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
         auto viewport = canvas->getViewportPtr();
@@ -369,16 +378,26 @@ void ChannelBrowser::mouseWheelMove(const MouseEvent &event, const MouseWheelDet
     }
 }
 
-void ChannelBrowser::setNumActiveChannels(int numChannels)
+
+void ChannelBrowser::addChannel(int chanNum, String chanName)
 {
-    numActiveChannels = numChannels;
-    
-    updateProbeSitesRendering();
+    ChannelMetadata chanData = ChannelMetadata();
+    chanData.num = chanNum;
+    chanData.name = chanName;
+
+    channelMetadata.add(chanData);
+    numChannels++;
 }
 
 int ChannelBrowser::getNumActiveChannels() const
 {
-    return numActiveChannels;
+    return numChannels;
+}
+
+void ChannelBrowser::reset()
+{
+    numChannels = 0;
+    channelMetadata.clear();
 }
 
 float ChannelBrowser::getViewportScrollPositionRatio()
@@ -388,7 +407,7 @@ float ChannelBrowser::getViewportScrollPositionRatio()
 
 Colour ChannelBrowser::getChannelColour(int channel)
 {
-    return Colours::yellow.interpolatedWith(Colours::purple, (float)channel/(float)numActiveChannels);
+    return Colours::yellow.interpolatedWith(Colours::purple, (float)channel/(float)numChannels);
 }
 
 int ChannelBrowser::getNearestChannelIdx(int x, int y)
@@ -405,11 +424,11 @@ MouseCursor ChannelBrowser::getMouseCursor()
     return c;
 }
 
-void ChannelBrowser::updateProbeSitesRendering()
+void ChannelBrowser::updateChannelSitesRendering()
 {
-    graphicBottomPos = numActiveChannels + 10;
+    graphicBottomPos = numChannels + 10;
     zoomInfo->lowerBound = graphicBottomPos;
-    zoomInfo->zoomHeight = numActiveChannels > 128 ? 50 : 16;
+    zoomInfo->zoomHeight = numChannels > 128 ? 50 : 16;
     repaint();
 }
 
@@ -418,4 +437,4 @@ void ChannelBrowser::updateProbeSitesRendering()
 
 const unsigned int ChannelBrowser::MARGIN_WIDTH = 30;
 
-const int ChannelBrowser::PROBE_VIEW_X_OFFSET = 150;
+const int ChannelBrowser::PROBE_VIEW_X_OFFSET = 155;

@@ -70,12 +70,6 @@ public:
      */
 
     /**
-     *  Set the number of channels to render data for in this canvas and child
-     *  components.
-     */
-    void setNumChannels(int numChannels);
-
-    /**
      *  Get the number of channels that this canvas is currently rendering data
      *  for.
      */
