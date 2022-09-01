@@ -77,7 +77,7 @@ void ChannelViewCanvas::refresh()
         {
             // get the front buffer and create a BitmapData accessor object for it
             auto frontBufferPtr = getFrontBufferPtr();
-            auto frontTile = frontBufferPtr->getTileForRenderMode(RenderMode::RMS);
+            auto frontTile = frontBufferPtr->getTile();
             
             Image::BitmapData bdFrontBufferBitmap(*frontTile, 0, 0, frontBufferPtr->width, frontBufferPtr->height, Image::BitmapData::ReadWriteMode::writeOnly);
             
@@ -101,6 +101,7 @@ void ChannelViewCanvas::updateViewSettings()
     displayBitmapTiles.clear();
 
     frontBufferIndex = 0;
+    frontBackBufferPixelOffset = 0;
 
     if(numChannels > 0)
     {
@@ -128,7 +129,7 @@ void ChannelViewCanvas::renderTilesToScreenBufferImage()
         for (int backBufferIdx = 0; backBufferIdx < displayBitmapTiles.size(); ++backBufferIdx)
         {
             // draw each tile
-            gScreenBuffer.drawImageAt(*displayBitmapTiles[backBufferIdx]->getTileForRenderMode(renderMode), backBufferIdx * CHANNEL_DISPLAY_TILE_WIDTH, 0.0f);
+            gScreenBuffer.drawImageAt(*displayBitmapTiles[backBufferIdx]->getTile(), backBufferIdx * CHANNEL_DISPLAY_TILE_WIDTH, 0.0f);
         }
         
         fullRedraw = false;
@@ -137,12 +138,12 @@ void ChannelViewCanvas::renderTilesToScreenBufferImage()
     {
         const bool shouldRedrawLastBufferToo = true;
         
-        gScreenBuffer.drawImageAt(*getFrontBufferPtr()->getTileForRenderMode(renderMode), frontBufferIndex * CHANNEL_DISPLAY_TILE_WIDTH, 0.0f);
+        gScreenBuffer.drawImageAt(*getFrontBufferPtr()->getTile(), frontBufferIndex * CHANNEL_DISPLAY_TILE_WIDTH, 0.0f);
         
         if (shouldRedrawLastBufferToo)
         {
             const int prevIdx = (frontBufferIndex == 0 ? (displayBitmapTiles.size() - 1) : (frontBufferIndex - 1));
-            gScreenBuffer.drawImageAt(*displayBitmapTiles[prevIdx]->getTileForRenderMode(renderMode), prevIdx * CHANNEL_DISPLAY_TILE_WIDTH, 0.0f);
+            gScreenBuffer.drawImageAt(*displayBitmapTiles[prevIdx]->getTile(), prevIdx * CHANNEL_DISPLAY_TILE_WIDTH, 0.0f);
         }
     }
     
@@ -184,9 +185,9 @@ float ChannelViewCanvas::getChannelHeight()
     return channelHeight;
 }
 
-void ChannelViewCanvas::pushPixelValueForChannel(int channel, float rms, float spikeRate, float fft)
+void ChannelViewCanvas::pushPixelValueForChannel(int channel, float value)
 {
-    channels[channel]->pushSamples(rms, spikeRate, fft);
+    channels[channel]->pushSample(value);
 }
 
 BitmapRenderTile* const ChannelViewCanvas::getFrontBufferPtr() const
@@ -241,47 +242,30 @@ BitmapRenderTile::BitmapRenderTile(int width, int height, int numChannels)
 , height(height)
 , numChannels(numChannels)
 {
-    rms = new Image(Image::RGB, width, height, false);
-    spikeRate = new Image(Image::RGB, width, height, false);
-    fft = new Image(Image::RGB, width, height, false);
+    renderImage = Image(Image::RGB, width, height, false);
     
     const int subImageHeight = height / numChannels;
     
-    for (auto img : {rms.get(), spikeRate.get(), fft.get()})
+    Graphics g(renderImage);
+    g.setColour(Colours::black);
+    g.fillRect(0, 0, width, height);
+    
+    for (int readSite = 0; readSite < numChannels; ++readSite)
     {
-        Graphics g(*img);
-        g.setColour(Colours::black);
-        g.fillRect(0, 0, width, height);
-        
-        channelSubImage.add(new Array<Image>());
-        for (int readSite = 0; readSite < numChannels; ++readSite)
-        {
-            auto subImage = img->getClippedImage(Rectangle<int>(0, height - (readSite + 1) * subImageHeight, width, subImageHeight));
-            channelSubImage.getLast()->add(subImage);
-        }
+        auto subImage = renderImage.getClippedImage(Rectangle<int>(0, height - (readSite + 1) * subImageHeight, width, subImageHeight));
+        channelSubImage.add(subImage);
     }
     
 }
 
-Image* const BitmapRenderTile::getTileForRenderMode(RenderMode mode)
+Image* const BitmapRenderTile::getTile()
 {
-    if (mode == RenderMode::RMS) return rms;
-    else if (mode == RenderMode::FFT) return fft;
-    
-    return spikeRate;
+    return &renderImage;
 }
 
-Image& BitmapRenderTile::getChannelSubImageForRenderMode(int channel, RenderMode mode)
+Image& BitmapRenderTile::getChannelSubImage(int channel)
 {
-    int modeIdx = 0;
-    if (mode == RenderMode::RMS)
-        modeIdx = 0;
-    else if (mode == RenderMode::SPIKE_RATE)
-        modeIdx = 1;
-    else // if mode is FFT
-        modeIdx = 2;
-    
-    return channelSubImage[modeIdx]->getReference(channel);
+    return channelSubImage[channel];
 }
 
 
@@ -308,76 +292,74 @@ void ProbeChannelDisplay::paint(Graphics& g)
 // TODO: (kelly) @REFACTOR - this should be rewritten. hangups in other parts of the application could cause problems here
 void ProbeChannelDisplay::pxPaint()
 {
+    RenderMode rm = channelsView->getCurrentRenderMode();
+
     // render RMS
+    if(rm == RenderMode::RMS)
     {
-        Image::BitmapData bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImageForRenderMode(channelID, RenderMode::RMS), Image::BitmapData::ReadWriteMode::writeOnly);
-        
+        Image bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImage(channelID));
+
         float boundSpread = optionsBar->getRMSBoundSpread();
         if (boundSpread == 0) boundSpread = 1;
-        const auto val = (rms[rms.size() - channelsView->numPixelUpdates] - optionsBar->getRMSLowBound()) / boundSpread;
+        const auto val = (samples[samples.size() - channelsView->numPixelUpdates] - optionsBar->getRMSLowBound()) / boundSpread;
         
         Colour colour = ColourScheme::getColourForNormalizedValueInScheme(val, channelsView->getCurrentColourScheme());
         
         const int xPix = channelsView->getBufferOffsetPosition();
-        for (int yPix = 0; yPix < bdSubImage.height; ++yPix)
+        for (int yPix = 0; yPix < bdSubImage.getHeight(); ++yPix)
         {
-            bdSubImage.setPixelColour(xPix, yPix, colour);
+            bdSubImage.setPixelAt(xPix, yPix, colour);
         }
     }
     
     // render SPIKE_RATE
+    else if(rm == RenderMode::SPIKE_RATE)
     {
-        Image::BitmapData bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImageForRenderMode(channelID, RenderMode::SPIKE_RATE), Image::BitmapData::ReadWriteMode::writeOnly);
+        Image bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImage(channelID));
         
         float boundSpread = optionsBar->getSpikeRateBoundSpread();
         if (boundSpread == 0) boundSpread = 1;
-        const auto val = (spikeRate[spikeRate.size() - channelsView->numPixelUpdates] - optionsBar->getSpikeRateLowBound()) / boundSpread;
+        const auto val = (samples[samples.size() - channelsView->numPixelUpdates] - optionsBar->getSpikeRateLowBound()) / boundSpread;
         
         Colour colour = ColourScheme::getColourForNormalizedValueInScheme(val, channelsView->getCurrentColourScheme());
         
         const int xPix = channelsView->getBufferOffsetPosition();
-        for (int yPix = 0; yPix < bdSubImage.height; ++yPix)
+        for (int yPix = 0; yPix < bdSubImage.getHeight(); ++yPix)
         {
-            bdSubImage.setPixelColour(xPix, yPix, colour);
+            bdSubImage.setPixelAt(xPix, yPix, colour);
         }
     }
     
     // render FFT
+    else
     {
-        Image::BitmapData bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImageForRenderMode(channelID, RenderMode::FFT), Image::BitmapData::ReadWriteMode::writeOnly);
+        Image bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImage(channelID));
         
         float boundSpread = optionsBar->getFFTBoundSpread();
         if (boundSpread == 0) boundSpread = 1;
-        const auto val = (fft[fft.size() - channelsView->numPixelUpdates] - optionsBar->getFFTLowBound()) / boundSpread;
+        const auto val = (samples[samples.size() - channelsView->numPixelUpdates] - optionsBar->getFFTLowBound()) / boundSpread;
         
         Colour colour = ColourScheme::getColourForNormalizedValueInScheme(val, channelsView->getCurrentColourScheme());
         
         const int xPix = channelsView->getBufferOffsetPosition();
-        for (int yPix = 0; yPix < bdSubImage.height; ++yPix)
+        for (int yPix = 0; yPix < bdSubImage.getHeight(); ++yPix)
         {
-            bdSubImage.setPixelColour(xPix, yPix, colour);
+            bdSubImage.setPixelAt(xPix, yPix, colour);
         }
     }
     
     if (channelsView->numPixelUpdates == 1)
     {
-        rms.clear();
-        spikeRate.clear();
-        fft.clear();
+        samples.clear();
     }
 }
 
-void ProbeChannelDisplay::pushSamples(float rms, float spikeRate, float fft)
+void ProbeChannelDisplay::pushSample(float sample)
 {
-    // If you reached any of these asserts, some other part of this plugin or open-ephys is
+    // If you reached this assert, some other part of this plugin or open-ephys is
     // causing rendering delays that is causing the sample queue to backup.
-    jassert (this->rms.size() < 1024);
-    jassert (this->spikeRate.size() < 1024);
-    jassert (this->fft.size() < 1024);
-    
-    this->rms.add(rms);
-    this->spikeRate.add(spikeRate);
-    this->fft.add(fft);
+    jassert (samples.size() < 1024);
+    this->samples.add(sample);
 }
 
 int ProbeChannelDisplay::getChannelId() const

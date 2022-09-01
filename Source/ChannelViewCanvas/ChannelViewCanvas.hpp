@@ -77,13 +77,13 @@ public:
     float getChannelHeight();
 
     /**
-     *  Receive and queue pixel value updates for RMS, FFT, and SpikeRate
-     *  screen images for the given channel.
+     *  Receive and queue pixel value updates for RMS, FFT, or SpikeRate
+     *  screen image for the given channel.
      *
      *  This method expects the channel to refer to an index within the
      *  data acquisition subset of channels, and does not do bound checking.
      */
-    void pushPixelValueForChannel(int channel, float rms, float spikeRate, float fft);
+    void pushPixelValueForChannel(int channel, float value);
 
     /**
      *  Returns a pointer the BitmapRenderTile that is currently flagged
@@ -173,11 +173,9 @@ private:
 
 struct BitmapRenderTile
 {
-    ScopedPointer<Image> rms;
-    ScopedPointer<Image> spikeRate;
-    ScopedPointer<Image> fft;
+    Image renderImage;
 
-    OwnedArray<Array<Image>> channelSubImage;
+    Array<Image> channelSubImage;
 
     const int width;
     const int height;
@@ -197,7 +195,7 @@ struct BitmapRenderTile
      *  Return a pointer to an Image for a complete tile and a specific
      *  RenderMode.
      */
-    Image* const getTileForRenderMode(RenderMode mode);
+    Image* const getTile();
 
     /**
      *  Return an Image reference that wraps only the given channel's drawable
@@ -207,7 +205,7 @@ struct BitmapRenderTile
      *  @param mode         The RenderMode which must be drawn to for
      *                      this tile
      */
-    Image& getChannelSubImageForRenderMode(int channel, RenderMode mode);
+    Image& getChannelSubImage(int channel);
 
     /**
      *  BitmapRenderTiles are non-copyable and non-moveable.
@@ -238,9 +236,9 @@ public:
 
     /**
      *  Accept and queue one pixel worth of updates on this channel for
-     *  RMS, FFT, and SpikeRate values.
+     *  RMS, FFT, or SpikeRate value.
      */
-    void pushSamples(float rms, float spikeRate, float fft);
+    void pushSample(float sample);
 
     /**
      *  Return the index number of this channel relative to the subset of
@@ -277,9 +275,7 @@ private:
 
     int yBitmapPos;
 
-    Array<float> rms;
-    Array<float> spikeRate;
-    Array<float> fft;
+    Array<float> samples;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeChannelDisplay);
 };

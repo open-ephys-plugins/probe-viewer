@@ -235,6 +235,7 @@ void ProbeViewerCanvas::updateScreenBuffers()
     {
         ScopedLock drawLock(*dataBuffer->getMutex());
         int numTicks = 0;
+        RenderMode modeId = channelsView->getCurrentRenderMode();
 
         for (int channel = 0; channel < numChannels; ++channel)
         {
@@ -309,46 +310,51 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 {
                     const float medianOffsetVal = samples[sampIdx] - median;
 
-                    rms += (medianOffsetVal * medianOffsetVal);
-
-                    if (medianOffsetVal < spikeRateThreshold)
-                        numSpikesInPixel++;
-
-                    if (inputDownsamplingIndex[channel]++ == 0)
+                    if(modeId == RenderMode::RMS) // RMS
                     {
-                        channelFFTSampleBuffer[channel]->pushSample(medianOffsetVal / 500.0f);
+                        rms += (medianOffsetVal * medianOffsetVal);
                     }
-                    else if (inputDownsamplingIndex[channel] >= numSamplesToChunk)
+
+                    else if (modeId == RenderMode::SPIKE_RATE) // Spike Rate
                     {
-                        inputDownsamplingIndex[channel] = 0;
+                        if (medianOffsetVal < spikeRateThreshold)
+                            numSpikesInPixel++;
+                    }
+                    else // FFT
+                    {
+                        if (inputDownsamplingIndex[channel]++ == 0)
+                            channelFFTSampleBuffer[channel]->pushSample(medianOffsetVal / 500.0f);
+                        else if (inputDownsamplingIndex[channel] >= numSamplesToChunk)
+                            inputDownsamplingIndex[channel] = 0;
                     }
                 }
 
-                //
-                //
-                //              PERFORM FFT FOR THIS PIXEL AND CHANNEL
-                //
-                //
-                for (int sampleIdx = 0; sampleIdx < ProbeViewerCanvas::FFT_SIZE; ++sampleIdx)
+
+                if(modeId == RenderMode::RMS)
                 {
-                    fftInput[sampleIdx] = fftWindow[sampleIdx] * channelFFTSampleBuffer[channel]->readSample(sampleIdx);
+                    rms = sqrtf(rms / samplesPerPixel);
+                    channelsView->pushPixelValueForChannel(channel, rms);
+                }
+                else if(modeId == RenderMode::SPIKE_RATE)
+                {
+                    spikeRate = numSpikesInPixel / (samplesPerPixel / getChannelSampleRate(channel));
+                    channelsView->pushPixelValueForChannel(channel, spikeRate);
+                }
+                else
+                {
+                    for (int sampleIdx = 0; sampleIdx < ProbeViewerCanvas::FFT_SIZE; ++sampleIdx)
+                    {
+                        fftInput[sampleIdx] = fftWindow[sampleIdx] * channelFFTSampleBuffer[channel]->readSample(sampleIdx);
+                    }
+
+                    kiss_fftr(fft_cfg, fftInput.data(), fftOutput);
+
+                    const int bin = optionsBar->getFFTCenterFrequencyBin();
+                    const float fftValueDb = 20 * log10((fftOutput[bin].r * fftOutput[bin].r + fftOutput[bin].i * fftOutput[bin].i) * 2 / ProbeViewerCanvas::FFT_SIZE);
+                
+                    channelsView->pushPixelValueForChannel(channel, fftValueDb);
                 }
 
-                kiss_fftr(fft_cfg, fftInput.data(), fftOutput);
-                //
-                //
-                //          END FFT FOR PIXEL AND CHANNEL
-                //
-                //
-
-                const int bin = optionsBar->getFFTCenterFrequencyBin();
-                const float fftValueDb = 20 * log10((fftOutput[bin].r * fftOutput[bin].r + fftOutput[bin].i * fftOutput[bin].i) * 2 / ProbeViewerCanvas::FFT_SIZE);
-
-                rms = sqrtf(rms / samplesPerPixel);
-
-                spikeRate = numSpikesInPixel / (samplesPerPixel / getChannelSampleRate(channel));
-
-                channelsView->pushPixelValueForChannel(channel, rms, spikeRate, fftValueDb);
             }
 
             for (int sampIdx = sampleBufferIndex; sampIdx < numSamplesToRead; ++sampIdx)
