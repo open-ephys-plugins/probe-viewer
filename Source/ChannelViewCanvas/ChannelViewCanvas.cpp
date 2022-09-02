@@ -74,13 +74,7 @@ void ChannelViewCanvas::refresh()
     if (isDirty.get()) // isDirty is set true when a new pixel has been pushed, and false when all queued pix are drawn
     {
         while (numPixelUpdates > 0)
-        {
-            // get the front buffer and create a BitmapData accessor object for it
-            auto frontBufferPtr = getFrontBufferPtr();
-            auto frontTile = frontBufferPtr->getTile();
-            
-            Image::BitmapData bdFrontBufferBitmap(*frontTile, 0, 0, frontBufferPtr->width, frontBufferPtr->height, Image::BitmapData::ReadWriteMode::writeOnly);
-            
+        {            
             // paint the pixel updates for each channel to the bitmap data
             for (auto channel : channels)
             {
@@ -89,7 +83,7 @@ void ChannelViewCanvas::refresh()
             --numPixelUpdates;
             tick();
         }
-        repaint(0, 0, getWidth(), getHeight());
+        repaint();
         isDirty.set(false);
     }
 }
@@ -263,7 +257,7 @@ Image* const BitmapRenderTile::getTile()
     return &renderImage;
 }
 
-Image& BitmapRenderTile::getChannelSubImage(int channel)
+const Image& BitmapRenderTile::getChannelSubImage(int channel)
 {
     return channelSubImage[channel];
 }

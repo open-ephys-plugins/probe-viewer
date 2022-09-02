@@ -205,7 +205,7 @@ struct BitmapRenderTile
      *  @param mode         The RenderMode which must be drawn to for
      *                      this tile
      */
-    Image& getChannelSubImage(int channel);
+    const Image& getChannelSubImage(int channel);
 
     /**
      *  BitmapRenderTiles are non-copyable and non-moveable.
