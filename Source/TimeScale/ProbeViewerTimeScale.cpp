@@ -51,7 +51,7 @@ void ProbeViewerTimeScale::paint(Graphics& g)
     g.setColour(Colour(150, 150, 150));
     g.drawLine(marginWidth, 0, marginWidth, getHeight(), 3);
     
-    g.drawText("s:", marginWidth - 25, 0, 100, getHeight(), Justification::left, false);
+    g.drawText("s:", marginWidth - 25, getHeight()-15, 100, 15, Justification::left, false);
     
     float divisionWidth = componentTimeScaleWidth / float(numDivisions);
     for (int division = 1; division <= numDivisions; ++division)
@@ -60,12 +60,12 @@ void ProbeViewerTimeScale::paint(Graphics& g)
         if (division % 4 == 0)
         {
             g.drawLine(xOffset, 0, xOffset, getHeight(), 3);
-            g.drawText(String(division * resolution), xOffset + 3, 0, 100, getHeight(), Justification::left, false);
+            g.drawText(String(division * resolution), xOffset + 6, getHeight()-15, 100, 15, Justification::left, false);
         }
         else if (division % 2 == 0)
         {
             g.drawLine(xOffset, getHeight() / 2, xOffset, getHeight(), 3);
-            g.drawText(String(division * resolution), xOffset + 3, 0, 100, getHeight(), Justification::left, false);
+            g.drawText(String(division * resolution), xOffset + 6, getHeight()-15, 100, 15, Justification::left, false);
         }
         else
         {

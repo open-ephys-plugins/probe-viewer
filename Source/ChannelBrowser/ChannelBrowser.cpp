@@ -74,16 +74,16 @@ void ChannelBrowser::paint(Graphics& g)
     int ch = 0;
     for (int channel = graphicBottomPos; channel > 10; channel -= 50)
     {
-        g.drawLine(6, channel, 18, channel);
-        g.drawLine(44, channel, 56, channel);
-        g.drawText(channelMetadata[ch].name, 45, int(channel) - 12, 100, 12, Justification::left, false);
+        g.drawLine(10, channel, 18, channel);
+        g.drawLine(44, channel, 52, channel);
+        g.drawText(channelMetadata[ch].name, 56, int(channel) - 6, 100, 12, Justification::left, false);
 
         ch == 0 ? ch += 49 : ch += 50;
     }
     
     // draw shank outline
     g.setColour(Colours::lightgrey);
-    g.drawRect(xOffset, 8, 10, graphicBottomPos - 4);
+    g.drawRect(xOffset, 8, 10, graphicBottomPos - 2);
     // g.strokePath(shankPath, PathStrokeType(1.0));
     
     // draw zoomed channels
@@ -91,6 +91,7 @@ void ChannelBrowser::paint(Graphics& g)
     zoomInfo->highestChan = (graphicBottomPos - (zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight));
     
     float newChannelHeight = float(getHeight() - 2) / ((zoomInfo->highestChan - zoomInfo->lowestChan));
+
     if (zoomInfo->channelHeight != newChannelHeight)
     {
         zoomInfo->channelHeight = newChannelHeight;
@@ -106,24 +107,52 @@ void ChannelBrowser::paint(Graphics& g)
     {
         if (channel >= 0 && channel < numChannels)
         {
-            float xLocation = PROBE_VIEW_X_OFFSET - (zoomInfo->channelHeight / 2);
-            float yLocation = getHeight() - zoomInfo->channelHeight - ((channel - zoomInfo->lowestChan) * zoomInfo->channelHeight);
-            
+
+            float iconHeight = jmax(jmin(zoomInfo->channelHeight, 20.0f),4.0f);
+
+            float xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2);
+            float yLocation = getHeight() - iconHeight - ((channel - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+
+            //if (iconHeight > 3.0f)
+           // {
             g.setColour(Colours::black);
-            g.drawEllipse(xLocation, yLocation, zoomInfo->channelHeight, zoomInfo->channelHeight, 1.0f);
+
+            g.drawEllipse(xLocation, yLocation, iconHeight, iconHeight, 1.0f);
+           // }
             
             g.setColour(getChannelColour(channel));
             g.fillEllipse(xLocation + 1,
                        yLocation + 1,
-                       zoomInfo->channelHeight - 2,
-                       zoomInfo->channelHeight - 2);
-            
-            bool showChannelNum = false;
+                       iconHeight - 2,
+                       iconHeight - 2);
 
-            if(channel == 0 || (channel+1) % 10 == 0)
-                showChannelNum = true; 
+            bool showChannelName = false;
+
+            if (zoomInfo->zoomHeight < 20)
+            {
+                showChannelName = true;
+            }
+            else if (zoomInfo->zoomHeight >= 20 && zoomInfo->zoomHeight < 50)
+            {
+                if (channel == 0 || (channel + 1) % 5 == 0)
+                    showChannelName = true;
+            }
+            else if (zoomInfo->zoomHeight >= 50 && zoomInfo->zoomHeight < 100)
+            {
+                if (channel == 0 || (channel + 1) % 10 == 0)
+                    showChannelName = true;
+            } 
+            else if (zoomInfo->zoomHeight >= 100 && zoomInfo->zoomHeight < 250)
+            {
+                if (channel == 0 || (channel + 1) % 25 == 0)
+                    showChannelName = true;
+            }
+            else {
+                if (channel == 0 || (channel + 1) % 50 == 0)
+                    showChannelName = true;
+            }
             
-            if(zoomInfo->channelHeight > 14.0f && showChannelNum)
+            if (showChannelName)
             {
                 g.setColour(Colours::grey);
                 float stringWidth = chanFont.getStringWidth(channelMetadata[channel].name);
@@ -131,7 +160,7 @@ void ChannelBrowser::paint(Graphics& g)
                     xLocation - stringWidth - 5,
                     yLocation + 2,
                     stringWidth,
-                    zoomInfo->channelHeight - 4,
+                    jmax(iconHeight - 4,10.0f),
                     Justification::centredRight);
             }
         }
@@ -307,7 +336,7 @@ void ChannelBrowser::mouseDrag(const MouseEvent &event)
     if (zoomInfo->zoomHeight < 10)
         zoomInfo->zoomHeight = 10;
 
-    int maxZoomHeight = numChannels > 64 ? (numChannels/2) : numChannels;
+    int maxZoomHeight = numChannels > 384 ? 384 : numChannels;
     if (zoomInfo->zoomHeight > maxZoomHeight)
         zoomInfo->zoomHeight = maxZoomHeight;
     
