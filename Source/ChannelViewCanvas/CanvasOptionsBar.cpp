@@ -220,8 +220,20 @@ float CanvasOptionsBar::getSpikeRateThreshold() const
     return spikeRateSubOptionComponent->getSpikeRateThreshold();
 }
 
+void CanvasOptionsBar::saveParameters(XmlElement* xml)
+{
+    // XmlElement* xmlNode = xml->createNewChildElement("CANVAS OPTIONS");
 
+    // xmlNode->setAttribute("renderMode", renderModeSelection->getSelectedId());
 
+    // xmlNode->setAttribute("renderMode", renderModeSelection->getSelectedId());
+
+}
+
+void CanvasOptionsBar::loadParameters(XmlElement* xml)
+{
+    
+}
 
 #pragma mark - RMSSubOptionComponent -
 

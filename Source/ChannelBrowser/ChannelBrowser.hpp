@@ -33,7 +33,7 @@ class ChannelBrowser : public Component
 public:
     static const unsigned int MARGIN_WIDTH;
 
-    ChannelBrowser(class ProbeViewerCanvas* canvas);
+    ChannelBrowser(class ProbeViewerCanvas* canvas, int id);
     virtual ~ChannelBrowser() override;
 
     void paint(Graphics&) override;
@@ -45,7 +45,7 @@ public:
     void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
 
     void addChannel(int channelNum, String channelName);    
-    int getNumActiveChannels() const;
+    int getNumChannels() const;
 
     void reset();
 
@@ -55,6 +55,8 @@ public:
 
     static const unsigned int NUM_PROBE_READ_SITES;
     static const int PROBE_VIEW_X_OFFSET;
+
+    int id;
 
 private:
 

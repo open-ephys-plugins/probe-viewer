@@ -103,6 +103,10 @@ public:
      */
     float getSpikeRateThreshold() const;
 
+    void saveParameters(XmlElement* xml);
+
+    void loadParameters(XmlElement* xml);
+
 private:
     class ChannelViewCanvas* channelsView;
 

@@ -45,8 +45,7 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode *processor_)
 {
     dataBuffer = pvProcessor->getCircularBufferPtr();
 
-    channelBrowser = new ChannelBrowser(this);
-    addAndMakeVisible(channelBrowser);
+    updateChannelBrowsers();
 
     timeScale = new ProbeViewerTimeScale(ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE, 0.5f);
     addAndMakeVisible(timeScale);
@@ -69,8 +68,6 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode *processor_)
         fftInput.push_back(0.0f);
     }
 
-    setBufferedToImage(true);
-
     isUpdating = false;
 }
 
@@ -81,6 +78,7 @@ ProbeViewerCanvas::~ProbeViewerCanvas()
 
 void ProbeViewerCanvas::refreshState()
 {
+
 }
 
 void ProbeViewerCanvas::update()
@@ -104,7 +102,14 @@ void ProbeViewerCanvas::update()
     partialBufferCache.clear();
     channelFFTSampleBuffer.clear();
     inputDownsamplingIndex.clear();
-    channelBrowser->reset();
+    
+    for(auto browser : channelBrowsers)
+    {
+        if(browser->id == pvProcessor->getDisplayedStream())
+            browser->setVisible(true);
+        else
+            browser->setVisible(false);
+    }
 
     float sampleRate = pvProcessor->getStreamSampleRate();
     
@@ -121,17 +126,12 @@ void ProbeViewerCanvas::update()
 
         channelFFTSampleBuffer.add(new FFTSampleCacheBuffer(ProbeViewerCanvas::FFT_SIZE));
         inputDownsamplingIndex.push_back(0);
-
-        if(dataBuffer)
-            channelBrowser->addChannel(i, dataBuffer->channelMetadata[i].name);
     }
 
     // see note above ^
     numSamplesToChunk = int(sampleRate / ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
 
     optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
-
-    channelBrowser->updateChannelSitesRendering();
 
     isUpdating = false;
 }
@@ -145,16 +145,23 @@ void ProbeViewerCanvas::refresh()
 
 void ProbeViewerCanvas::beginAnimation()
 {
-    std::cout << "Beginning animation." << std::endl;
-
     startCallbacks();
 }
 
 void ProbeViewerCanvas::endAnimation()
 {
-    std::cout << "Ending animation." << std::endl;
-
     stopCallbacks();
+}
+
+
+void ProbeViewerCanvas::saveCustomParametersToXml(XmlElement* xml)
+{
+    optionsBar->saveParameters(xml);
+}
+
+void ProbeViewerCanvas::loadCustomParametersFromXml(XmlElement* xml)
+{
+    optionsBar->loadParameters(xml);
 }
 
 void ProbeViewerCanvas::paint(Graphics &g)
@@ -166,17 +173,70 @@ void ProbeViewerCanvas::resized()
     timeScale->setBounds(0, 0, getWidth(), 30);
     optionsBar->setBounds(0, getHeight() - 30, getWidth(), 30);
 
-    channelBrowser->setBounds(0, timeScale->getBottom(), 200, getHeight() - timeScale->getHeight() - optionsBar->getHeight());
-    timeScale->setMarginOffset(channelBrowser->getWidth());
-    optionsBar->setMarginOffset(channelBrowser->getWidth());
+    for(auto browser : channelBrowsers)
+        browser->setBounds(0, timeScale->getBottom(), 200, getHeight() - timeScale->getHeight() - optionsBar->getHeight());
 
-    channelsView->setBounds(0, 0, viewport->getWidth(), channelsView->getChannelHeight() * channelsView->channels.size());
-    viewport->setBounds(channelBrowser->getRight(),
-                        timeScale->getBottom() + 2,
-                        getWidth() - channelBrowser->getWidth(),
-                        getHeight() - timeScale->getHeight() - optionsBar->getHeight() - 4);
+    ChannelBrowser* cb = getChannelBrowserPtr();
+    if(cb)
+    {
+        timeScale->setMarginOffset(cb->getWidth());
+        optionsBar->setMarginOffset(cb->getWidth());
 
-    viewport->setViewPositionProportionately(0, getChannelBrowserPtr()->getViewportScrollPositionRatio());
+        channelsView->setBounds(0, 0, viewport->getWidth(), channelsView->getChannelHeight() * channelsView->channels.size());
+        viewport->setBounds(cb->getRight(),
+                            timeScale->getBottom() + 2,
+                            getWidth() - cb->getWidth(),
+                            getHeight() - timeScale->getHeight() - optionsBar->getHeight() - 4);
+
+        viewport->setViewPositionProportionately(0, cb->getViewportScrollPositionRatio());
+    }
+}
+
+void ProbeViewerCanvas::updateChannelBrowsers()
+{
+    for(auto stream : pvProcessor->getDataStreams())
+	{
+		uint16 streamId = stream->getStreamId();
+
+		if(channelBrowserMap.count(streamId) == 0)
+		{
+			channelBrowsers.add(new ChannelBrowser(this, streamId));
+			channelBrowserMap[streamId] = channelBrowsers.getLast();
+            addChildComponent(channelBrowsers.getLast());
+		}
+        else
+        {
+            channelBrowserMap[streamId]->reset();
+        }
+		
+		for (int i = 0; i < stream->getChannelCount(); i++)
+		{
+			auto chan = stream->getContinuousChannels()[i];
+
+			channelBrowserMap[streamId]->addChannel(i, chan->getName());
+		}
+
+        channelBrowserMap[streamId]->updateChannelSitesRendering();
+
+	}
+
+	Array<ChannelBrowser*> toDelete;
+
+    for (auto browser : channelBrowsers)
+    {
+
+        if (browser->getNumChannels() == 0)
+        {
+            channelBrowserMap.erase(browser->id);
+            toDelete.add(browser);
+        }
+
+    }
+
+    for (auto browser : toDelete)
+    {
+        channelBrowsers.removeObject(browser, true);
+    }
 }
 
 int ProbeViewerCanvas::getNumChannels()
@@ -211,7 +271,7 @@ ChannelViewCanvas *ProbeViewerCanvas::getChannelViewCanvasPtr()
 
 ChannelBrowser *ProbeViewerCanvas::getChannelBrowserPtr()
 {
-    return channelBrowser;
+    return channelBrowserMap[pvProcessor->getDisplayedStream()];
 }
 
 // TODO: (kelly) this should be implemented differently, as is it will shift the array after every pop

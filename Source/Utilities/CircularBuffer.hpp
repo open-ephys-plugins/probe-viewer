@@ -40,10 +40,8 @@ public:
     /** Updates buffer settings*/
     void update();
 
-    /** Adds a continuous channel to the buffer*/
-    void addChannel(String chanName, 
-                    int channelNum,
-                    float ypos = 0);
+    /** Sets the number of inputs to the buffer*/
+    void setNumChannels(int numChans);
 
     /**
      *  Return the current location of the read point for a specific channel.
@@ -87,14 +85,6 @@ public:
      *  This is not necessary to use when using ::pushBuffer, as it locks itself.
      */
     CriticalSection* getMutex() { return &dataMutex; }
-
-
-    struct ChannelMetadata {
-        String name = "";
-        float yPos = 0;
-    };
-
-    Array<ChannelMetadata> channelMetadata;
 
     int id;
     int bufferLengthSamples;

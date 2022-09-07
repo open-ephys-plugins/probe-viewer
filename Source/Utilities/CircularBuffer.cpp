@@ -45,18 +45,12 @@ void CircularBuffer::prepareToUpdate()
 {
     previousSize = numChannels;
     numChannels = 0;
-    channelMetadata.clear();
     isNeeded = false;
 } 
 
-void CircularBuffer::addChannel(String name, int channelNum, float yPos)
+void CircularBuffer::setNumChannels(int numChans)
 {
-    ChannelMetadata cm = ChannelMetadata();
-    cm.name = name;
-    cm.yPos = yPos;
-
-    channelMetadata.add(cm);
-    numChannels++;
+    numChannels = numChans;
     isNeeded = true;
 }
 

@@ -51,6 +51,9 @@ public:
     /** Updates the displayed stream, then calls updateSettings() */
 	void setDisplayedStream(int idx);
 
+    /** Gtes the displayed stream id*/
+	uint16 getDisplayedStream();
+
     /** Returns the sample rate of the currently selected stream*/
 	float getStreamSampleRate();
 

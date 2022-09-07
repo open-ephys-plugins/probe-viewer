@@ -80,14 +80,8 @@ void ProbeViewerNode::updateSettings()
 			dataBufferMap[streamId]->sampleRate = stream->getSampleRate();
 			dataBufferMap[streamId]->prepareToUpdate();
 		}
-		
-		for (int i = 0; i < stream->getChannelCount(); i++)
-		{
-			auto chan =stream->getContinuousChannels()[i];
 
-			dataBufferMap[streamId]->addChannel(chan->getName(), i, chan->position.y);
-		}
-
+		dataBufferMap[streamId]->setNumChannels(stream->getChannelCount());
 	}
 
 	Array<CircularBuffer*> toDelete;
@@ -129,6 +123,11 @@ bool ProbeViewerNode::stopAcquisition()
 void ProbeViewerNode::setDisplayedStream(int idx)
 {
 	streamToDraw = idx;
+}
+
+uint16 ProbeViewerNode::getDisplayedStream()
+{
+	return streamToDraw;
 }
 
 float ProbeViewerNode::getStreamSampleRate()

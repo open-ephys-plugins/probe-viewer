@@ -38,7 +38,7 @@ ChannelViewCanvas::ChannelViewCanvas(ProbeViewerCanvas* canvas)
 , canvas(canvas)
 , channelHeight(10)
 , colourSchemeId(ColourSchemeId::INFERNO)
-, screenBufferImage(Image::RGB, CHANNEL_DISPLAY_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * 394, false)
+, screenBufferImage(Image::RGB, CHANNEL_DISPLAY_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * 384, false)
 , renderMode(RenderMode::RMS)
 , frontBackBufferPixelOffset(0)
 , frontBufferIndex(0)
@@ -145,7 +145,8 @@ void ChannelViewCanvas::renderTilesToScreenBufferImage()
     gScreenBuffer.setColour(Colours::yellow);
     const int xPosition = frontBufferIndex * CHANNEL_DISPLAY_TILE_WIDTH + frontBackBufferPixelOffset;
     const int yMax = screenBufferImage.getHeight();
-    gScreenBuffer.drawLine(xPosition, 0.0f, xPosition, yMax);
+    gScreenBuffer.fillRect(xPosition, 0, 1, yMax);
+    // gScreenBuffer.drawLine(xPosition, 0.0f, xPosition, yMax);
 }
 
 void ChannelViewCanvas::tick()
@@ -257,7 +258,7 @@ Image* const BitmapRenderTile::getTile()
     return &renderImage;
 }
 
-const Image& BitmapRenderTile::getChannelSubImage(int channel)
+Image BitmapRenderTile::getChannelSubImage(int channel)
 {
     return channelSubImage[channel];
 }
@@ -288,10 +289,11 @@ void ProbeChannelDisplay::pxPaint()
 {
     RenderMode rm = channelsView->getCurrentRenderMode();
 
+    Image bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImage(channelID));
+
     // render RMS
     if(rm == RenderMode::RMS)
     {
-        Image bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImage(channelID));
 
         float boundSpread = optionsBar->getRMSBoundSpread();
         if (boundSpread == 0) boundSpread = 1;
@@ -308,9 +310,7 @@ void ProbeChannelDisplay::pxPaint()
     
     // render SPIKE_RATE
     else if(rm == RenderMode::SPIKE_RATE)
-    {
-        Image bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImage(channelID));
-        
+    {        
         float boundSpread = optionsBar->getSpikeRateBoundSpread();
         if (boundSpread == 0) boundSpread = 1;
         const auto val = (samples[samples.size() - channelsView->numPixelUpdates] - optionsBar->getSpikeRateLowBound()) / boundSpread;
@@ -327,8 +327,6 @@ void ProbeChannelDisplay::pxPaint()
     // render FFT
     else
     {
-        Image bdSubImage(channelsView->getFrontBufferPtr()->getChannelSubImage(channelID));
-        
         float boundSpread = optionsBar->getFFTBoundSpread();
         if (boundSpread == 0) boundSpread = 1;
         const auto val = (samples[samples.size() - channelsView->numPixelUpdates] - optionsBar->getFFTLowBound()) / boundSpread;

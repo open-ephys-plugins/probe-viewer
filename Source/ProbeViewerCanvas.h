@@ -58,6 +58,12 @@ public:
     /** Called when data acquisition ends.*/
     virtual void endAnimation() override;
 
+    /** Saves parameters */
+    void saveCustomParametersToXml(XmlElement* xml) override;
+
+    /** Loads parameters */
+    void loadCustomParametersFromXml(XmlElement* xml) override;
+
     /**
      *  Overrides from juce::Component
      */
@@ -68,6 +74,8 @@ public:
     /**
      *  Custom member methods
      */
+
+    void updateChannelBrowsers();
 
     /**
      *  Get the number of channels that this canvas is currently rendering data
@@ -121,7 +129,10 @@ public:
 
 private:
     class ProbeViewerNode* pvProcessor;
-    ScopedPointer<class ChannelBrowser> channelBrowser;
+
+    OwnedArray<ChannelBrowser> channelBrowsers;
+    std::map<uint16, ChannelBrowser*> channelBrowserMap;
+
     ScopedPointer<class ChannelViewCanvas> channelsView;
     ScopedPointer<class ProbeViewerTimeScale> timeScale;
     ScopedPointer<class CanvasOptionsBar> optionsBar;

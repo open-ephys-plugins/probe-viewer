@@ -29,22 +29,14 @@
 
 using namespace ProbeViewer;
 
-ChannelBrowser::ChannelBrowser(ProbeViewerCanvas* canvas_)
+ChannelBrowser::ChannelBrowser(ProbeViewerCanvas* canvas_, int id_)
 : canvas(canvas_)
+, id(id_)
 , cursorType(MouseCursor::NormalCursor)
 , numChannels(0)
 , graphicBottomPos(0)
 {
     zoomInfo = new ProbeGraphicZoomInfo;
-    // zoomInfo->lowerBound = ChannelBrowser::PROBE_GRAPHIC_BOTTOM_POS;
-    
-    
-    // for (int i = 0; i < refNodes.size(); ++i)
-    // {
-    //     channelStatus.set(*(refNodes.begin() + i) - 1, ChannelState::reference);
-    // }
-    
-    // addMouseListener(this, true);
     
     setBufferedToImage(true);
 }
@@ -418,7 +410,7 @@ void ChannelBrowser::addChannel(int chanNum, String chanName)
     numChannels++;
 }
 
-int ChannelBrowser::getNumActiveChannels() const
+int ChannelBrowser::getNumChannels() const
 {
     return numChannels;
 }

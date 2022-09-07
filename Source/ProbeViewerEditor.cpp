@@ -118,6 +118,11 @@ void ProbeViewerEditor::updateStreamSelectorOptions()
 		}
 
 		setDrawableStream(subprocessorToSet);
+
+		if (canvas != nullptr)
+		{
+			static_cast<ProbeViewerCanvas*>(canvas.get())->updateChannelBrowsers();
+		}
 	}
 }
 
