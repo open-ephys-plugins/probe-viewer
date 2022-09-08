@@ -222,17 +222,45 @@ float CanvasOptionsBar::getSpikeRateThreshold() const
 
 void CanvasOptionsBar::saveParameters(XmlElement* xml)
 {
-    // XmlElement* xmlNode = xml->createNewChildElement("CANVAS OPTIONS");
+    XmlElement* xmlNode = xml->createNewChildElement("OPTIONS");
 
-    // xmlNode->setAttribute("renderMode", renderModeSelection->getSelectedId());
+    xmlNode->setAttribute("renderMode", renderModeSelection->getSelectedId());
 
-    // xmlNode->setAttribute("renderMode", renderModeSelection->getSelectedId());
+    xmlNode->setAttribute("rmsLow", getRMSLowBound());
+    xmlNode->setAttribute("rmsHi", getRMSHiBound());
 
+    xmlNode->setAttribute("fftLow", getFFTLowBound());
+    xmlNode->setAttribute("fftHi", getFFTHiBound());
+    xmlNode->setAttribute("fftFreqBin", fftSubOptionComponent->getFFTFrequency());
+
+    xmlNode->setAttribute("spikeLow", getSpikeRateLowBound());
+    xmlNode->setAttribute("spikeHi", getSpikeRateHiBound());
+    xmlNode->setAttribute("spikeThreshold", getSpikeRateThreshold());
+
+    xmlNode->setAttribute("colourScheme", colourSchemeSelection->getSelectedId());
 }
 
 void CanvasOptionsBar::loadParameters(XmlElement* xml)
 {
-    
+    XmlElement* xmlNode = xml->getChildByName("OPTIONS");
+
+    if(xmlNode)
+    {
+        renderModeSelection->setSelectedId(xmlNode->getIntAttribute("renderMode", 1), sendNotification);
+
+        rmsSubOptionComponent->setRMSBounds(xmlNode->getStringAttribute("rmsLow", String()), 
+            xmlNode->getStringAttribute("rmsHi", String()));
+        
+        fftSubOptionComponent->setFFTParams(xmlNode->getStringAttribute("fftLow", String()),
+            xmlNode->getStringAttribute("fftHi", String()),
+            xmlNode->getStringAttribute("fftFreqBin", String()));
+
+        spikeRateSubOptionComponent->setSpikeRateParams(xmlNode->getStringAttribute("spikeLow", String()),
+            xmlNode->getStringAttribute("spikeHi", String()),
+            xmlNode->getStringAttribute("spikeThreshold", String()));
+
+        colourSchemeSelection->setSelectedId(xmlNode->getIntAttribute("colourScheme", 1));
+    }
 }
 
 #pragma mark - RMSSubOptionComponent -
@@ -377,7 +405,14 @@ float RMSSubOptionComponent::getRMSBoundSpread() const
     return hiValueBound - lowValueBound;
 }
 
+void RMSSubOptionComponent::setRMSBounds(String low, String high)
+{
+    if(low.isNotEmpty())
+        lowValueBoundSelection->setText(low, sendNotification);
 
+    if(high.isNotEmpty())
+        hiValueBoundSelection->setText(high, sendNotification);
+}
 
 
 #pragma mark - FFTSubOptionComponent -
@@ -553,6 +588,23 @@ float FFTSubOptionComponent::getFFTBoundSpread() const
 int FFTSubOptionComponent::getFFTSamplingBin() const
 {
     return binSelectionValue;
+}
+
+int FFTSubOptionComponent::getFFTFrequency() const
+{
+    return binSelection->getText().getIntValue();
+}
+
+void FFTSubOptionComponent::setFFTParams(String low, String high, String bin)
+{
+    if(low.isNotEmpty())
+        lowValueBoundSelection->setText(low, sendNotification);
+
+    if(high.isNotEmpty())
+        hiValueBoundSelection->setText(high, sendNotification);
+
+    if(bin.isNotEmpty())
+        binSelection->setText(bin, sendNotification);
 }
 
 
@@ -731,4 +783,16 @@ float SpikeRateSubOptionComponent::getSpikeRateBoundSpread() const
 float SpikeRateSubOptionComponent::getSpikeRateThreshold() const
 {
     return threshold;
+}
+
+void SpikeRateSubOptionComponent::setSpikeRateParams(String low, String high, String threshold)
+{
+    if(low.isNotEmpty())
+        lowValueBoundSelection->setText(low, sendNotification);
+    
+    if(high.isNotEmpty())
+        hiValueBoundSelection->setText(high, sendNotification);
+    
+    if(threshold.isNotEmpty())
+        thresholdSelection->setText(threshold, sendNotification);
 }

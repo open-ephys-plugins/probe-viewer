@@ -126,6 +126,17 @@ void ProbeViewerEditor::updateStreamSelectorOptions()
 	}
 }
 
+void ProbeViewerEditor::saveVisualizerEditorParameters(XmlElement* xml)
+{
+	xml->setAttribute("selectedStream", streamSelection->getSelectedItemIndex());
+}
+
+void ProbeViewerEditor::loadVisualizerEditorParameters(XmlElement* xml)
+{
+
+	streamSelection->setSelectedItemIndex(xml->getIntAttribute("selectedStream"), sendNotification);
+}
+
 void ProbeViewerEditor::setDrawableStream(int index)
 {
 	if (index > 0)

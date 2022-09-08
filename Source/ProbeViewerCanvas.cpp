@@ -156,12 +156,37 @@ void ProbeViewerCanvas::endAnimation()
 
 void ProbeViewerCanvas::saveCustomParametersToXml(XmlElement* xml)
 {
-    optionsBar->saveParameters(xml);
+    XmlElement* xmlNode = xml->createNewChildElement("CANVAS");
+    
+    for(auto browser : channelBrowsers)
+    {
+        browser->saveParameters(xmlNode);
+    }
+
+    optionsBar->saveParameters(xmlNode);
 }
 
 void ProbeViewerCanvas::loadCustomParametersFromXml(XmlElement* xml)
 {
-    optionsBar->loadParameters(xml);
+    XmlElement* xmlNode = xml->getChildByName("CANVAS");
+
+    if(!xmlNode)
+        return;
+    
+    for (auto* streamXml : xmlNode->getChildIterator())
+    {
+        if (streamXml->hasTagName("STREAM"))
+        {
+            int streamId = streamXml->getIntAttribute("id");
+
+            if (channelBrowserMap.find(streamId) == channelBrowserMap.end())
+                continue;
+            else
+                channelBrowserMap[streamId]->loadParameters(streamXml);
+        }
+    }
+
+    optionsBar->loadParameters(xmlNode);
 }
 
 void ProbeViewerCanvas::paint(Graphics &g)

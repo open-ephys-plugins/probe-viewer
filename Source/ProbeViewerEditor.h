@@ -50,6 +50,10 @@ public:
      */
     virtual Visualizer* createNewCanvas() override;
 
+    void saveVisualizerEditorParameters(XmlElement* xml) override;
+
+    void loadVisualizerEditorParameters(XmlElement* xml) override;
+
     /** Updates available streams*/
 	void updateStreamSelectorOptions();
 

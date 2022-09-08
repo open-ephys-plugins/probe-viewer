@@ -155,6 +155,11 @@ public:
      */
     float getRMSBoundSpread() const;
 
+    /**
+     *  Sets the RMS Low and High bound values
+    */
+    void setRMSBounds(String low, String high);
+
 private:
     Font labelFont;
     Colour labelColour;
@@ -182,7 +187,6 @@ public:
 
     void comboBoxChanged(ComboBox* cb) override;
 
-    void updateFrequencyRanges(const int numBins, const int sampleRate);
     void setSampleRate(const float sampleRate);
     void setFFTSize(const int numBins);
 
@@ -205,6 +209,16 @@ public:
      *  Return the selected center frequency bin for the FFT renderer
      */
     int getFFTSamplingBin() const;
+
+    /**
+     *  Return the selected center frequency bin for the FFT renderer
+     */
+    int getFFTFrequency() const;
+
+    /**
+     *  Sets the FFT parameters
+    */
+    void setFFTParams(String low, String high, String bin);
 
 private:
     Font labelFont;
@@ -268,6 +282,11 @@ public:
      *  after adjusting samples for median offset.
      */
     float getSpikeRateThreshold() const;
+
+    /**
+     *  Sets the Spike Rate parameters
+    */
+    void setSpikeRateParams(String low, String high, String threshold);
 
 private:
     Font labelFont;

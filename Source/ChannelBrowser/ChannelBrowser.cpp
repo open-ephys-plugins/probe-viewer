@@ -426,6 +426,31 @@ float ChannelBrowser::getViewportScrollPositionRatio()
     return zoomInfo->viewportScrollPositionRatio;
 }
 
+void ChannelBrowser::saveParameters(XmlElement* xml)
+{
+    XmlElement* xmlNode = xml->createNewChildElement("STREAM");
+
+    xmlNode->setAttribute("id", id);
+    xmlNode->setAttribute("zoomLowerBound", zoomInfo->lowerBound);
+    xmlNode->setAttribute("zoomOffset", zoomInfo->zoomOffset);
+    xmlNode->setAttribute("zoomHeight", zoomInfo->zoomHeight);
+}
+
+void ChannelBrowser::loadParameters(XmlElement* xml)
+{
+    zoomInfo->lowerBound =  xml->getIntAttribute("zoomLowerBound", graphicBottomPos + 10);
+    zoomInfo->zoomOffset =  xml->getIntAttribute("zoomOffset", 0);
+    zoomInfo->zoomHeight = xml->getIntAttribute("zoomHeight", numChannels > 128 ? 50 : 16);
+
+    const float viewportHeight = numChannels - zoomInfo->zoomHeight;
+    const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
+    zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
+    auto viewport = canvas->getViewportPtr();
+    viewport->setViewPositionProportionately(0, zoomInfo->viewportScrollPositionRatio);
+
+    repaint();
+}
+
 Colour ChannelBrowser::getChannelColour(int channel)
 {
     return Colours::yellow.interpolatedWith(Colours::purple, (float)channel/(float)numChannels);

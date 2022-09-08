@@ -53,6 +53,10 @@ public:
     
     float getViewportScrollPositionRatio();
 
+    void saveParameters(XmlElement* xml);
+
+    void loadParameters(XmlElement* xml);
+
     static const unsigned int NUM_PROBE_READ_SITES;
     static const int PROBE_VIEW_X_OFFSET;
 
