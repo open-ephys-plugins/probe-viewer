@@ -133,6 +133,8 @@ void ProbeViewerCanvas::update()
 
     optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
 
+    resized();
+
     isUpdating = false;
 }
 
@@ -219,21 +221,21 @@ void ProbeViewerCanvas::resized()
 
 void ProbeViewerCanvas::updateChannelBrowsers()
 {
-
+    for (auto browser : channelBrowsers)
+    {
+        browser->reset();
+    }
+    
+    
     for(auto stream : pvProcessor->getDataStreams())
 	{
 		uint16 streamId = stream->getStreamId();
 
 		if(channelBrowserMap.count(streamId) == 0)
 		{
-			channelBrowsers.add(new ChannelBrowser(this, streamId));
-			channelBrowserMap[streamId] = channelBrowsers.getLast();
-            addChildComponent(channelBrowsers.getLast());
+			channelBrowserMap[streamId] = channelBrowsers.add(new ChannelBrowser(this, streamId));
+            addChildComponent(channelBrowserMap[streamId]);
 		}
-        else
-        {
-            channelBrowserMap[streamId]->reset();
-        }
 		
 		for (int i = 0; i < stream->getChannelCount(); i++)
 		{
