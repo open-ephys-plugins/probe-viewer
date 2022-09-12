@@ -219,6 +219,7 @@ void ProbeViewerCanvas::resized()
 
 void ProbeViewerCanvas::updateChannelBrowsers()
 {
+
     for(auto stream : pvProcessor->getDataStreams())
 	{
 		uint16 streamId = stream->getStreamId();
@@ -262,6 +263,7 @@ void ProbeViewerCanvas::updateChannelBrowsers()
     {
         channelBrowsers.removeObject(browser, true);
     }
+
 }
 
 int ProbeViewerCanvas::getNumChannels()

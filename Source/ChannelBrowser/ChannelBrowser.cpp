@@ -118,35 +118,40 @@ void ChannelBrowser::paint(Graphics& g)
                        iconHeight - 2,
                        iconHeight - 2);
 
-            bool showChannelName = false;
+            float alpha = 0.0f;
 
-            if (zoomInfo->zoomHeight < 20)
+            if (zoomInfo->zoomHeight < 10)
             {
-                showChannelName = true;
+                alpha = 1.0f;
             }
-            else if (zoomInfo->zoomHeight >= 20 && zoomInfo->zoomHeight < 50)
-            {
-                if (channel == 0 || (channel + 1) % 5 == 0)
-                    showChannelName = true;
-            }
-            else if (zoomInfo->zoomHeight >= 50 && zoomInfo->zoomHeight < 100)
+            else if (zoomInfo->zoomHeight >= 10 && zoomInfo->zoomHeight < 50)
             {
                 if (channel == 0 || (channel + 1) % 10 == 0)
-                    showChannelName = true;
-            } 
-            else if (zoomInfo->zoomHeight >= 100 && zoomInfo->zoomHeight < 250)
+                    alpha = 1.0f;
+                else
+                {
+                    alpha = float(30 - (zoomInfo->zoomHeight - 20)) / 30.0f;
+                }
+           
+            }
+            else if (zoomInfo->zoomHeight >= 50 && zoomInfo->zoomHeight < 250)
             {
-                if (channel == 0 || (channel + 1) % 25 == 0)
-                    showChannelName = true;
+                if (channel == 0 || (channel + 1) % 50 == 0)
+                    alpha = 1.0f;
+                else
+                {
+                    if ((channel + 1) % 10 == 0)
+                        alpha = float(250 - zoomInfo->zoomHeight) / 250.0f;
+                }
             }
             else {
                 if (channel == 0 || (channel + 1) % 50 == 0)
-                    showChannelName = true;
+                    alpha = 1.0f;
             }
             
-            if (showChannelName)
+            if (alpha > 0.0f)
             {
-                g.setColour(Colours::grey);
+                g.setColour(Colours::grey.withAlpha(alpha));
                 float stringWidth = chanFont.getStringWidth(channelMetadata[channel].name);
                 g.drawText(channelMetadata[channel].name,
                     xLocation - stringWidth - 5,

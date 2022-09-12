@@ -41,7 +41,7 @@ ProbeViewerEditor::ProbeViewerEditor(GenericProcessor* parentNode)
     addAndMakeVisible(streamSelectionLabel.get());
 
 	streamSelection = std::make_unique<ComboBox>("Stream Selector");
-    streamSelection->setBounds(15, 60, 120, 20);
+    streamSelection->setBounds(15, 60, 155, 20);
     streamSelection->addListener(this);
     addAndMakeVisible(streamSelection.get());
     
