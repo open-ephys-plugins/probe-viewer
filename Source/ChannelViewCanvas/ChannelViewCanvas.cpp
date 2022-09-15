@@ -81,6 +81,7 @@ void ChannelViewCanvas::refresh()
                 channel->pxPaint();
             }
             --numPixelUpdates;
+            
             tick();
         }
         repaint();
@@ -302,6 +303,7 @@ void ProbeChannelDisplay::pxPaint()
         Colour colour = ColourScheme::getColourForNormalizedValueInScheme(val, channelsView->getCurrentColourScheme());
         
         const int xPix = channelsView->getBufferOffsetPosition();
+
         for (int yPix = 0; yPix < bdSubImage.getHeight(); ++yPix)
         {
             bdSubImage.setPixelAt(xPix, yPix, colour);

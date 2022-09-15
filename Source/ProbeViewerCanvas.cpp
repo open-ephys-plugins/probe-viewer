@@ -333,10 +333,24 @@ void ProbeViewerCanvas::updateScreenBuffers()
             const int samplesPerPixel = channelsView->channels[channel]->getNumSamplesPerPixel();
             const int numPixelsToCreate = (numCachedSamples + numSamplesToRead) / samplesPerPixel;
 
-            if (numTicks < numPixelsToCreate)
-                numTicks = numPixelsToCreate;
+            if (numPixelsToCreate == 0)
+            {
+                numTicks = 0;
+                break;
+            }
+            else {
 
+                if (channel == 0)
+                    numTicks = numPixelsToCreate;
+                else
+                {
+                    if (numTicks > numPixelsToCreate)
+                        numTicks = numPixelsToCreate;
+                }
+            }
+                
             int sampleBufferIndex = 0;
+
             for (int pix = 0; pix < numPixelsToCreate; ++pix)
             {
                 float min = 0;
@@ -419,9 +433,10 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 }
 
 
-                if(modeId == RenderMode::RMS)
+                if (modeId == RenderMode::RMS)
                 {
                     rms = sqrtf(rms / samplesPerPixel);
+
                     channelsView->pushPixelValueForChannel(channel, rms);
                 }
                 else if(modeId == RenderMode::SPIKE_RATE)
