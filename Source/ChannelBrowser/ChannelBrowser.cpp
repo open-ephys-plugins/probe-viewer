@@ -44,6 +44,11 @@ ChannelBrowser::ChannelBrowser(ProbeViewerCanvas* canvas_, int id_)
 ChannelBrowser::~ChannelBrowser()
 { }
 
+float ChannelBrowser::getChannelHeight()
+{
+    return zoomInfo->channelHeight;
+}
+
 void ChannelBrowser::paint(Graphics& g)
 {
     if(numChannels <= 0)

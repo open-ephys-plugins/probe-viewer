@@ -83,11 +83,7 @@ void ProbeViewerCanvas::refreshState()
 
 void ProbeViewerCanvas::update()
 {
-    // TODO: (kelly) the options bar for the FFT rendering is only configured to support
-    //               one global sample rate. if several sampleRates are represented at
-    //               this will still work, but the center frequency combobox options will
-    //               only be accurate for one of the sampleRates - currently, the first
-    //               non-zero sample rate encountered
+
     isUpdating = true;
 
     dataBuffer = pvProcessor->getCircularBufferPtr();
@@ -105,10 +101,16 @@ void ProbeViewerCanvas::update()
     
     for(auto browser : channelBrowsers)
     {
-        if(browser->id == pvProcessor->getDisplayedStream())
+        if (browser->id == pvProcessor->getDisplayedStream())
+        {
+            setChannelHeight(browser->getChannelHeight());
             browser->setVisible(true);
+        }
         else
+        {
             browser->setVisible(false);
+        }
+            
     }
 
     float sampleRate = pvProcessor->getStreamSampleRate();
@@ -128,10 +130,10 @@ void ProbeViewerCanvas::update()
         inputDownsamplingIndex.push_back(0);
     }
 
-    // see note above ^
     numSamplesToChunk = int(sampleRate / ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
 
     optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
+
 
     resized();
 

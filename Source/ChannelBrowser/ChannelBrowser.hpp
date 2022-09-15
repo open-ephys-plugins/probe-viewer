@@ -38,6 +38,8 @@ public:
 
     void paint(Graphics&) override;
 
+    float getChannelHeight();
+
     void mouseMove(const MouseEvent& event);
     void mouseDown(const MouseEvent& event);
     void mouseDrag(const MouseEvent& event);
