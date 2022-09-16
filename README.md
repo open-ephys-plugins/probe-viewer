@@ -1,6 +1,8 @@
 # Probe Viewer
 
-Visualizes the signal from a linear probe as a heatmap (time x channels). Can be configured to show RMS signal, spike rate, or power in different frequency bands.
+![probe-viewer-editor](https://open-ephys.github.io/gui-docs/_images/probeviewer-01.png)
+
+Visualizes the signal from a high-channel-count linear probe as a heatmap (**time** x **channels**). Can be configured to display RMS signal, spike rate, or power in different frequency bands.
 
 ## Installation
 
@@ -10,18 +12,20 @@ This plugin can be added via the Open Ephys GUI Plugin Installer. To access the 
 
 ### Plugin Editor
 
-* `Displayed Stream` controls the currently selected stream to be viewed. Supports changing the stream while acquisition is active.
+`Displayed Stream` controls the currently selected stream to be viewed. The selected stream can be changed while acquisition is active.
 
 ### Visualizer Window
 
-* #### Channel Browser:
-  * This interface on the left allows you to select which region of the "probe" is to be viewed. You can either view the entire "probe" or just a subsection of it.
+![probe-viewer-visualizer](https://open-ephys.github.io/gui-docs/_images/probeviewer-02.png)
 
-* #### Display Options:
+#### Channel Browser
 
-  * **Render Mode** - RMS, Frequency Band Power, or Spike Rate. Each Mode has its own specific options.
-  * **Colour Scheme** - List of available colour schemes
+Used to select a region of the probe to view.
 
+#### Display Options
+
+  * **Render Mode** - RMS amplitude, Frequency Band Power, or Spike Rate.
+  * **Colour Scheme** - Inferno, Plasma, Magma, Viridis, Jet 
 
 ## Building from source
 
