@@ -33,26 +33,39 @@ class ChannelBrowser : public Component
 public:
     static const unsigned int MARGIN_WIDTH;
 
+    /** Constructor */
     ChannelBrowser(class ProbeViewerCanvas* canvas, int id);
-    virtual ~ChannelBrowser() override;
 
+    /** Destructor*/
+    virtual ~ChannelBrowser() override { }
+
+    /** Renders the channel browser*/
     void paint(Graphics&) override;
 
+    /** Returns the height (in pixels) of each channel */
     float getChannelHeight();
 
+    /** Mouse callbacks */
     void mouseMove(const MouseEvent& event);
     void mouseDown(const MouseEvent& event);
     void mouseDrag(const MouseEvent& event);
     void mouseUp(const MouseEvent& event);
     void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
 
-    void addChannel(int channelNum, String channelName);    
-    int getNumChannels() const;
+    /** Add a new channel to draw*/
+    void addChannel(int channelNum, String channelName, float depth);  
 
+    /** Called before channels have been added*/
     void reset();
 
+    /** Called after all channels have been added*/
     void updateChannelSitesRendering();
+
+    /** Returns the total number of channels drawn*/
+    int getNumChannels() const;
+
     
+
     float getViewportScrollPositionRatio();
 
     void saveParameters(XmlElement* xml);
@@ -85,9 +98,11 @@ private:
     struct ChannelMetadata{
         int num = -1;
         String name = "";
+        float depth = -1;
     };
 
     Array<ChannelMetadata> channelMetadata;
+    Array<int> channelOrder;
 
     Colour getChannelColour(int channel);
     int getNearestChannelIdx(int x, int y);

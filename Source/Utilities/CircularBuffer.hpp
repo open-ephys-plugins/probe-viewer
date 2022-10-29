@@ -40,8 +40,8 @@ public:
     /** Updates buffer settings*/
     void update();
 
-    /** Sets the number of inputs to the buffer*/
-    void setNumChannels(int numChans);
+    /** Sets the channel number and depth*/
+    void updateChannelInfo(Array<ContinuousChannel*> channels);
 
     /**
      *  Return the current location of the read point for a specific channel.
@@ -99,6 +99,7 @@ private:
 	Array<bool> shouldDraw;
 
     Atomic<int> samplesReadyForDrawing;
+    Array<int> channelOrder;
 
     int numChannels;
     int previousSize;

@@ -81,7 +81,8 @@ void ProbeViewerNode::updateSettings()
 			dataBufferMap[streamId]->prepareToUpdate();
 		}
 
-		dataBufferMap[streamId]->setNumChannels(stream->getChannelCount());
+		dataBufferMap[streamId]->updateChannelInfo(stream->getContinuousChannels());
+
 	}
 
 	Array<CircularBuffer*> toDelete;

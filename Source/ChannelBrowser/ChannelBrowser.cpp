@@ -41,9 +41,6 @@ ChannelBrowser::ChannelBrowser(ProbeViewerCanvas* canvas_, int id_)
     setBufferedToImage(true);
 }
 
-ChannelBrowser::~ChannelBrowser()
-{ }
-
 float ChannelBrowser::getChannelHeight()
 {
     return zoomInfo->channelHeight;
@@ -59,7 +56,7 @@ void ChannelBrowser::paint(Graphics& g)
     // draw zoomed out channels
     for (int channel = 0; channel < numChannels; ++channel)
     {
-        g.setColour(getChannelColour(channel));
+        g.setColour(getChannelColour(channelOrder[channel]));
         g.fillRect(xOffset + 3, graphicBottomPos - channel, 4, 1);
         // g.fillRect(xOffset + 3 + ((channel % 2)) * 2 + 1, ChannelBrowser::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2), 1, 1);
     }
@@ -73,7 +70,8 @@ void ChannelBrowser::paint(Graphics& g)
     {
         g.drawLine(10, channel, 18, channel);
         g.drawLine(44, channel, 52, channel);
-        g.drawText(channelMetadata[ch].name, 56, int(channel) - 6, 100, 12, Justification::left, false);
+        int actual_channel = channelOrder[ch];
+        g.drawText(channelMetadata[actual_channel].name, 56, int(channel) - 6, 100, 12, Justification::left, false);
 
         ch == 0 ? ch += 49 : ch += 50;
     }
@@ -110,13 +108,10 @@ void ChannelBrowser::paint(Graphics& g)
             float xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2);
             float yLocation = getHeight() - iconHeight - ((channel - zoomInfo->lowestChan) * zoomInfo->channelHeight);
 
-            //if (iconHeight > 3.0f)
-           // {
             g.setColour(Colours::black);
 
             g.drawEllipse(xLocation, yLocation, iconHeight, iconHeight, 1.0f);
-           // }
-            
+
             g.setColour(getChannelColour(channel));
             g.fillEllipse(xLocation + 1,
                        yLocation + 1,
@@ -133,7 +128,7 @@ void ChannelBrowser::paint(Graphics& g)
             {
                 if (channel == 0 || (channel + 1) % 10 == 0)
                     alpha = 1.0f;
-                else
+                else 
                 {
                     alpha = float(30 - (zoomInfo->zoomHeight - 20)) / 30.0f;
                 }
@@ -156,14 +151,40 @@ void ChannelBrowser::paint(Graphics& g)
             
             if (alpha > 0.0f)
             {
-                g.setColour(Colours::grey.withAlpha(alpha));
-                float stringWidth = chanFont.getStringWidth(channelMetadata[channel].name);
-                g.drawText(channelMetadata[channel].name,
+                g.setColour(Colours::lightgrey.withAlpha(alpha));
+                int actual_channel = channelOrder[channel];
+                int depth = int(channelMetadata[actual_channel].depth);
+
+                String nameText = channelMetadata[actual_channel].name;
+                
+                float stringWidth = chanFont.getStringWidth(nameText);
+                
+                g.drawText(nameText,
                     xLocation - stringWidth - 5,
                     yLocation + 2,
                     stringWidth,
                     jmax(iconHeight - 4,10.0f),
                     Justification::centredRight);
+
+
+                if (depth > 0)
+                {
+                    if (depth % 2 == 1)
+                        depth -= 1;
+
+                    String depthText = String(int(depth));
+
+                    stringWidth = chanFont.getStringWidth(depthText);
+
+                    g.setColour(Colours::grey.withAlpha(alpha));
+                    g.drawText(depthText,
+                        xLocation - stringWidth - 5,
+                        yLocation + 15,
+                        stringWidth,
+                        jmax(iconHeight - 4, 10.0f),
+                        Justification::centredRight);
+
+                }
             }
         }
     }
@@ -409,12 +430,12 @@ void ChannelBrowser::mouseWheelMove(const MouseEvent &event, const MouseWheelDet
     }
 }
 
-
-void ChannelBrowser::addChannel(int chanNum, String chanName)
+void ChannelBrowser::addChannel(int chanNum, String chanName, float depth)
 {
     ChannelMetadata chanData = ChannelMetadata();
     chanData.num = chanNum;
     chanData.name = chanName;
+    chanData.depth = depth;
 
     channelMetadata.add(chanData);
     numChannels++;
@@ -427,8 +448,11 @@ int ChannelBrowser::getNumChannels() const
 
 void ChannelBrowser::reset()
 {
+    LOGC("Reset channels.");
+
     numChannels = 0;
     channelMetadata.clear();
+    channelOrder.clear();
 }
 
 float ChannelBrowser::getViewportScrollPositionRatio()
@@ -485,6 +509,53 @@ void ChannelBrowser::updateChannelSitesRendering()
     graphicBottomPos = numChannels + 10;
     zoomInfo->lowerBound = graphicBottomPos;
     zoomInfo->zoomHeight = numChannels > 128 ? 50 : 16;
+
+    LOGC("Updating channel sites");
+
+    channelOrder.clear();
+
+    if (numChannels > 0)
+    {
+
+        std::vector<float> depths(numChannels);
+
+        bool allSame = true;
+        float last = channelMetadata[0].depth;
+
+        for (int i = 0; i < numChannels; i++)
+        {
+            float depth = channelMetadata[i].depth;
+
+            if (depth != last)
+                allSame = false;
+
+            depths[i] = depth;
+
+            last = depth;
+        }
+
+        if (allSame)
+        {
+            LOGC("No depth info found.");
+            for (int i = 0; i < numChannels; i++)
+                channelOrder.add(i);
+        }
+        else {
+            LOGC("Sorting channels by depth.");
+            std::vector<int> V(numChannels);
+
+            std::iota(V.begin(), V.end(), 0); //Initializing
+            sort(V.begin(), V.end(), [&](int i, int j) {return depths[i] <= depths[j]; });
+
+            for (int i = 0; i < numChannels; i++)
+            {
+                // re-order by depth
+                channelOrder.add(V[i]);
+            }
+        }
+
+    }
+
     repaint();
 }
 

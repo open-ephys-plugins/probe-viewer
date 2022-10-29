@@ -86,10 +86,10 @@ void ProbeViewerEditor::updateStreamSelectorOptions()
 		}
 	}
 
-	if(probeViewerProcessor->getNumDataStreams() != inputStreamIds.size())
+	if (probeViewerProcessor->getNumDataStreams() != inputStreamIds.size())
 		needsUpdate = true;
 
-	if(needsUpdate || subprocessorToSet == 0)
+	if (needsUpdate || subprocessorToSet == 0)
 	{	
 		inputStreamIds.clear();
 		streamSelection->clear(dontSendNotification);
@@ -119,10 +119,11 @@ void ProbeViewerEditor::updateStreamSelectorOptions()
 
 		setDrawableStream(subprocessorToSet);
 
-		if (canvas != nullptr)
-		{
-			static_cast<ProbeViewerCanvas*>(canvas.get())->updateChannelBrowsers();
-		}
+	}
+
+	if (canvas != nullptr)
+	{
+		static_cast<ProbeViewerCanvas*>(canvas.get())->updateChannelBrowsers();
 	}
 }
 

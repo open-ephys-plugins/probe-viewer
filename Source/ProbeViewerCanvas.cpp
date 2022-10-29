@@ -223,6 +223,9 @@ void ProbeViewerCanvas::resized()
 
 void ProbeViewerCanvas::updateChannelBrowsers()
 {
+
+    LOGC("Update channel browsers.");
+
     for (auto browser : channelBrowsers)
     {
         browser->reset();
@@ -239,11 +242,14 @@ void ProbeViewerCanvas::updateChannelBrowsers()
             addChildComponent(channelBrowserMap[streamId]);
 		}
 		
+        LOGC("Adding channels.");
+        channelBrowserMap[streamId]->reset();
+
 		for (int i = 0; i < stream->getChannelCount(); i++)
 		{
 			auto chan = stream->getContinuousChannels()[i];
 
-			channelBrowserMap[streamId]->addChannel(i, chan->getName());
+			channelBrowserMap[streamId]->addChannel(i, chan->getName(), chan->position.y);
 		}
 
         channelBrowserMap[streamId]->updateChannelSitesRendering();

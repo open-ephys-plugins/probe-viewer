@@ -48,10 +48,55 @@ void CircularBuffer::prepareToUpdate()
     isNeeded = false;
 } 
 
-void CircularBuffer::setNumChannels(int numChans)
+void CircularBuffer::updateChannelInfo(Array<ContinuousChannel*> channels)
 {
-    numChannels = numChans;
+    numChannels = channels.size();
     isNeeded = true;
+
+    channelOrder.clear();
+
+    if (numChannels > 0)
+    {
+
+        std::vector<float> depths(numChannels);
+
+        bool allSame = true;
+        float last = channels[0]->position.y;
+
+        for (int i = 0; i < numChannels; i++)
+        {
+            float depth = channels[i]->position.y;
+
+            if (depth != last)
+                allSame = false;
+
+            depths[i] = depth;
+
+            last = depth;
+        }
+
+        if (allSame)
+        {
+            LOGD("No depth info found.");
+            for (int i = 0; i < numChannels; i++)
+                channelOrder.add(i);
+        }
+        else {
+            LOGD("Sorting channels by depth.");
+            std::vector<int> V(numChannels);
+
+            std::iota(V.begin(), V.end(), 0); //Initializing
+            sort(V.begin(), V.end(), [&](int i, int j) {return depths[i] <= depths[j]; });
+
+            for (int i = 0; i < numChannels; i++)
+            {
+                // re-order by depth
+                channelOrder.add(V[i]);
+            }
+        }
+
+    }
+
 }
 
 
@@ -60,7 +105,7 @@ void CircularBuffer::update()
 
     dataBuffer->setSize(numChannels, bufferLengthSamples);
     dataBuffer->clear();
-    
+
     readIndex.clear();
     readIndex.insertMultiple(0, 0, numChannels);
     
@@ -109,10 +154,10 @@ void CircularBuffer::addData(AudioBuffer<float>& input, int localChanId, int glo
 
     if (numSamples < samplesLeft)
     {
-        dataBuffer->copyFrom(localChanId, // dest channel
+        dataBuffer->copyFrom(channelOrder[localChanId], // dest channel
             writeIndex[localChanId],      // dest startSample
             input,                         // source
-            globalChanId,                       // source channel
+            globalChanId,                  // source channel
             0,                             // source start sample
             numSamples);                   // num samples
 
@@ -122,14 +167,14 @@ void CircularBuffer::addData(AudioBuffer<float>& input, int localChanId, int glo
     {
         const int extraSamples = numSamples - samplesLeft;
 
-        dataBuffer->copyFrom(localChanId,
+        dataBuffer->copyFrom(channelOrder[localChanId],
             writeIndex[localChanId],
             input,
             globalChanId,
             0,
             samplesLeft);
 
-        dataBuffer->copyFrom(localChanId,
+        dataBuffer->copyFrom(channelOrder[localChanId],
             0,
             input,
             globalChanId,
