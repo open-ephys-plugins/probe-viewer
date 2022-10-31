@@ -147,7 +147,10 @@ void ChannelViewCanvas::renderTilesToScreenBufferImage()
     const int xPosition = frontBufferIndex * CHANNEL_DISPLAY_TILE_WIDTH + frontBackBufferPixelOffset;
     const int yMax = screenBufferImage.getHeight();
     gScreenBuffer.fillRect(xPosition, 0, 1, yMax);
-    // gScreenBuffer.drawLine(xPosition, 0.0f, xPosition, yMax);
+
+    //std::cout << "Front buffer pixel offset: " << frontBackBufferPixelOffset << ", Cursor: " << xPosition << std::endl;
+    //std::cout << "Ratio: " << float(xPosition) / float(frontBufferIndex) << std::endl;
+
 }
 
 void ChannelViewCanvas::tick()
@@ -285,7 +288,6 @@ ProbeChannelDisplay::~ProbeChannelDisplay()
 void ProbeChannelDisplay::paint(Graphics& g)
 { }
 
-// TODO: (kelly) @REFACTOR - this should be rewritten. hangups in other parts of the application could cause problems here
 void ProbeChannelDisplay::pxPaint()
 {
     RenderMode rm = channelsView->getCurrentRenderMode();

@@ -103,20 +103,14 @@ void ChannelBrowser::paint(Graphics& g)
         if (channel >= 0 && channel < numChannels)
         {
 
-            float iconHeight = jmax(jmin(zoomInfo->channelHeight, 20.0f),4.0f);
+            float iconHeight = zoomInfo->channelHeight;
 
             float xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2);
             float yLocation = getHeight() - iconHeight - ((channel - zoomInfo->lowestChan) * zoomInfo->channelHeight);
 
-            g.setColour(Colours::black);
+            g.setColour(getChannelColour(channelOrder[channel]));
 
-            g.drawEllipse(xLocation, yLocation, iconHeight, iconHeight, 1.0f);
-
-            g.setColour(getChannelColour(channel));
-            g.fillEllipse(xLocation + 1,
-                       yLocation + 1,
-                       iconHeight - 2,
-                       iconHeight - 2);
+            g.fillRect(xLocation + 3, yLocation, float(PROBE_VIEW_X_OFFSET) - 3.0f, iconHeight + 1.0f);
 
             float alpha = 0.0f;
 
@@ -124,17 +118,17 @@ void ChannelBrowser::paint(Graphics& g)
             {
                 alpha = 1.0f;
             }
-            else if (zoomInfo->zoomHeight >= 10 && zoomInfo->zoomHeight < 50)
+            else if (zoomInfo->zoomHeight >= 10 && zoomInfo->zoomHeight < 30)
             {
                 if (channel == 0 || (channel + 1) % 10 == 0)
                     alpha = 1.0f;
                 else 
                 {
-                    alpha = float(30 - (zoomInfo->zoomHeight - 20)) / 30.0f;
+                    alpha = float(20 - (zoomInfo->zoomHeight - 10)) / 20.0f;
                 }
            
             }
-            else if (zoomInfo->zoomHeight >= 50 && zoomInfo->zoomHeight < 250)
+            else if (zoomInfo->zoomHeight >= 30 && zoomInfo->zoomHeight < 250)
             {
                 if (channel == 0 || (channel + 1) % 50 == 0)
                     alpha = 1.0f;
@@ -158,12 +152,14 @@ void ChannelBrowser::paint(Graphics& g)
                 String nameText = channelMetadata[actual_channel].name;
                 
                 float stringWidth = chanFont.getStringWidth(nameText);
+
+                g.drawLine(xLocation - 5, yLocation + 6.5, xLocation, yLocation + 6.5, 2.0f);
                 
                 g.drawText(nameText,
-                    xLocation - stringWidth - 5,
+                    xLocation - stringWidth - 7,
                     yLocation + 2,
                     stringWidth,
-                    jmax(iconHeight - 4,10.0f),
+                    12,
                     Justification::centredRight);
 
 
@@ -178,10 +174,10 @@ void ChannelBrowser::paint(Graphics& g)
 
                     g.setColour(Colours::grey.withAlpha(alpha));
                     g.drawText(depthText,
-                        xLocation - stringWidth - 5,
+                        xLocation - stringWidth - 7,
                         yLocation + 15,
                         stringWidth,
-                        jmax(iconHeight - 4, 10.0f),
+                        12,
                         Justification::centredRight);
 
                 }
@@ -448,8 +444,6 @@ int ChannelBrowser::getNumChannels() const
 
 void ChannelBrowser::reset()
 {
-    LOGC("Reset channels.");
-
     numChannels = 0;
     channelMetadata.clear();
     channelOrder.clear();
@@ -510,8 +504,6 @@ void ChannelBrowser::updateChannelSitesRendering()
     zoomInfo->lowerBound = graphicBottomPos;
     zoomInfo->zoomHeight = numChannels > 128 ? 50 : 16;
 
-    LOGC("Updating channel sites");
-
     channelOrder.clear();
 
     if (numChannels > 0)
@@ -536,12 +528,12 @@ void ChannelBrowser::updateChannelSitesRendering()
 
         if (allSame)
         {
-            LOGC("No depth info found.");
+            //LOGC("No depth info found.");
             for (int i = 0; i < numChannels; i++)
                 channelOrder.add(i);
         }
         else {
-            LOGC("Sorting channels by depth.");
+            //LOGC("Sorting channels by depth.");
             std::vector<int> V(numChannels);
 
             std::iota(V.begin(), V.end(), 0); //Initializing
