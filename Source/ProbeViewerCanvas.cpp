@@ -195,6 +195,7 @@ void ProbeViewerCanvas::loadCustomParametersFromXml(XmlElement* xml)
 
 void ProbeViewerCanvas::paint(Graphics &g)
 {
+	g.fillAll(Colour(58,58,58));
 }
 
 void ProbeViewerCanvas::resized()
