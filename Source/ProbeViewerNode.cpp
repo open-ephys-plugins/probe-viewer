@@ -162,7 +162,7 @@ void ProbeViewerNode::handleBroadcastMessage(String msg)
 
 	// "<probe_name> <electrode1_depth>,<electrode1_regionID>;<electrode2_depth>,<electrode2_regionID>;...
 
-	msg = "example_data -100,947;-100,947;-100,947;-100,947;-100,947;-100,947;-100,947;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302";
+	msg = "example_data -100,295;-100,295;-100,295;-100,295;-100,947;-100,947;-100,947;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302";
 
 	LOGD(msg);
 	

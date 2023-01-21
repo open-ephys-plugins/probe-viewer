@@ -60,6 +60,9 @@ public:
     /** Add a new channel to draw*/
     void addChannel(int channelNum, String channelName, float depth);  
 
+    /** Creates colors after all channels have been added */
+    void createChannelColours();
+
     /** Called before channels have been added*/
     void reset();
 

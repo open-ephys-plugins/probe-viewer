@@ -254,6 +254,8 @@ void ProbeViewerCanvas::updateChannelBrowsers()
 			channelBrowserMap[streamId]->addChannel(i, chan->getName(), chan->position.y);
 		}
 
+        channelBrowserMap[streamId]->createChannelColours();
+
         channelBrowserMap[streamId]->updateChannelSitesRendering();
 
 	}
