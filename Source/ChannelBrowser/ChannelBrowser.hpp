@@ -26,6 +26,8 @@
 
 #include "VisualizerWindowHeaders.h"
 
+#include "RegionLookupTable.h"
+
 namespace ProbeViewer {
 
 class ChannelBrowser : public Component
@@ -91,6 +93,11 @@ private:
     ScopedPointer<struct ProbeGraphicZoomInfo> zoomInfo;
 
     MouseCursor::StandardCursorType cursorType;
+
+    RegionLookupTable regionLookupTable;
+
+    Array<String> regionNames;
+    Array<int> regionStarts;
 
     Path shankPath;
 

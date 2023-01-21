@@ -22,7 +22,6 @@
  */
 
 #include "ChannelBrowser.hpp"
-#include "RegionLookupTable.h"
 
 #include "../ProbeViewerCanvas.h"
 
@@ -484,9 +483,9 @@ void ChannelBrowser::loadParameters(XmlElement* xml)
 void ChannelBrowser::setDepthsAndRegions(Array<float>& depths, Array<int>& regions)
 {
 
-    Array<String> regionNames;
-    Array<int> regionStarts;
-
+    regionNames.clear();
+    regionStarts.clear();
+    
     int lastRegion = -1;
 
     for (int i = 0; i < depths.size(); i++)
@@ -494,11 +493,11 @@ void ChannelBrowser::setDepthsAndRegions(Array<float>& depths, Array<int>& regio
         if (i < channelMetadata.size())
         {
             channelMetadata.getReference(i).depth = depths[i];
-            channelMetadata.getReference(i).colour = RegionLookupTable::getColourForRegion(regions[i]);
+            channelMetadata.getReference(i).colour = regionLookupTable.getColourForRegion(regions[i]);
 
             if (lastRegion != regions[i])
             {
-                regionNames.add(RegionLookupTable::getNameForRegion(regions[i]));
+                regionNames.add(regionLookupTable.getNameForRegion(regions[i]));
                 regionStarts.add(i);
                 lastRegion = regions[i];
             }
