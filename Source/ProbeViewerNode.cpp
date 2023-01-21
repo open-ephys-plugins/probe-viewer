@@ -155,16 +155,18 @@ CircularBuffer* ProbeViewerNode::getCircularBufferPtr()
 		return nullptr;
 }
 
-void ProbeViewerNode::handleBroadcastMessage(String msg)
+String ProbeViewerNode::handleConfigMessage(String msg)
 {
 	
 	// message format
 
 	// "<probe_name> <electrode1_depth>,<electrode1_regionID>;<electrode2_depth>,<electrode2_regionID>;...
 
-	msg = "example_data -100,295;-100,295;-100,295;-100,295;-100,947;-100,947;-100,947;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302";
+	//// for testing:
+	//msg = "ProbeA-AP -100,295;-100,295;-100,295;-100,295;-100,947;-100,947;-100,947;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302";
 
 	LOGD(msg);
+	LOGC(msg.length());
 	
 	int firstSpace = msg.indexOf(" ");
 	String probeName;
@@ -178,7 +180,7 @@ void ProbeViewerNode::handleBroadcastMessage(String msg)
 	}
 	else {
 		LOGD("No probe name detected.");
-		return;
+		return "No probe name detected.";
 	}
 
 	uint16 streamId = 0;
@@ -191,7 +193,7 @@ void ProbeViewerNode::handleBroadcastMessage(String msg)
 	}
 
 	if (streamId == 0)
-		return;
+		return "No matching stream detected.";
 
 	LOGD("Matching stream: ", streamId);
 
@@ -202,6 +204,7 @@ void ProbeViewerNode::handleBroadcastMessage(String msg)
 
 	for (auto token : tokens)
 	{
+		LOGC(token);
 		int comma = token.indexOf(",");
 		depths.add(token.substring(0, comma).getFloatValue());
 		regions.add(token.substring(comma + 1).getIntValue());
@@ -214,6 +217,7 @@ void ProbeViewerNode::handleBroadcastMessage(String msg)
 		ed->setDepthsAndRegions(streamId, depths, regions);
 	}
 	
+	return "Success";
 }
 
 const float ProbeViewerNode::bufferLengthSeconds = 10.0f;

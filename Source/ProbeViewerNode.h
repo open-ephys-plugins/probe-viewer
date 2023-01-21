@@ -69,8 +69,8 @@ public:
     /** Returns the buffer for the currently selected stream*/
     CircularBuffer* getCircularBufferPtr();
 
-    /** Responds to broadcast messages with region info */
-    void handleBroadcastMessage(String msg) override;
+    /** Responds to config messages with region info */
+    String handleConfigMessage(String msg) override;
 
 private:
     static const float bufferLengthSeconds;
