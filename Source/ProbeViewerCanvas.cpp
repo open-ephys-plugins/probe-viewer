@@ -157,6 +157,11 @@ void ProbeViewerCanvas::endAnimation()
     stopCallbacks();
 }
 
+void ProbeViewerCanvas::setDepthsAndRegions(uint16 streamId, Array<float>& depths, Array<int>& regions)
+{
+    channelBrowserMap[streamId]->setDepthsAndRegions(depths, regions);
+}
+
 
 void ProbeViewerCanvas::saveCustomParametersToXml(XmlElement* xml)
 {

@@ -57,6 +57,9 @@ public:
     /** Updates available streams*/
 	void updateStreamSelectorOptions();
 
+    /** Sets custom depths and regions */
+    void setDepthsAndRegions(uint16 streamId, Array<float>& depths, Array<int>& regions);
+
 
 private:
     Array<int> inputStreamIds;

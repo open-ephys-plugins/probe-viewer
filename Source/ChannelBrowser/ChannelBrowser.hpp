@@ -64,7 +64,8 @@ public:
     /** Returns the total number of channels drawn*/
     int getNumChannels() const;
 
-    
+    /** Set depth and region info */
+    void setDepthsAndRegions(Array<float>& depths, Array<int>& regions);
 
     float getViewportScrollPositionRatio();
 
@@ -80,6 +81,9 @@ public:
 private:
 
     class ProbeViewerCanvas* canvas;
+
+    Array<Colour> customColours;
+    bool regionInfoIsAvailable = false;
 
     int numChannels;
     int graphicBottomPos;
@@ -99,6 +103,7 @@ private:
         int num = -1;
         String name = "";
         float depth = -1;
+        Colour colour;
     };
 
     Array<ChannelMetadata> channelMetadata;

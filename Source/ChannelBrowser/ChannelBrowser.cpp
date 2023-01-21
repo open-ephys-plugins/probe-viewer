@@ -22,6 +22,7 @@
  */
 
 #include "ChannelBrowser.hpp"
+#include "RegionLookupTable.h"
 
 #include "../ProbeViewerCanvas.h"
 
@@ -432,6 +433,7 @@ void ChannelBrowser::addChannel(int chanNum, String chanName, float depth)
     chanData.num = chanNum;
     chanData.name = chanName;
     chanData.depth = depth;
+    chanData.colour = Colours::yellow.interpolatedWith(Colours::purple, (float)chanNum / (float)numChannels);
 
     channelMetadata.add(chanData);
     numChannels++;
@@ -479,9 +481,41 @@ void ChannelBrowser::loadParameters(XmlElement* xml)
     repaint();
 }
 
+void ChannelBrowser::setDepthsAndRegions(Array<float>& depths, Array<int>& regions)
+{
+
+    Array<String> regionNames;
+    Array<int> regionStarts;
+
+    int lastRegion = -1;
+
+    for (int i = 0; i < depths.size(); i++)
+    {
+        if (i < channelMetadata.size())
+        {
+            channelMetadata.getReference(i).depth = depths[i];
+            channelMetadata.getReference(i).colour = RegionLookupTable::getColourForRegion(regions[i]);
+
+            if (lastRegion != regions[i])
+            {
+                regionNames.add(RegionLookupTable::getNameForRegion(regions[i]));
+                regionStarts.add(i);
+                lastRegion = regions[i];
+            }
+        }
+    }
+}
+
 Colour ChannelBrowser::getChannelColour(int channel)
 {
-    return Colours::yellow.interpolatedWith(Colours::purple, (float)channel/(float)numChannels);
+    if (regionInfoIsAvailable)
+    {
+        return customColours[channel];
+    }
+    else {
+        return Colours::yellow.interpolatedWith(Colours::purple, (float)channel / (float)numChannels);
+    }
+    
 }
 
 int ChannelBrowser::getNearestChannelIdx(int x, int y)

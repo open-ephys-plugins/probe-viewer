@@ -155,4 +155,58 @@ CircularBuffer* ProbeViewerNode::getCircularBufferPtr()
 		return nullptr;
 }
 
+void ProbeViewerNode::handleBroadcastMessage(String msg)
+{
+	
+	// message format
+
+	// "<probe_name> <electrode1_depth>,<electrode1_regionID>;<electrode2_depth>,<electrode2_regionID>;...
+
+	int firstSpace = msg.indexOf(" ");
+	String probeName;
+	String electrodeInfo;
+
+	if (firstSpace > -1)
+	{
+		probeName = msg.substring(0, firstSpace);
+		electrodeInfo = msg.substring(firstSpace + 1);
+	}
+	else {
+		LOGD("No probe name detected.");
+		return;
+	}
+
+	uint16 streamId = 0;
+
+	for (auto stream : dataStreams)
+	{
+		if (probeName.equalsIgnoreCase(stream->getName()))
+			streamId = stream->getStreamId();
+
+	}
+
+	if (streamId == 0)
+		return;
+
+	Array<float> depths;
+	Array<int> regions;
+
+	StringArray tokens = StringArray::fromTokens(electrodeInfo, ";");
+
+	for (auto token : tokens)
+	{
+		int comma = token.indexOf(",");
+		depths.add(token.substring(0, comma).getFloatValue());
+		regions.add(token.substring(comma + 1).getIntValue());
+	}
+		
+	if (depths.size() > 0 && depths.size() == regions.size())
+	{
+		ProbeViewerEditor* ed = (ProbeViewerEditor*)getEditor();
+
+		ed->setDepthsAndRegions(streamId, depths, regions);
+	}
+	
+}
+
 const float ProbeViewerNode::bufferLengthSeconds = 10.0f;

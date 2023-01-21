@@ -157,3 +157,13 @@ void ProbeViewerEditor::setDrawableStream(int index)
 		streamSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
 	}
 }
+
+
+/** Sets custom depths and regions */
+void ProbeViewerEditor::setDepthsAndRegions(uint16 streamId, Array<float>& depths, Array<int>& regions)
+{
+	if (canvas != nullptr)
+	{
+		static_cast<ProbeViewerCanvas*>(canvas.get())->setDepthsAndRegions(streamId, depths, regions);
+	}
+}
