@@ -162,6 +162,10 @@ void ProbeViewerNode::handleBroadcastMessage(String msg)
 
 	// "<probe_name> <electrode1_depth>,<electrode1_regionID>;<electrode2_depth>,<electrode2_regionID>;...
 
+	msg = "example_data -100,947;-100,947;-100,947;-100,947;-100,947;-100,947;-100,947;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302";
+
+	LOGD(msg);
+	
 	int firstSpace = msg.indexOf(" ");
 	String probeName;
 	String electrodeInfo;
@@ -170,6 +174,7 @@ void ProbeViewerNode::handleBroadcastMessage(String msg)
 	{
 		probeName = msg.substring(0, firstSpace);
 		electrodeInfo = msg.substring(firstSpace + 1);
+		LOGD("Probe name: ", probeName);
 	}
 	else {
 		LOGD("No probe name detected.");
@@ -188,10 +193,12 @@ void ProbeViewerNode::handleBroadcastMessage(String msg)
 	if (streamId == 0)
 		return;
 
+	LOGD("Matching stream: ", streamId);
+
 	Array<float> depths;
 	Array<int> regions;
 
-	StringArray tokens = StringArray::fromTokens(electrodeInfo, ";");
+	StringArray tokens = StringArray::fromTokens(electrodeInfo, ";", "");
 
 	for (auto token : tokens)
 	{

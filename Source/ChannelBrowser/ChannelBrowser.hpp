@@ -30,7 +30,7 @@
 
 namespace ProbeViewer {
 
-class ChannelBrowser : public Component
+class ChannelBrowser : public Component, public Timer
 {
 public:
     static const unsigned int MARGIN_WIDTH;
@@ -46,6 +46,9 @@ public:
 
     /** Returns the height (in pixels) of each channel */
     float getChannelHeight();
+
+    /** Timer callback*/
+    void timerCallback() override { repaint(); stopTimer(); }
 
     /** Mouse callbacks */
     void mouseMove(const MouseEvent& event);

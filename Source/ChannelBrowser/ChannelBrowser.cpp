@@ -52,11 +52,12 @@ void ChannelBrowser::paint(Graphics& g)
         return;
     
     const int xOffset = 27;
+
     
     // draw zoomed out channels
     for (int channel = 0; channel < numChannels; ++channel)
     {
-        g.setColour(getChannelColour(channelOrder[channel]));
+        g.setColour(channelMetadata.getReference(channelOrder[channel]).colour);
         g.fillRect(xOffset + 3, graphicBottomPos - channel, 4, 1);
         // g.fillRect(xOffset + 3 + ((channel % 2)) * 2 + 1, ChannelBrowser::PROBE_GRAPHIC_BOTTOM_POS - (channel / 2), 1, 1);
     }
@@ -108,7 +109,7 @@ void ChannelBrowser::paint(Graphics& g)
             float xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2);
             float yLocation = getHeight() - iconHeight - ((channel - zoomInfo->lowestChan) * zoomInfo->channelHeight);
 
-            g.setColour(getChannelColour(channelOrder[channel]));
+            g.setColour(channelMetadata.getReference(channelOrder[channel]).colour);
 
             g.fillRect(xLocation + 3, yLocation, float(PROBE_VIEW_X_OFFSET) - 3.0f, iconHeight + 1.0f);
 
@@ -207,6 +208,42 @@ void ChannelBrowser::paint(Graphics& g)
     
     g.strokePath(upperBorder, PathStrokeType(2.0));
     g.strokePath(lowerBorder, PathStrokeType(2.0));
+
+    // draw area labels
+
+    if (regionNames.size() > 0)
+    {
+
+        float xLocation, yLocation;
+        g.setColour(Colours::black);
+        g.setFont(20);
+        float iconHeight = zoomInfo->channelHeight;
+
+        for (int regionIndex = 0; regionIndex < regionNames.size(); regionIndex++)
+        {
+            int firstChannel = regionStarts[regionIndex];
+            int lastChannel;
+
+            if (regionIndex == regionNames.size() - 1)
+                lastChannel = numChannels;
+            else
+                lastChannel = regionStarts[regionIndex + 1];
+
+            float xWidth = float(PROBE_VIEW_X_OFFSET) / 2.0 - 3.0f;
+            xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2);
+            yLocation = getHeight() - iconHeight - ((firstChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+
+            g.drawLine(xLocation, yLocation, xLocation + xWidth, yLocation);
+
+            float nearestChannel = ((float)firstChannel + (float)lastChannel) / 2.0f;
+
+            yLocation = getHeight() - iconHeight - ((nearestChannel - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+
+            g.drawText(regionNames[regionIndex], 
+                Rectangle<float>(xLocation, yLocation, xWidth, 20),
+                Justification::centred);
+        }
+    }
 
 }
 
@@ -428,6 +465,9 @@ void ChannelBrowser::mouseWheelMove(const MouseEvent &event, const MouseWheelDet
 
 void ChannelBrowser::addChannel(int chanNum, String chanName, float depth)
 {
+    
+    numChannels++;
+    
     ChannelMetadata chanData = ChannelMetadata();
     chanData.num = chanNum;
     chanData.name = chanName;
@@ -435,7 +475,7 @@ void ChannelBrowser::addChannel(int chanNum, String chanName, float depth)
     chanData.colour = Colours::yellow.interpolatedWith(Colours::purple, (float)chanNum / (float)numChannels);
 
     channelMetadata.add(chanData);
-    numChannels++;
+    
 }
 
 int ChannelBrowser::getNumChannels() const
@@ -495,6 +535,8 @@ void ChannelBrowser::setDepthsAndRegions(Array<float>& depths, Array<int>& regio
             channelMetadata.getReference(i).depth = depths[i];
             channelMetadata.getReference(i).colour = regionLookupTable.getColourForRegion(regions[i]);
 
+			LOGD(channelMetadata.getReference(i).name, " depth: ", depths[i], ", region: ", regions[i], ", colour: ", channelMetadata.getReference(i).colour.toString());
+
             if (lastRegion != regions[i])
             {
                 regionNames.add(regionLookupTable.getNameForRegion(regions[i]));
@@ -503,6 +545,9 @@ void ChannelBrowser::setDepthsAndRegions(Array<float>& depths, Array<int>& regio
             }
         }
     }
+
+    startTimer(10);
+
 }
 
 Colour ChannelBrowser::getChannelColour(int channel)
