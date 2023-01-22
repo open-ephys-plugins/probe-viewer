@@ -223,15 +223,24 @@ enum class RenderMode : int
     FFT
 };
 
+/** 
+    
+    Renders the data for a single channel
+
+*/
 class ProbeChannelDisplay : public Component
 {
 public:
-    ProbeChannelDisplay(ChannelViewCanvas* channelsView, class CanvasOptionsBar* optionsBar, int channelID, float sampleRate);
+    /** Constructor */
+    ProbeChannelDisplay(ChannelViewCanvas* channelsView, 
+                        class CanvasOptionsBar* optionsBar, 
+                        int channelID, 
+                        float sampleRate);
+    
+    /** Destructor*/
     virtual ~ProbeChannelDisplay() override;
 
-    void paint(Graphics& g) override;
-
-    //void pxPaint(Image::BitmapData *bitmapData);
+	/** Paints the channel display */
     void pxPaint();
 
     /**
@@ -268,12 +277,9 @@ private:
     ChannelViewCanvas* channelsView;
     CanvasOptionsBar* optionsBar;
 
-    float sampleRate;
     int samplesPerPixel;
-
+    float sampleRate;
     int channelID;
-
-    int yBitmapPos;
 
     Array<float> samples;
 

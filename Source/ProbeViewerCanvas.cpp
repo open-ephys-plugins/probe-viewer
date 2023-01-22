@@ -78,7 +78,8 @@ ProbeViewerCanvas::~ProbeViewerCanvas()
 
 void ProbeViewerCanvas::refreshState()
 {
-
+    //LOGC("Probe Viewer Refresh state");
+    channelsView->resized();
 }
 
 void ProbeViewerCanvas::update()

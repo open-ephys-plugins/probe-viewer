@@ -71,6 +71,7 @@ void ChannelViewCanvas::resized()
 
 void ChannelViewCanvas::refresh()
 {
+
     if (isDirty.get()) // isDirty is set true when a new pixel has been pushed, and false when all queued pix are drawn
     {
         while (numPixelUpdates > 0)
@@ -272,20 +273,20 @@ Image BitmapRenderTile::getChannelSubImage(int channel)
 
 # pragma mark - ProbeChannelDisplay -
 
-ProbeChannelDisplay::ProbeChannelDisplay(ChannelViewCanvas* channelsView, CanvasOptionsBar* optionsBar, int channelID, float sampleRate)
-: channelsView(channelsView)
-, optionsBar(optionsBar)
-, sampleRate(sampleRate)
-, samplesPerPixel(0)
-, channelID(channelID)
+ProbeChannelDisplay::ProbeChannelDisplay(ChannelViewCanvas* channelsView_, 
+    CanvasOptionsBar* optionsBar_, 
+    int channelID_, 
+    float sampleRate_)
+: channelsView(channelsView_)
+, optionsBar(optionsBar_)
+, sampleRate(sampleRate_)
+, channelID(channelID_)
 {
-    samplesPerPixel = sampleRate * ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE / float(ChannelViewCanvas::CHANNEL_DISPLAY_WIDTH);
+    samplesPerPixel = sampleRate * ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE 
+                      / float(ChannelViewCanvas::CHANNEL_DISPLAY_WIDTH);
 }
 
 ProbeChannelDisplay::~ProbeChannelDisplay()
-{ }
-
-void ProbeChannelDisplay::paint(Graphics& g)
 { }
 
 void ProbeChannelDisplay::pxPaint()
