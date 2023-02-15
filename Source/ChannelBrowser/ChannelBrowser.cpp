@@ -591,7 +591,7 @@ void ChannelBrowser::updateChannelSitesRendering()
 {
     graphicBottomPos = numChannels + 10;
     zoomInfo->lowerBound = graphicBottomPos;
-    zoomInfo->zoomHeight = numChannels > 128 ? 50 : 16;
+    zoomInfo->zoomHeight = numChannels > 127 ? 50 : (numChannels  < 16 ? numChannels : 16);
 
     channelOrder.clear();
 
