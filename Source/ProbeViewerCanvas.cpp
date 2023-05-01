@@ -158,9 +158,9 @@ void ProbeViewerCanvas::endAnimation()
     stopCallbacks();
 }
 
-void ProbeViewerCanvas::setDepthsAndRegions(uint16 streamId, Array<float>& depths, Array<int>& regions)
+void ProbeViewerCanvas::setRegions(uint16 streamId, Array<int>& electrodeInds, Array<int>& regions)
 {
-    channelBrowserMap[streamId]->setDepthsAndRegions(depths, regions);
+    channelBrowserMap[streamId]->setRegions(electrodeInds, regions);
 }
 
 
@@ -252,7 +252,21 @@ void ProbeViewerCanvas::updateChannelBrowsers()
 		{
 			auto chan = stream->getContinuousChannels()[i];
 
-			channelBrowserMap[streamId]->addChannel(i, chan->getName(), chan->position.y);
+            uint16 electrode_index = i; // default to channel index
+
+            MetadataDescriptor descriptor(MetadataDescriptor::MetadataType::UINT16,
+                1, "electrode_index",
+                "Electrode index for this channel", "neuropixels.electrode_index");
+
+            int metadataIndex = chan->findMetadata(MetadataDescriptor::MetadataType::UINT16, 1, "electrode_index");
+
+            if (metadataIndex >= 0)
+            {
+                const MetadataValue* metadataValue = chan->getMetadataValue(metadataIndex);
+                metadataValue->getValue(electrode_index); // update index if available
+            }
+                
+			channelBrowserMap[streamId]->addChannel(i, chan->getName(), chan->position.y, electrode_index);
 		}
 
         channelBrowserMap[streamId]->createChannelColours();

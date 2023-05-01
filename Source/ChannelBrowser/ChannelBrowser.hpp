@@ -58,7 +58,7 @@ public:
     void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
 
     /** Add a new channel to draw*/
-    void addChannel(int channelNum, String channelName, float depth);  
+    void addChannel(int channelNum, String channelName, float depth, int electrode_index);  
 
     /** Creates colors after all channels have been added */
     void createChannelColours();
@@ -72,8 +72,8 @@ public:
     /** Returns the total number of channels drawn*/
     int getNumChannels() const;
 
-    /** Set depth and region info */
-    void setDepthsAndRegions(Array<float>& depths, Array<int>& regions);
+    /** Set region info (e.g. from Pinpoint or Trajectory Explorer) */
+    void setRegions(Array<int>& electrodeInds, Array<int>& regions);
 
     float getViewportScrollPositionRatio();
 
@@ -116,6 +116,7 @@ private:
         int num = -1;
         String name = "";
         float depth = -1;
+        int electrode_index = -1;
         Colour colour;
     };
 

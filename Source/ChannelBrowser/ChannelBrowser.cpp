@@ -464,7 +464,7 @@ void ChannelBrowser::mouseWheelMove(const MouseEvent &event, const MouseWheelDet
     }
 }
 
-void ChannelBrowser::addChannel(int chanNum, String chanName, float depth)
+void ChannelBrowser::addChannel(int chanNum, String chanName, float depth, int electrode_index)
 {
     
     numChannels++;
@@ -473,6 +473,7 @@ void ChannelBrowser::addChannel(int chanNum, String chanName, float depth)
     chanData.num = chanNum;
     chanData.name = chanName;
     chanData.depth = depth;
+    chanData.electrode_index = electrode_index;
 
     channelMetadata.add(chanData);
     
@@ -529,7 +530,7 @@ void ChannelBrowser::loadParameters(XmlElement* xml)
     repaint();
 }
 
-void ChannelBrowser::setDepthsAndRegions(Array<float>& depths, Array<int>& regions)
+void ChannelBrowser::setRegions(Array<int>& electrodeInds, Array<int>& regions)
 {
 
     regionNames.clear();
@@ -537,25 +538,36 @@ void ChannelBrowser::setDepthsAndRegions(Array<float>& depths, Array<int>& regio
     
     int lastRegion = -1;
 
-    for (int i = 0; i < depths.size(); i++)
+    for (int i = 0; i < electrodeInds.size(); i++)
     {
-        if (i < channelMetadata.size())
+
+        int electrode_index = electrodeInds[i];
+
+        for (int ch = 0; ch < channelMetadata.size(); ch++)
         {
-            channelMetadata.getReference(i).depth = depths[i];
-            channelMetadata.getReference(i).colour = regionLookupTable.getColourForRegion(regions[i]);
-
-			LOGD(channelMetadata.getReference(i).name, " depth: ", depths[i], ", region: ", regions[i], ", colour: ", channelMetadata.getReference(i).colour.toString());
-
-            if (lastRegion != regions[i])
+            if (electrode_index == channelMetadata.getReference(ch).electrode_index)
             {
-                regionNames.add(regionLookupTable.getNameForRegion(regions[i]));
-                regionStarts.add(i);
-                lastRegion = regions[i];
+                // if electrode_index matches, update the color
+                channelMetadata.getReference(ch).colour = regionLookupTable.getColourForRegion(regions[i]);
+
+                //LOGD(channelMetadata.getReference(ch).name,
+                //    " electrode_index: ", electrodeInds[i],
+                //    ", region: ", regions[i],
+               //     ", colour: ", channelMetadata.getReference(i).colour.toString());
+
+                if (lastRegion != regions[i])
+                {
+                    regionNames.add(regionLookupTable.getNameForRegion(regions[i]));
+                    regionStarts.add(i);
+                    lastRegion = regions[i];
+                }
+
+                break;
             }
         }
     }
 
-    regionStarts.add(depths.size());
+    regionStarts.add(channelMetadata.size());
 
     startTimer(10);
 

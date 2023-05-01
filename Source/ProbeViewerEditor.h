@@ -57,8 +57,8 @@ public:
     /** Updates available streams*/
 	void updateStreamSelectorOptions();
 
-    /** Sets custom depths and regions */
-    void setDepthsAndRegions(uint16 streamId, Array<float>& depths, Array<int>& regions);
+    /** Sets custom regions by electrode index */
+    void setRegions(uint16 streamId, Array<int>& electrodeInds, Array<int>& regions);
 
 
 private:

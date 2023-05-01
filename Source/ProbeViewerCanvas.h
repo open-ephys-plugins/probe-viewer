@@ -71,7 +71,8 @@ public:
     void paint(Graphics& g) override;
     void resized() override;
 
-    void setDepthsAndRegions(uint16 streamId, Array<float>& depths, Array<int>& regions);
+    /** Set custom brain regions for each electrode */
+    void setRegions(uint16 streamId, Array<int>& electrodeInds, Array<int>& regions);
 
     /**
      *  Custom member methods

@@ -163,19 +163,19 @@ String ProbeViewerNode::handleConfigMessage(String msg)
 	// "<probe_name> <electrode1_depth>,<electrode1_regionID>;<electrode2_depth>,<electrode2_regionID>;...
 
 	//// for testing:
-	//msg = "ProbeA-AP -100,295;-100,295;-100,295;-100,295;-100,947;-100,947;-100,947;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302";
+	//msg = "ProbeA;-100,295;-100,295;-100,295;-100,295;-100,947;-100,947;-100,947;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302";
 
 	LOGD(msg);
 	LOGC(msg.length());
 	
-	int firstSpace = msg.indexOf(" ");
+	int firstSemicolon = msg.indexOf(";");
 	String probeName;
 	String electrodeInfo;
 
-	if (firstSpace > -1)
+	if (firstSemicolon > -1)
 	{
-		probeName = msg.substring(0, firstSpace);
-		electrodeInfo = msg.substring(firstSpace + 1);
+		probeName = msg.substring(0, firstSemicolon);
+		electrodeInfo = msg.substring(firstSemicolon + 1);
 		LOGD("Probe name: ", probeName);
 	}
 	else {
@@ -197,24 +197,24 @@ String ProbeViewerNode::handleConfigMessage(String msg)
 
 	LOGD("Matching stream: ", streamId);
 
-	Array<float> depths;
+	Array<int> electrodeInds;
 	Array<int> regions;
 
 	StringArray tokens = StringArray::fromTokens(electrodeInfo, ";", "");
 
 	for (auto token : tokens)
 	{
-		LOGC(token);
+		//LOGC(token);
 		int comma = token.indexOf(",");
-		depths.add(token.substring(0, comma).getFloatValue());
+		electrodeInds.add(token.substring(0, comma).getIntValue());
 		regions.add(token.substring(comma + 1).getIntValue());
 	}
 		
-	if (depths.size() > 0 && depths.size() == regions.size())
+	if (electrodeInds.size() > 0 && electrodeInds.size() == regions.size())
 	{
 		ProbeViewerEditor* ed = (ProbeViewerEditor*)getEditor();
 
-		ed->setDepthsAndRegions(streamId, depths, regions);
+		ed->setRegions(streamId, electrodeInds, regions);
 	}
 	
 	return "Success";
