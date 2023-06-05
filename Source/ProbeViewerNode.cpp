@@ -165,8 +165,8 @@ String ProbeViewerNode::handleConfigMessage(String msg)
 	//// for testing:
 	//msg = "ProbeA;-100,295;-100,295;-100,295;-100,295;-100,947;-100,947;-100,947;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302";
 
-	LOGD(msg);
-	LOGC(msg.length());
+	//LOGD(msg);
+	LOGD("Probe Viewer ", getNodeId(), " received message of length ", msg.length());
 	
 	int firstSemicolon = msg.indexOf(";");
 	String probeName;

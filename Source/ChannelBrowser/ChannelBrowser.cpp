@@ -216,7 +216,7 @@ void ChannelBrowser::paint(Graphics& g)
 
     if (regionNames.size() > 0)
     {
-        LOGD("Drawing region names");
+        //LOGD("Drawing region names");
         float xLocation, yLocation, yLocation2;
        
         g.setColour(Colours::black);
@@ -259,8 +259,6 @@ void ChannelBrowser::paint(Graphics& g)
 
                 g.drawLine(xLocation, yLocation, xLocation + xWidth, yLocation);
 
-                //std::cout << yLocation2 << " " << yLocation << std::endl;
-
                 g.drawText(lastRegionName,
                     Rectangle<float>(xLocation, yLocation2, xWidth, yLocation - yLocation2),
                     Justification::centred);
@@ -268,16 +266,12 @@ void ChannelBrowser::paint(Graphics& g)
                 firstChannel = lastChannel - 1;
                 lastRegionName = regionName;
             }
-
-            //int firstChannel = regionStarts[regionIndex];
-            //int lastChannel = regionStarts[regionIndex + 1];
-
            
         }
 
         lastChannel = regionNames.size() - 1;
 
-        std::cout << "Drawing region " << lastRegionName << " from " << firstChannel << " to " << lastChannel << std::endl;
+        //std::cout << "Drawing region " << lastRegionName << " from " << firstChannel << " to " << lastChannel << std::endl;
 
         xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2) + 3.0f;
         yLocation = getHeight() - iconHeight - ((firstChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
@@ -581,10 +575,9 @@ void ChannelBrowser::loadParameters(XmlElement* xml)
 void ChannelBrowser::setRegions(Array<int>& electrodeInds, Array<String>& newRegionNames, Array<Colour>& regionColours)
 {
 
-    LOGD("ChannelBrowser::setRegions()");
+    //LOGD("ChannelBrowser::setRegions()");
 
     regionNames.clear();
-    regionStarts.clear();
     
     String lastRegion = "";
 
@@ -628,8 +621,6 @@ void ChannelBrowser::setRegions(Array<int>& electrodeInds, Array<String>& newReg
             }
         }
     }
-
-    regionStarts.add(channelMetadata.size());
 
     startTimer(10);
 
