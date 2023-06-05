@@ -212,38 +212,86 @@ void ChannelBrowser::paint(Graphics& g)
 
     // draw area labels
 
+    String lastRegionName = "";
+
     if (regionNames.size() > 0)
     {
-
+        LOGD("Drawing region names");
         float xLocation, yLocation, yLocation2;
        
         g.setColour(Colours::black);
         g.setFont(15);
         float iconHeight = zoomInfo->channelHeight;
 
-        for (int regionIndex = 0; regionIndex < regionNames.size(); regionIndex++)
+        int firstChannel = 0;
+        int lastChannel = 0;
+
+        for (int channelIndex = 0; channelIndex < regionNames.size(); channelIndex++)
         {
-            int firstChannel = regionStarts[regionIndex];
-            int lastChannel = regionStarts[regionIndex + 1];
 
-            
-            xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2) + 3.0f;
-            yLocation = getHeight() - iconHeight - ((firstChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
-            yLocation2 = getHeight() - iconHeight - ((lastChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+            String regionName = regionNames[channelIndex];
 
-            float xWidth = getWidth() - xLocation;
-
-            g.drawLine(xLocation, yLocation, xLocation + xWidth, yLocation);
-
-            if (lastChannel - firstChannel < 4)
+            if (channelIndex == 0)
+            {
+                firstChannel = 0;
+                lastRegionName = regionName;
                 continue;
+            }
 
-            //std::cout << yLocation2 << " " << yLocation << std::endl;
+            if (lastRegionName != regionName) // new region
+            {
+                lastChannel = channelIndex;
 
-            g.drawText(regionNames[regionIndex], 
-                Rectangle<float>(xLocation, yLocation2, xWidth, yLocation - yLocation2),
-                Justification::centred);
+                if (lastChannel - firstChannel < 4) // not enough span to draw name
+                {
+					firstChannel = lastChannel;
+					lastRegionName = regionName;
+                    continue;
+                }
+                    
+                std::cout << "Drawing region " << lastRegionName << " from " << firstChannel << " to " << lastChannel << std::endl;
+
+                xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2) + 3.0f;
+                yLocation = getHeight() - iconHeight - ((firstChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+                yLocation2 = getHeight() - iconHeight - ((lastChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+
+                float xWidth = getWidth() - xLocation;
+
+                g.drawLine(xLocation, yLocation, xLocation + xWidth, yLocation);
+
+                //std::cout << yLocation2 << " " << yLocation << std::endl;
+
+                g.drawText(lastRegionName,
+                    Rectangle<float>(xLocation, yLocation2, xWidth, yLocation - yLocation2),
+                    Justification::centred);
+
+                firstChannel = lastChannel - 1;
+                lastRegionName = regionName;
+            }
+
+            //int firstChannel = regionStarts[regionIndex];
+            //int lastChannel = regionStarts[regionIndex + 1];
+
+           
         }
+
+        lastChannel = regionNames.size() - 1;
+
+        std::cout << "Drawing region " << lastRegionName << " from " << firstChannel << " to " << lastChannel << std::endl;
+
+        xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2) + 3.0f;
+        yLocation = getHeight() - iconHeight - ((firstChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+        yLocation2 = getHeight() - iconHeight - ((lastChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+
+        float xWidth = getWidth() - xLocation;
+
+        g.drawLine(xLocation, yLocation, xLocation + xWidth, yLocation);
+
+        //std::cout << yLocation2 << " " << yLocation << std::endl;
+
+        g.drawText(lastRegionName,
+            Rectangle<float>(xLocation, yLocation2, xWidth, yLocation - yLocation2),
+            Justification::centred);
     }
 
 }
@@ -530,37 +578,51 @@ void ChannelBrowser::loadParameters(XmlElement* xml)
     repaint();
 }
 
-void ChannelBrowser::setRegions(Array<int>& electrodeInds, Array<int>& regions)
+void ChannelBrowser::setRegions(Array<int>& electrodeInds, Array<String>& newRegionNames, Array<Colour>& regionColours)
 {
+
+    LOGD("ChannelBrowser::setRegions()");
 
     regionNames.clear();
     regionStarts.clear();
     
-    int lastRegion = -1;
+    String lastRegion = "";
 
     for (int i = 0; i < electrodeInds.size(); i++)
     {
 
         int electrode_index = electrodeInds[i];
 
+        //LOGD("Electrode index:", electrode_index);
+
         for (int ch = 0; ch < channelMetadata.size(); ch++)
         {
             if (electrode_index == channelMetadata.getReference(ch).electrode_index)
             {
+                //LOGD("Matching channel: ", ch);
                 // if electrode_index matches, update the color
-                channelMetadata.getReference(ch).colour = regionLookupTable.getColourForRegion(regions[i]);
+                channelMetadata.getReference(ch).colour = regionColours[i];
+                regionNames.add(newRegionNames[i]);
 
                 //LOGD(channelMetadata.getReference(ch).name,
                 //    " electrode_index: ", electrodeInds[i],
-                //    ", region: ", regions[i],
-               //     ", colour: ", channelMetadata.getReference(i).colour.toString());
+                //    ", region: ", newRegionNames[i],
+                //    ", colour: ", channelMetadata.getReference(ch).colour.toString());
 
-                if (lastRegion != regions[i])
+                /*if (regionNames.size() == 0)
                 {
-                    regionNames.add(regionLookupTable.getNameForRegion(regions[i]));
-                    regionStarts.add(i);
-                    lastRegion = regions[i];
+                    regionNames.add(newRegionNames[i]); // add first region name
+                    regionStarts.add(channelOrder[ch]);
                 }
+                else {
+                    if (lastRegion != regionNames.getLast())
+                    {
+                        regionNames.add(newRegionNames[i]);
+                        regionStarts.add(channelOrder[ch]);
+                    }
+                }
+
+                lastRegion = newRegionNames[i];*/
 
                 break;
             }

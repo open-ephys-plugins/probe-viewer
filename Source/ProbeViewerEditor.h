@@ -58,7 +58,7 @@ public:
 	void updateStreamSelectorOptions();
 
     /** Sets custom regions by electrode index */
-    void setRegions(uint16 streamId, Array<int>& electrodeInds, Array<int>& regions);
+    void setRegions(uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
 
 
 private:

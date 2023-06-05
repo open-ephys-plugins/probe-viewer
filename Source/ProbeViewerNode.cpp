@@ -198,23 +198,63 @@ String ProbeViewerNode::handleConfigMessage(String msg)
 	LOGD("Matching stream: ", streamId);
 
 	Array<int> electrodeInds;
-	Array<int> regions;
+	Array<String> regionNames;
+	Array<Colour> regionColours;
 
 	StringArray tokens = StringArray::fromTokens(electrodeInfo, ";", "");
 
 	for (auto token : tokens)
 	{
 		//LOGC(token);
-		int comma = token.indexOf(",");
-		electrodeInds.add(token.substring(0, comma).getIntValue());
-		regions.add(token.substring(comma + 1).getIntValue());
+
+		StringArray rangeInfo = StringArray::fromTokens(token, ",", "");
+
+		int firstElectrode = -1;
+		int lastElectrode = -1;
+		String regionName = "";
+		Colour regionColour = Colours::black;
+
+		int hyphen = rangeInfo[0].indexOf("-");
+
+		if (hyphen > -1)
+		{
+			firstElectrode = rangeInfo[0].substring(0, hyphen).getIntValue();
+			lastElectrode = rangeInfo[0].substring(hyphen + 1).getIntValue();
+			//LOGD("First electrode: ", firstElectrode);
+			//LOGD("Last electrode: ", lastElectrode);
+		}
+
+		if (rangeInfo.size() > 1)
+		{
+			regionName = rangeInfo[1];
+			//LOGD("Region name: ", regionName);
+		}
+
+		if (rangeInfo.size() > 2)
+		{
+			regionColour = Colour::fromString("#FF" + rangeInfo[2].toUpperCase());
+			//LOGD("Original color: ", rangeInfo[2]);
+			//LOGD("Region colour: ", regionColour.toString());
+		}
+
+		if (firstElectrode > -1 && lastElectrode > -1)
+		{
+			//LOGD("Adding new range.");
+
+			for (int i = firstElectrode; i < lastElectrode + 1; i++)
+			{
+				electrodeInds.add(i);
+				regionNames.add(regionName);
+				regionColours.add(regionColour);
+			}
+		}
 	}
 		
-	if (electrodeInds.size() > 0 && electrodeInds.size() == regions.size())
+	if (electrodeInds.size() > 0)
 	{
 		ProbeViewerEditor* ed = (ProbeViewerEditor*)getEditor();
 
-		ed->setRegions(streamId, electrodeInds, regions);
+		ed->setRegions(streamId, electrodeInds, regionNames, regionColours);
 	}
 	
 	return "Success";

@@ -72,7 +72,7 @@ public:
     void resized() override;
 
     /** Set custom brain regions for each electrode */
-    void setRegions(uint16 streamId, Array<int>& electrodeInds, Array<int>& regions);
+    void setRegions(uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
 
     /**
      *  Custom member methods

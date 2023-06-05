@@ -73,7 +73,7 @@ public:
     int getNumChannels() const;
 
     /** Set region info (e.g. from Pinpoint or Trajectory Explorer) */
-    void setRegions(Array<int>& electrodeInds, Array<int>& regions);
+    void setRegions(Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
 
     float getViewportScrollPositionRatio();
 
