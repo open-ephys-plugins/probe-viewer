@@ -249,7 +249,7 @@ void ChannelBrowser::paint(Graphics& g)
                     continue;
                 }
                     
-                std::cout << "Drawing region " << lastRegionName << " from " << firstChannel << " to " << lastChannel << std::endl;
+                //std::cout << "Drawing region " << lastRegionName << " from " << firstChannel << " to " << lastChannel << std::endl;
 
                 xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2) + 3.0f;
                 yLocation = getHeight() - iconHeight - ((firstChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);

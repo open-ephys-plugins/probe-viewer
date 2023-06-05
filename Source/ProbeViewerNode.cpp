@@ -159,13 +159,12 @@ String ProbeViewerNode::handleConfigMessage(String msg)
 {
 	
 	// message format
+	// "<probe_name>;<start_index_1>-<end_index_1>,<region_ID_1>,<hex_color_1>;<start_index_2>-<end_index_2>,...
 
-	// "<probe_name> <electrode1_depth>,<electrode1_regionID>;<electrode2_depth>,<electrode2_regionID>;...
+	// Example:
+	// ProbeA;0-69,PT,FF909F;70-97,PVT,FF909F;98-161,-,000000;162-173,-,000000,174-185,SF,90CBED;...
 
-	//// for testing:
-	//msg = "ProbeA;-100,295;-100,295;-100,295;-100,295;-100,947;-100,947;-100,947;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302;-100,302";
-
-	//LOGD(msg);
+	//LOGC(msg);
 	LOGD("Probe Viewer ", getNodeId(), " received message of length ", msg.length());
 	
 	int firstSemicolon = msg.indexOf(";");
