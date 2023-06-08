@@ -164,7 +164,7 @@ String ProbeViewerNode::handleConfigMessage(String msg)
 	// Example:
 	// ProbeA;0-69,PT,FF909F;70-97,PVT,FF909F;98-161,-,000000;162-173,-,000000,174-185,SF,90CBED;...
 
-	//LOGC(msg);
+	//LOGD(msg);
 	LOGD("Probe Viewer ", getNodeId(), " received message of length ", msg.length());
 	
 	int firstSemicolon = msg.indexOf(";");
@@ -182,19 +182,35 @@ String ProbeViewerNode::handleConfigMessage(String msg)
 		return "No probe name detected.";
 	}
 
-	uint16 streamId = 0;
+	Array<uint16> streamIds;
 
 	for (auto stream : dataStreams)
 	{
-		if (probeName.equalsIgnoreCase(stream->getName()))
-			streamId = stream->getStreamId();
+
+		String streamName = stream->getName();
+
+		if (streamName.endsWith("-AP"))
+		{
+			streamName = streamName.substring(0, streamName.length() - 3);
+		}
+		else if (streamName.endsWith("-LFP"))
+		{
+			streamName = streamName.substring(0, streamName.length() - 4);
+		}
+
+
+		if (probeName.equalsIgnoreCase(streamName))
+			streamIds.add(stream->getStreamId());
 
 	}
 
-	if (streamId == 0)
-		return "No matching stream detected.";
+	LOGD("Number of matching streams: ", streamIds.size());
 
-	LOGD("Matching stream: ", streamId);
+	if (streamIds.size() == 0)
+	{
+		return "No matching stream detected.";
+	}
+		
 
 	Array<int> electrodeInds;
 	Array<String> regionNames;
@@ -226,6 +242,9 @@ String ProbeViewerNode::handleConfigMessage(String msg)
 		if (rangeInfo.size() > 1)
 		{
 			regionName = rangeInfo[1];
+
+			if (regionName.startsWith("SSp"))
+				regionName = "SSp";
 			//LOGD("Region name: ", regionName);
 		}
 
@@ -253,7 +272,8 @@ String ProbeViewerNode::handleConfigMessage(String msg)
 	{
 		ProbeViewerEditor* ed = (ProbeViewerEditor*)getEditor();
 
-		ed->setRegions(streamId, electrodeInds, regionNames, regionColours);
+		for (auto streamId : streamIds)
+			ed->setRegions(streamId, electrodeInds, regionNames, regionColours);
 	}
 	
 	return "Success";

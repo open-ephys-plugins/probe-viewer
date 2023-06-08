@@ -249,11 +249,13 @@ void ChannelBrowser::paint(Graphics& g)
                     continue;
                 }
                     
-                //std::cout << "Drawing region " << lastRegionName << " from " << firstChannel << " to " << lastChannel << std::endl;
+               // std::cout << "Drawing region " << lastRegionName << " from " << firstChannel << " to " << lastChannel << std::endl;
 
                 xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2) + 3.0f;
-                yLocation = getHeight() - iconHeight - ((firstChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
-                yLocation2 = getHeight() - iconHeight - ((lastChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+                yLocation = getHeight() - iconHeight - ((firstChannel - zoomInfo->lowestChan) * zoomInfo->channelHeight) + 1;
+                yLocation2 = getHeight() - iconHeight - ((lastChannel - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+
+              //  std::cout << "Region bounds: " << yLocation << " to " << yLocation2 << std::endl;
 
                 float xWidth = getWidth() - xLocation;
 
@@ -271,17 +273,17 @@ void ChannelBrowser::paint(Graphics& g)
 
         lastChannel = regionNames.size() - 1;
 
-        //std::cout << "Drawing region " << lastRegionName << " from " << firstChannel << " to " << lastChannel << std::endl;
+       // std::cout << "Drawing region " << lastRegionName << " from " << firstChannel << " to " << lastChannel << std::endl;
 
         xLocation = PROBE_VIEW_X_OFFSET - (iconHeight / 2) + 3.0f;
-        yLocation = getHeight() - iconHeight - ((firstChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
-        yLocation2 = getHeight() - iconHeight - ((lastChannel - 1 - zoomInfo->lowestChan) * zoomInfo->channelHeight);
+        yLocation = getHeight() - iconHeight - ((firstChannel - zoomInfo->lowestChan) * zoomInfo->channelHeight) + 1;
+        yLocation2 = getHeight() - iconHeight - ((lastChannel - zoomInfo->lowestChan) * zoomInfo->channelHeight);
 
         float xWidth = getWidth() - xLocation;
 
         g.drawLine(xLocation, yLocation, xLocation + xWidth, yLocation);
 
-        //std::cout << yLocation2 << " " << yLocation << std::endl;
+       // std::cout << "Region bounds: " << yLocation << " to " << yLocation2 << std::endl;
 
         g.drawText(lastRegionName,
             Rectangle<float>(xLocation, yLocation2, xWidth, yLocation - yLocation2),
