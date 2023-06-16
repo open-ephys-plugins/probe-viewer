@@ -33,7 +33,7 @@ jobs:
         cmake -G "Visual Studio 16 2019" -A x64 .. 
       shell: bash
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v1.1
     - name: build-plugin
       run: |
         cd Build
@@ -50,7 +50,7 @@ jobs:
         package: ProbeViewer-windows
       run: |
         plugin_api=$(grep -rnw ../../plugin-GUI/Source -e '#define PLUGIN_API_VER' | grep -Eo "[0-9]*" | tail -1)
-        tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+        tag=$(grep -w Source/OpenEphysLib.cpp -e 'info->libVersion' | grep -Eo "[0-9]+.[0-9]+.[0-9]+")
         new_plugin_ver=$tag-API$plugin_api
         mkdir plugins
         cp $build_dir/*.dll plugins
