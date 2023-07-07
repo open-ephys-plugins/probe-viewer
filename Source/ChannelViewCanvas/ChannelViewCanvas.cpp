@@ -99,7 +99,7 @@ void ChannelViewCanvas::updateViewSettings()
     frontBufferIndex = 0;
     frontBackBufferPixelOffset = 0;
 
-    if(numChannels > 0)
+    if (numChannels > 0)
     {
 
         screenBufferImage = Image(Image::RGB, CHANNEL_DISPLAY_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * numChannels, false);
@@ -113,6 +113,11 @@ void ChannelViewCanvas::updateViewSettings()
             auto tile = new BitmapRenderTile(CHANNEL_DISPLAY_TILE_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * numChannels, numChannels);
             displayBitmapTiles.add(tile);
         }
+    }
+    else {
+        // add an empty tile
+        auto tile = new BitmapRenderTile(CHANNEL_DISPLAY_TILE_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT, 1);
+        displayBitmapTiles.add(tile);
     }
 }
 
