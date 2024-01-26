@@ -88,10 +88,18 @@ void CircularBuffer::updateChannelInfo(Array<ContinuousChannel*> channels)
             std::iota(V.begin(), V.end(), 0); //Initializing
             sort(V.begin(), V.end(), [&](int i, int j) {return depths[i] <= depths[j]; });
 
+            Array<int> channelsSorted;
+            
             for (int i = 0; i < numChannels; i++)
             {
-                // re-order by depth
-                channelOrder.add(V[i]);
+                // put channels in order
+                channelsSorted.add(V[i]);
+            }
+
+            for (int i = 0; i < numChannels; i++)
+            {
+				// find matching index for each channel
+                channelOrder.add(channelsSorted.indexOf(i));
             }
         }
 
