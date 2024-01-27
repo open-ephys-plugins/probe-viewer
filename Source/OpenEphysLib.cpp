@@ -33,7 +33,7 @@ extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 {
 	info->apiVersion = PLUGIN_API_VER;
 	info->name = "Probe Viewer";
-	info->libVersion = "0.3.1";
+	info->libVersion = "0.3.2";
 	info->numPlugins = NUM_PLUGINS;
 }
 
