@@ -17,12 +17,20 @@ class CanvasOptionsBar : public Component
     , public ComboBox::Listener
 {
 public:
+
+    /** Constructor */
     CanvasOptionsBar(class ChannelViewCanvas* channelsView);
+
+    /** Destructor */
     virtual ~CanvasOptionsBar() override;
 
+    /** Draw the optiosn bar */
     void paint(Graphics& g) override;
+
+    /** Called on resize */
     void resized() override;
 
+    /** ComboBox callback */
     void comboBoxChanged(ComboBox * cb) override;
 
     /**

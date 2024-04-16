@@ -46,15 +46,33 @@ AudioProcessorEditor* ProbeViewerNode::createEditor()
 
 void ProbeViewerNode::process(AudioBuffer<float>& buffer)
 {
+
 	for (int chan = 0; chan < buffer.getNumChannels(); chan++)
     {
 		uint16 streamId = continuousChannels[chan]->getStreamId();
 		int localId = continuousChannels[chan]->getLocalIndex();
 		int globalId = continuousChannels[chan]->getGlobalIndex();
 		uint32 nSamples = getNumSamplesInBlock(streamId);
+		int64 sampleNumber = getFirstSampleNumberForBlock(streamId);
 
-		dataBufferMap[streamId]->addData(buffer, localId, globalId, nSamples);
+		dataBufferMap[streamId]->addData(buffer, localId, globalId, nSamples, sampleNumber);
 	}
+
+	checkForEvents();
+}
+
+void ProbeViewerNode::handleTTLEvent(TTLEventPtr event)
+{
+	const int eventState = event->getState() ? 1 : 0;
+	const int eventLine = event->getLine();
+	const int64 sampleNumber = event->getSampleNumber();
+	const uint16 streamId = event->getChannelInfo()->getStreamId();
+
+	if (eventState)
+	{
+		dataBufferMap[streamId]->setTrigger(sampleNumber);
+	}
+	
 }
 
 void ProbeViewerNode::updateSettings()

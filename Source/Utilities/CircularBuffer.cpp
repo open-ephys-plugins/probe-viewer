@@ -35,6 +35,7 @@ CircularBuffer::CircularBuffer(int id_, float sampleRate_, int bufferLengthInSec
     previousSize = 0;
     bufferLengthSamples = sampleRate * bufferLengthInSec;
     dataBuffer = std::make_unique<AudioSampleBuffer>();
+
 }
 
 CircularBuffer::~CircularBuffer()
@@ -153,12 +154,18 @@ void CircularBuffer::clearSamplesReadyForDrawing()
 }
 
 
-void CircularBuffer::addData(AudioBuffer<float>& input, int localChanId, int globalChanId, int numSamples)
+void CircularBuffer::addData(AudioBuffer<float>& input, 
+    int localChanId, 
+    int globalChanId, 
+    int numSamples,
+    int64 sampleNumber)
 {
     samplesReadyForDrawing.set(true);
     ScopedLock dataLock(dataMutex);    
 
     const int samplesLeft = bufferLengthSamples - writeIndex[localChanId];
+
+    latestSampleNumber = sampleNumber + numSamples;
 
     if (numSamples < samplesLeft)
     {
@@ -199,5 +206,14 @@ float CircularBuffer::getSample(int sampIdx, int channel) const
     
     if (localIdx >= bufferLengthSamples) localIdx -= bufferLengthSamples;
     
+	if (localIdx < 0) localIdx += bufferLengthSamples;
+    
     return dataBuffer->getSample(channel, localIdx);
+}
+
+
+void CircularBuffer::setTrigger(int64 sampleNumber)
+{
+	triggerSampleNumber = sampleNumber;
+    triggered = true;
 }

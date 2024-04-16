@@ -68,7 +68,11 @@ public:
     void clearSamplesReadyForDrawing();
 
      /** Adds continuous data*/
-    void addData(AudioBuffer<float>& buffer, int localChanId, int globalChanId, int nSamples);
+    void addData(AudioBuffer<float>& buffer, 
+        int localChanId, 
+        int globalChanId, 
+        int nSamples,
+        int64 sampleNumber);
 
     /**
      *  Return a single sample at a specific index and from a specific channel.
@@ -77,6 +81,12 @@ public:
      *  mutex from ::getMutex below.
      */
     float getSample(int sampIdx, int channel) const;
+
+    /**
+     *  Sets a flag indicating that a trigger was received
+     *
+     */
+    void setTrigger(int64 sampleNumber);
 
     /**
      *  Return the mutex for locking the internal data buffer during sample read
@@ -90,6 +100,11 @@ public:
     int bufferLengthSamples;
     float sampleRate;
     bool isNeeded;
+
+    bool triggered = false;
+    int64 triggerSampleNumber = -1;
+
+    int64 latestSampleNumber = 0;
 
 private:
     std::unique_ptr<AudioBuffer<float>> dataBuffer;

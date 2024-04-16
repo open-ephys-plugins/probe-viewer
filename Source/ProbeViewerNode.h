@@ -45,6 +45,9 @@ public:
     /** Pushes samples to the data buffer*/
     void process(AudioBuffer<float>& buffer) override;
 
+    /** Handles incoming events used as triggers */
+    void handleTTLEvent(TTLEventPtr event);
+
     /** Updates settings */
     void updateSettings() override;
 
