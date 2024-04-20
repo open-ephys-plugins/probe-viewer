@@ -170,6 +170,8 @@ struct BitmapRenderTile
      *  valid input.
      */
     BitmapRenderTile(int width, int height, int numChannels);
+
+    /** Destructor */
     ~BitmapRenderTile() = default;
 
     /**

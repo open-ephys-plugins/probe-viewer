@@ -29,27 +29,51 @@
 
 namespace ProbeViewer {
 
-class ChannelViewCanvas;
 
 class AverageView : public Component
 {
 public:
 
     /** Constructor */
-    AverageView(class ChannelViewCanvas* canvas)  { }
+    AverageView(class ChannelViewCanvas* canvas);
 
     /** Destructor */
     virtual ~AverageView() override { }
 
     /** Updates settings */
-    void updateViewSettings() { }
+    void updateViewSettings();
+
+    /**
+    *  Set the height in pixels of the displayed channels (data and reference)
+    */
+    void setChannelHeight(float height);
+
+    /**
+     *  Receive and queue pixel value updates for RMS, FFT, or SpikeRate
+     *  screen image for the given channel.
+     *
+     *  This method expects the channel to refer to an index within the
+     *  data acquisition subset of channels, and does not do bound checking.
+     *
+     *  Returns true if the last sample has been reached
+     */
+    bool pushPixelValueForChannel(int channel, float value);
 
 	/** Render the view */
-    void paint(Graphics& g) {
-        g.fillAll(Colours::blue);
-    }
+    void paint(Graphics& g);
 
 private:
+
+	AudioBuffer<float> screenBuffer;
+
+    Image screenBufferImage;
+
+    class ChannelViewCanvas* canvas;
+
+    int numChannels;
+    int sampleIndex;
+    int numTrials;
+    float channelHeight;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AverageView);
 };

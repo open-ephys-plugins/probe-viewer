@@ -25,5 +25,85 @@
 
 #include "ChannelViewCanvas.hpp"
 
-
 using namespace ProbeViewer;
+
+const int AVERAGE_VIEW_WIDTH = 300;
+
+AverageView::AverageView(ChannelViewCanvas* canvas) :
+
+    canvas(canvas),
+    numChannels(1),
+    numTrials(0),
+    sampleIndex(0),
+    channelHeight(10),
+    screenBufferImage(Image::RGB, AVERAGE_VIEW_WIDTH, 1, true)
+{
+
+}
+
+
+void AverageView::updateViewSettings()
+{
+    numChannels = canvas->getNumChannels();
+
+    if (numChannels == 0)
+        numChannels = 1;
+
+    screenBufferImage = Image(Image::RGB, AVERAGE_VIEW_WIDTH, numChannels * channelHeight, true);
+
+	screenBuffer.setSize(numChannels, AVERAGE_VIEW_WIDTH);
+
+    numTrials = 0;
+    sampleIndex = 0;
+
+    Graphics g(screenBufferImage);
+	g.setGradientFill(ColourGradient(Colours::orange, 0, 0, Colours::white, 0, numChannels, false));
+    g.fillRect(0, 0, AVERAGE_VIEW_WIDTH, int(numChannels * channelHeight));
+}
+
+
+bool AverageView::pushPixelValueForChannel(int channel, float value)
+{
+    screenBuffer.addSample(channel, sampleIndex, value);
+
+    if ((channel == numChannels - 1))
+    {
+        sampleIndex += 1;
+
+        if (sampleIndex == AVERAGE_VIEW_WIDTH)
+        {
+            repaint();
+            sampleIndex = 0;
+            numTrials += 1;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
+void AverageView::paint(Graphics& g)
+{
+    // scale the values in the screen buffer to the image
+
+    const float verticalScale = float(channelHeight * numChannels) / numChannels  *2;
+    const float horizontalScale = getWidth() / float(AVERAGE_VIEW_WIDTH);
+
+    //std::cout << "AverageView verticalScale: " << verticalScale << ", height: " << numChannels * 2 << std::endl;
+    
+    const auto transform = AffineTransform::scale(horizontalScale, verticalScale);
+
+    g.drawImageTransformed(screenBufferImage, transform);
+
+}
+
+void AverageView::setChannelHeight(float height)
+{
+    channelHeight = height;
+
+    repaint();
+}

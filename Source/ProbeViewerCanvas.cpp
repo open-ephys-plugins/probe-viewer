@@ -98,8 +98,7 @@ void ProbeViewerCanvas::update()
     numChannels = jmax(pvProcessor->getNumStreamChannels(), 0);
 
     channelsView->updateViewSettings();
-    channelsView->rollingView->channels.clear();
-    //channelsView->averageView->channels.clear();
+    
     partialBufferCache.clear();
     channelFFTSampleBuffer.clear();
     inputDownsamplingIndex.clear();
@@ -130,12 +129,7 @@ void ProbeViewerCanvas::update()
 
         channelsView->rollingView->channels.add(channelDisplay);
 
-        //auto channelDisplay2 =
-        //    new ProbeChannelDisplay(channelsView->averageView.get(),
-        //        optionsBar,
-        //        i,
-        //        sampleRate);
-        //channelsView->averageView->channels.add(channelDisplay2);
+
         partialBufferCache.add(new Array<float>());
 
         channelFFTSampleBuffer.add(new FFTSampleCacheBuffer(ProbeViewerCanvas::FFT_SIZE));
@@ -316,7 +310,7 @@ int ProbeViewerCanvas::getNumChannels()
 void ProbeViewerCanvas::setChannelHeight(float height)
 {
     channelsView->rollingView->setChannelHeight(height);
-    //channelsView->averageView->setChannelHeight(height);
+    channelsView->averageView->setChannelHeight(height);
 }
 
 float ProbeViewerCanvas::getChannelHeight()

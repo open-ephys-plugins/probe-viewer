@@ -53,6 +53,8 @@ void RollingView::paint(Graphics& g)
     renderTilesToScreenBufferImage();
     
     const float verticalScale = (getChannelHeight() * numChannels) / getFrontBufferPtr()->height;
+
+	//std::cout << "RollingView verticalScale: " << verticalScale << ", height: " << getFrontBufferPtr()->height <<  std::endl;
     const float horizontalScale = getWidth() / float(RollingView::CHANNEL_DISPLAY_WIDTH);
     
     const auto transform = AffineTransform::scale(horizontalScale, verticalScale);
@@ -116,6 +118,8 @@ void RollingView::updateViewSettings()
         auto tile = new BitmapRenderTile(CHANNEL_DISPLAY_TILE_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT, 1);
         displayBitmapTiles.add(tile);
     }
+
+    channels.clear();
 }
 
 void RollingView::renderTilesToScreenBufferImage()
