@@ -57,6 +57,8 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode *processor_)
 
     optionsBar = new CanvasOptionsBar(channelsView);
     addAndMakeVisible(optionsBar);
+    optionsBar->addListener(channelsView->averageView.get());
+    
     optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
     channelsView->optionsBar = optionsBar;
 
@@ -118,6 +120,7 @@ void ProbeViewerCanvas::update()
     }
 
     float sampleRate = pvProcessor->getStreamSampleRate();
+    channelsView->averageView->setSampleRate(sampleRate);
     
     for (int i = 0; i < numChannels; ++i)
     {
@@ -507,15 +510,7 @@ void ProbeViewerCanvas::updateScreenBuffers()
 
         if (dataBuffer->triggered)
         {
-
-            // grab samples from start of window up to current sample
-			int64 startSample = dataBuffer->triggerSampleNumber - dataBuffer->latestSampleNumber;
-            LOGD("TRIGGERED! Start sample: ", startSample);
-
-            // copy to AverageView -- keeps track of number of samples received
-			
-            // if end of window is reached, stop copying and set triggered to false
-            dataBuffer->triggered = false;
+            channelsView->averageView->fillFromBuffer(dataBuffer);
         }
 
         dataBuffer->clearSamplesReadyForDrawing();

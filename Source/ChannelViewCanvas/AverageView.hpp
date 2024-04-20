@@ -29,8 +29,8 @@
 
 namespace ProbeViewer {
 
-
-class AverageView : public Component
+class AverageView : public Component,
+    public ComboBox::Listener
 {
 public:
 
@@ -49,31 +49,40 @@ public:
     void setChannelHeight(float height);
 
     /**
-     *  Receive and queue pixel value updates for RMS, FFT, or SpikeRate
-     *  screen image for the given channel.
-     *
-     *  This method expects the channel to refer to an index within the
-     *  data acquisition subset of channels, and does not do bound checking.
-     *
-     *  Returns true if the last sample has been reached
+    *  Set the sample rate of the displayed stream
+    */
+    void setSampleRate(float sampleRate);
+
+    /**
+     *  Extracts samples from a circular buffer
      */
-    bool pushPixelValueForChannel(int channel, float value);
+    void fillFromBuffer(class CircularBuffer* buffer);
 
 	/** Render the view */
     void paint(Graphics& g);
 
+    /** Called when options are changed*/
+	void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+
 private:
 
 	AudioBuffer<float> screenBuffer;
+    AudioBuffer<float> cacheBuffer;
+    Array<int> pixelIndex;
+    Array<int> numCachedSamples;
 
     Image screenBufferImage;
 
     class ChannelViewCanvas* canvas;
 
     int numChannels;
-    int sampleIndex;
     int numTrials;
     float channelHeight;
+	float preWindow = 0.5;
+    float postWindow = 0.5;
+    float samplesPerPixel;
+    float sampleRate;
+    bool updateImage = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AverageView);
 };

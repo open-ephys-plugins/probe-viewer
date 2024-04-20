@@ -71,6 +71,15 @@ void CanvasOptionsBar::paint(Graphics& g)
     g.drawLine(marginWidth, 0, marginWidth, getHeight(), 1);
 }
 
+void CanvasOptionsBar::addListener(ComboBox::Listener* listener)
+{
+	renderModeSelection->addListener(listener);
+	colourSchemeSelection->addListener(listener);
+    rmsSubOptionComponent->addListener(listener);
+	fftSubOptionComponent->addListener(listener);
+	spikeRateSubOptionComponent->addListener(listener);
+}
+
 void CanvasOptionsBar::resized()
 {
     renderModeSelectionLabel->setBounds(0, 0, 95, getHeight());
@@ -342,6 +351,13 @@ void RMSSubOptionComponent::resized()
     hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
 }
 
+void RMSSubOptionComponent::addListener(ComboBox::Listener* listener)
+{
+    lowValueBoundSelection->addListener(listener);
+    hiValueBoundSelection->addListener(listener);
+}
+
+
 void RMSSubOptionComponent::comboBoxChanged(ComboBox* cb)
 {
     if (cb == lowValueBoundSelection)
@@ -505,6 +521,13 @@ namespace {
     {
         return std::round((freq/maxFreq) * numBins);
     }
+}
+
+void FFTSubOptionComponent::addListener(ComboBox::Listener* listener)
+{
+    lowValueBoundSelection->addListener(listener);
+    hiValueBoundSelection->addListener(listener);
+    binSelection->addListener(listener);
 }
 
 void FFTSubOptionComponent::comboBoxChanged(ComboBox* cb)
@@ -690,6 +713,14 @@ void SpikeRateSubOptionComponent::resized()
     thresholdSelectionLabel->setBounds(hiValueBoundSelection->getRight() + 10, 0, 150, getHeight());
     thresholdSelection->setBounds(thresholdSelectionLabel->getRight(), 2, 60, getHeight() - 4);
 }
+
+void SpikeRateSubOptionComponent::addListener(ComboBox::Listener* listener)
+{
+    lowValueBoundSelection->addListener(listener);
+    hiValueBoundSelection->addListener(listener);
+    thresholdSelection->addListener(listener);
+}
+
 
 void SpikeRateSubOptionComponent::comboBoxChanged(ComboBox* cb)
 {

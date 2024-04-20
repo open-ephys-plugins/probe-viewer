@@ -115,6 +115,10 @@ public:
 
     void loadParameters(XmlElement* xml);
 
+    void addListener(ComboBox::Listener* listener);
+
+    ScopedPointer<ComboBox> renderModeSelection;
+
 private:
     class ChannelViewCanvas* channelsView;
 
@@ -124,7 +128,7 @@ private:
     Colour labelColour;
 
     ScopedPointer<Label> renderModeSelectionLabel;
-    ScopedPointer<ComboBox> renderModeSelection;
+   
 
     ScopedPointer<Label> colourSchemeSelectionLabel;
     ScopedPointer<ComboBox> colourSchemeSelection;
@@ -145,6 +149,8 @@ public:
 
     void paint(Graphics& g) override;
     void resized() override;
+
+    void addListener(ComboBox::Listener* listener);
 
     void comboBoxChanged(ComboBox* cb) override;
 
@@ -192,6 +198,8 @@ public:
 
     void paint(Graphics& g) override;
     void resized() override;
+
+    void addListener(ComboBox::Listener* listener);
 
     void comboBoxChanged(ComboBox* cb) override;
 
@@ -263,6 +271,8 @@ public:
     void paint(Graphics& g) override;
     void resized() override;
 
+    void addListener(ComboBox::Listener* listener);
+    
     void comboBoxChanged(ComboBox* cb) override;
 
     /**

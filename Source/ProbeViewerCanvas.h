@@ -64,11 +64,10 @@ public:
     /** Loads parameters */
     void loadCustomParametersFromXml(XmlElement* xml) override;
 
-    /**
-     *  Overrides from juce::Component
-     */
-
+    /** Fill background */
     void paint(Graphics& g) override;
+
+	/** Change size */
     void resized() override;
 
     /** Set custom brain regions for each electrode */
@@ -230,11 +229,22 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerCanvas);
 };
 
+/** 
+    
+    Viewport to allow interactive scrolling of channel display
+
+*/
 class ProbeViewerViewport : public Viewport
 {
 public:
+
+    /** Constructor */
     ProbeViewerViewport(ProbeViewerCanvas*, class ChannelViewCanvas*);
+
+    /** Destructor */
     virtual ~ProbeViewerViewport() override;
+
+    /** Scrolling callback */
     void visibleAreaChanged(const Rectangle<int>& newVisibleArea);
 
 private:

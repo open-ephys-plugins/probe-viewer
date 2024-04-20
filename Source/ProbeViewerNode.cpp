@@ -68,7 +68,7 @@ void ProbeViewerNode::handleTTLEvent(TTLEventPtr event)
 	const int64 sampleNumber = event->getSampleNumber();
 	const uint16 streamId = event->getChannelInfo()->getStreamId();
 
-	if (eventState)
+	if (eventState && eventLine == 0)
 	{
 		dataBufferMap[streamId]->setTrigger(sampleNumber);
 	}
