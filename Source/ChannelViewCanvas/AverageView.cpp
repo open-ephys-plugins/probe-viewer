@@ -51,7 +51,7 @@ void AverageView::updateViewSettings()
     if (numChannels == 0)
         numChannels = 1;
 
-    screenBufferImage = Image(Image::RGB, AVERAGE_VIEW_WIDTH, numChannels * channelHeight, true);
+    screenBufferImage = Image(Image::RGB, AVERAGE_VIEW_WIDTH, numChannels * 2, true);
 
 	screenBuffer.setSize(numChannels, AVERAGE_VIEW_WIDTH);
     screenBuffer.clear();
@@ -85,7 +85,7 @@ void AverageView::comboBoxChanged(ComboBox* c)
 void AverageView::paint(Graphics& g)
 {
 
-    const float verticalScale = float(channelHeight * numChannels) / numChannels  *2;
+    const float verticalScale =  float(channelHeight * numChannels) / (numChannels * 2);
     const float horizontalScale = getWidth() / float(AVERAGE_VIEW_WIDTH);
 
     const auto transform = AffineTransform::scale(horizontalScale, verticalScale);
@@ -103,7 +103,10 @@ void AverageView::paint(Graphics& g)
 			{
                 if (pixel == AVERAGE_VIEW_WIDTH / 2)
                 {
-                    screenBufferImage.setPixelAt(pixel, channel, Colours::yellow);
+                    for (int i = 0; i < 2; i++)
+                    {
+                        screenBufferImage.setPixelAt(pixel, channel * 2 + i, Colours::yellow);
+                    }
                 }
                 else {
                     const float value = screenBuffer.getSample(channel, pixel) / numTrials;
@@ -111,7 +114,11 @@ void AverageView::paint(Graphics& g)
 
                     const Colour colour = ColourScheme::getColourForNormalizedValueInScheme(normValue, canvas->getCurrentColourScheme());
 
-                    screenBufferImage.setPixelAt(pixel, channel, colour);
+                    for (int i = 0; i < 2; i++)
+                    {
+                        screenBufferImage.setPixelAt(pixel, channel * 2 + i, colour);
+                    }
+                    
                 }
                 
 
