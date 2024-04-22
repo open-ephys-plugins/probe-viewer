@@ -340,7 +340,7 @@ void RMSSubOptionComponent::paint(Graphics& g)
 {
     g.setColour(Colours::darkgrey);
     g.drawRect(0, 0, getWidth(), getHeight());
-    g.drawFittedText("RMS SUB OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
+    g.drawFittedText("RMS OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
 }
 
 void RMSSubOptionComponent::resized()
@@ -478,7 +478,7 @@ FFTSubOptionComponent::FFTSubOptionComponent(Font labelFont, Colour labelColour)
     
     
     // bin selection
-    binSelectionLabel = new Label("binSelectionLabel", "Center Frequency:");
+    binSelectionLabel = new Label("binSelectionLabel", "Center Freq.:");
     binSelectionLabel->setFont(labelFont);
     binSelectionLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(binSelectionLabel);
@@ -500,7 +500,7 @@ void FFTSubOptionComponent::paint(Graphics& g)
 {
     g.setColour(Colours::darkgrey);
     g.drawRect(0, 0, getWidth(), getHeight());
-    g.drawFittedText("FFT SUB OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
+    g.drawFittedText("FFT OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
 }
 
 void FFTSubOptionComponent::resized()
@@ -511,7 +511,7 @@ void FFTSubOptionComponent::resized()
     hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight() + 10, 0, 75, getHeight());
     hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
 
-    binSelectionLabel->setBounds(hiValueBoundSelection->getRight() + 10, 0, 130, getHeight());
+    binSelectionLabel->setBounds(hiValueBoundSelection->getRight() + 10, 0, 100, getHeight());
     binSelection->setBounds(binSelectionLabel->getRight(), 2, 80, getHeight() - 4);
 }
 
@@ -673,7 +673,7 @@ SpikeRateSubOptionComponent::SpikeRateSubOptionComponent(Font labelFont, Colour 
     
     
     // spike onset threshold
-    thresholdSelectionLabel = new Label("thresholdSelectionLabel", "Spike Onset Threshold:");
+    thresholdSelectionLabel = new Label("thresholdSelectionLabel", "Threshold (uV):");
     thresholdSelectionLabel->setFont(labelFont);
     thresholdSelectionLabel->setColour(Label::textColourId, labelColour);
     addAndMakeVisible(thresholdSelectionLabel);
@@ -699,7 +699,7 @@ void SpikeRateSubOptionComponent::paint(Graphics& g)
 {
     g.setColour(Colours::darkgrey);
     g.drawRect(0, 0, getWidth(), getHeight());
-    g.drawFittedText("SPIKE RATE SUB OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
+    g.drawFittedText("SPIKE RATE OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
 }
 
 void SpikeRateSubOptionComponent::resized()
@@ -710,7 +710,7 @@ void SpikeRateSubOptionComponent::resized()
     hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight() + 10, 0, 50, getHeight());
     hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 70, getHeight() - 4);
     
-    thresholdSelectionLabel->setBounds(hiValueBoundSelection->getRight() + 10, 0, 150, getHeight());
+    thresholdSelectionLabel->setBounds(hiValueBoundSelection->getRight() + 10, 0, 120, getHeight());
     thresholdSelection->setBounds(thresholdSelectionLabel->getRight(), 2, 60, getHeight() - 4);
 }
 
