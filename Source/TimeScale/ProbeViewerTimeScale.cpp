@@ -23,9 +23,13 @@
 
 #include "ProbeViewerTimeScale.hpp"
 
+#include "../ChannelViewCanvas/ChannelViewCanvas.hpp"
+
 using namespace ProbeViewer;
 
-TimeScale::TimeScale() :
+TimeScale::TimeScale(ChannelViewCanvas* canvas_, bool isForAverageView_) :
+	canvas(canvas_),
+	isForAverageView(isForAverageView_),
     font("Default", 16, Font::plain)
 {
 
@@ -89,20 +93,123 @@ void TimeScale::setWindowSize(float pre, float post)
 
     float windowSize = pre + post;
 
-    if (windowSize > 5)
+    if (windowSize > 4)
         resolution = 1.0f;
-    else if ((windowSize <= 5) && (windowSize > 0.5))
+    else if ((windowSize <= 4) && (windowSize > 0.5))
         resolution = 0.25f;
-    else
+    else if ((windowSize <= 0.5) && (windowSize > 0.3))
         resolution = 0.1f;
+    else
+        resolution = 0.05f;
+
+    if (isForAverageView)
+        canvas->updateAverageViewWindow(preSeconds, postSeconds);
+    else
+        canvas->updateRollingViewWindow(postSeconds);
     
     repaint();
 }
 
-ProbeViewerTimeScale::ProbeViewerTimeScale()
+
+void TimeScale::mouseDown(const MouseEvent& e)
 {
-    rollingViewTimeScale = std::make_unique<TimeScale>();
-	averageViewTimeScale = std::make_unique<TimeScale>();
+
+    if (e.mods.isRightButtonDown())
+    {
+        PopupMenu m;
+
+        if (isForAverageView)
+        {
+            m.addItem(98, "Pre Window", false);
+            m.addItem(2, "50 ms", true, preSeconds == 0.05f);
+            m.addItem(3, "0.1 s", true, preSeconds == 0.1f);
+            m.addItem(4, "0.2 s", true, preSeconds == 0.2f);
+            m.addItem(5, "0.5 s", true, preSeconds == 0.5f);
+            m.addItem(6, "1.0 s", true, preSeconds == 1.0f);
+            m.addSeparator();
+			m.addItem(99, "Post Window", false);
+			m.addItem(7, "50 ms", true, postSeconds == 0.05f);
+			m.addItem(8, "0.1 s", true, postSeconds == 0.1f);
+			m.addItem(9, "0.2 s", true, postSeconds == 0.2f);
+			m.addItem(10, "0.5 s", true, postSeconds == 0.5f);
+			m.addItem(11, "1.0 s", true, postSeconds == 1.0f);
+            
+            const int result = m.show();
+
+            switch (result)
+            {
+            case 0: // nothing selected
+                return;
+            case 2:
+                preSeconds = 0.05f;
+                break;
+			case 3:
+				preSeconds = 0.1f;
+				break;
+			case 4:
+				preSeconds = 0.2f;
+				break;
+			case 5:
+				preSeconds = 0.5f;
+				break;
+			case 6:
+				preSeconds = 1.0f;
+				break;
+            case 7:
+				postSeconds = 0.05f;
+				break;
+			case 8:
+				postSeconds = 0.1f;
+				break;
+			case 9:
+				postSeconds = 0.2f;
+				break;
+			case 10:
+				postSeconds = 0.5f;
+				break;
+			case 11:
+				postSeconds = 1.0f;
+				break;
+            }
+        }
+        else
+        {
+            m.addItem(98, "Window Size", false);
+            m.addItem(2, "5 s", true, postSeconds == 5.f);
+            m.addItem(3, "8 s", true, postSeconds == 8.f);
+            m.addItem(4, "10 s", true, postSeconds == 10.f);
+            m.addItem(5, "20 s", true, postSeconds == 20.f);
+
+            const int result = m.show();
+
+            switch (result)
+            {
+            case 0: // nothing selected
+                return;
+            case 2:
+                postSeconds = 5.f;
+                break;
+            case 3:
+                postSeconds = 8.f;
+                break;
+            case 4:
+                postSeconds = 10.f;
+                break;
+            case 5:
+                postSeconds = 20.f;
+                break;
+            }
+        }
+
+        setWindowSize(preSeconds, postSeconds);
+    }
+
+}
+
+ProbeViewerTimeScale::ProbeViewerTimeScale(class ChannelViewCanvas* canvas)
+{
+    rollingViewTimeScale = std::make_unique<TimeScale>(canvas, false);
+	averageViewTimeScale = std::make_unique<TimeScale>(canvas, true);
 
     addAndMakeVisible(rollingViewTimeScale.get());
     addChildComponent(averageViewTimeScale.get());
@@ -131,6 +238,13 @@ void ProbeViewerTimeScale::setRollingViewWindowSize(float windowSize)
 void ProbeViewerTimeScale::setAverageViewWindowSize(float preWindow, float postWindow)
 {
     averageViewTimeScale->setWindowSize(preWindow, postWindow);
+}
+
+void ProbeViewerTimeScale::getWindowSize(float* rollingWindowSize, float* averageWindowPre, float* averageWindowPost)
+{
+	*rollingWindowSize = rollingViewTimeScale->postSeconds;
+	*averageWindowPre = averageViewTimeScale->preSeconds;
+	*averageWindowPost = averageViewTimeScale->postSeconds;
 }
 
 void ProbeViewerTimeScale::showAverageView(bool show)

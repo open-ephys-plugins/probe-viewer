@@ -44,6 +44,7 @@ RollingView::RollingView(ChannelViewCanvas* canvas) :
 , frontBufferIndex(0)
 , fullRedraw(false)
 , numChannels(0)
+, windowSize(ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE)
 {
     
 }
@@ -191,6 +192,17 @@ float RollingView::getChannelHeight()
     return channelHeight;
 }
 
+void RollingView::setWindow(float window)
+{
+    windowSize = window;
+    
+    for (auto channel : channels)
+    {
+		channel->setWindow(window);
+    }
+   
+}
+
 void RollingView::pushPixelValueForChannel(int channel, float value)
 {
     channels[channel]->pushSample(value);
@@ -259,8 +271,8 @@ ProbeChannelDisplay::ProbeChannelDisplay(RollingView* view_,
 , sampleRate(sampleRate_)
 , channelID(channelID_)
 {
-    samplesPerPixel = sampleRate * ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE 
-                      / float(RollingView::CHANNEL_DISPLAY_WIDTH);
+	setWindow(ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE);
+
 }
 
 ProbeChannelDisplay::~ProbeChannelDisplay()
@@ -354,4 +366,12 @@ float ProbeChannelDisplay::getSampleRate()
 float ProbeChannelDisplay::getNumSamplesPerPixel()
 {
     return samplesPerPixel;
+}
+
+void ProbeChannelDisplay::setWindow(float window)
+{
+
+    samplesPerPixel = sampleRate * window
+        / float(RollingView::CHANNEL_DISPLAY_WIDTH);
+
 }

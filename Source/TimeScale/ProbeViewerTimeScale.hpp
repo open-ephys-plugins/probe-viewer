@@ -35,7 +35,8 @@ class TimeScale : public Component
 {
 public:
     /** Constructor */
-	TimeScale();
+	TimeScale(class ChannelViewCanvas* canvas, 
+        bool isForAverageView);
 
     /** Destructor */
 	virtual ~TimeScale() override { }
@@ -43,13 +44,21 @@ public:
 	/** Render the timescale */
 	void paint(Graphics& g) override;
 
+    /** Used to set timescale.*/
+    void mouseDown(const MouseEvent& e);
+
 	/** Set window */
 	void setWindowSize(float preSeconds, float postSeconds);
-
-private:
+    
     float preSeconds = 0.0f;
     float postSeconds = 10.0f;
+private:
+
     float resolution = 0.5;
+
+    bool isForAverageView;
+
+    class ChannelViewCanvas* canvas;
     
     Font font;
 };
@@ -64,7 +73,7 @@ class ProbeViewerTimeScale : public Component
 public:
 
     /** Constructor */
-    ProbeViewerTimeScale();
+    ProbeViewerTimeScale(class ChannelViewCanvas*);
 
     /** Destructor */
     virtual ~ProbeViewerTimeScale() override { }
@@ -77,6 +86,9 @@ public:
 
     /** Sets the window size (in seconds) of the average view (pre and post)*/
     void setAverageViewWindowSize(float preWindow, float postWindow);
+
+    /** Gets the window size (in seconds) of the average and rolling view*/
+    void getWindowSize(float* rollingWindowSize, float* averageWindowPre, float* averageWindowPost);
 
     /** Shows/hides the average view timescale */
     void showAverageView(bool show);

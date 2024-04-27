@@ -48,6 +48,7 @@ public:
     */
     void setChannelHeight(float height);
 
+
     /**
     *  Set the sample rate of the displayed stream
     */
@@ -57,6 +58,9 @@ public:
      *  Extracts samples from a circular buffer
      */
     void fillFromBuffer(class CircularBuffer* buffer);
+
+    /** Sets the pre/post time window */
+	void setWindow(float preWindow, float postWindow);
 
 	/** Render the view */
     void paint(Graphics& g);

@@ -55,12 +55,12 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode *processor_)
 
     updateChannelBrowsers();
 
-    timeScale = new ProbeViewerTimeScale();
+    channelsView = new ChannelViewCanvas(this);
+
+    timeScale = new ProbeViewerTimeScale(channelsView);
     timeScale->setRollingViewWindowSize(ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE);
     timeScale->setAverageViewWindowSize(0.5, 0.5);
     addAndMakeVisible(timeScale);
-
-    channelsView = new ChannelViewCanvas(this);
 
     optionsBar = new CanvasOptionsBar(channelsView, timeScale);
     addAndMakeVisible(optionsBar);
@@ -136,7 +136,7 @@ void ProbeViewerCanvas::update()
                                     optionsBar, 
                                     i,
                                     sampleRate);
-
+        channelDisplay->setWindow(channelsView->rollingView->windowSize);
         channelsView->rollingView->channels.add(channelDisplay);
 
 

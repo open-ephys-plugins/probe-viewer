@@ -85,6 +85,9 @@ public:
      */
     float getChannelHeight();
 
+    /** Change the window size (in seconds) */
+    void setWindow(float window);
+
     /**
      *  Receive and queue pixel value updates for RMS, FFT, or SpikeRate
      *  screen image for the given channel.
@@ -119,7 +122,7 @@ public:
 
     Atomic<int> isDirty;
     int numPixelUpdates;
-
+    float windowSize;
 
     static const int CHANNEL_DISPLAY_MAX_HEIGHT;
     static const int CHANNEL_DISPLAY_WIDTH;
@@ -249,6 +252,9 @@ public:
      *  this channel.
      */
     float getNumSamplesPerPixel();
+
+    /** Change the window size (in seconds) */
+    void setWindow(float window);
 
 private:
     RollingView* rollingView;

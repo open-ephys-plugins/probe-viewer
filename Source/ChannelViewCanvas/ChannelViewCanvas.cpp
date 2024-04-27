@@ -48,6 +48,17 @@ void ChannelViewCanvas::showAverageView(bool show)
 	resized();
 }
 
+void ChannelViewCanvas::updateAverageViewWindow(float preSeconds, float postSeconds)
+{
+	averageView->setWindow(preSeconds, postSeconds);
+}
+
+void ChannelViewCanvas::updateRollingViewWindow(float windowSize)
+{
+    rollingView->setWindow(windowSize);
+}
+
+
 
 void ChannelViewCanvas::resized()
 {

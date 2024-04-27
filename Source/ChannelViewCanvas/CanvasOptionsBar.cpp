@@ -16,9 +16,9 @@
 using namespace ProbeViewer;
 
 CanvasOptionsBar::CanvasOptionsBar(class ChannelViewCanvas* channelsView_,
-    class ProbeViewerTimeScale* timescale_)
+    class ProbeViewerTimeScale* timeScale_)
 : channelsView(channelsView_)
-, timescale(timescale_)
+, timeScale(timeScale_)
 , marginWidth(0)
 , labelFont("Fira Code", "Regular", 16.0f)
 , labelColour(100, 100, 100)
@@ -174,7 +174,7 @@ void CanvasOptionsBar::buttonClicked(Button* button)
     if (button == showAverageViewButton)
     {
 		channelsView->showAverageView(showAverageViewButton->getToggleState());
-		timescale->showAverageView(showAverageViewButton->getToggleState());
+        timeScale->showAverageView(showAverageViewButton->getToggleState());
     }
 }
 
@@ -287,13 +287,22 @@ void CanvasOptionsBar::saveParameters(XmlElement* xml)
     xmlNode->setAttribute("colourScheme", colourSchemeSelection->getSelectedId());
 
     xmlNode->setAttribute("showAverageView", showAverageViewButton->getToggleState());
+
+	float rollingWindowSize, averageWindowPre, averageWindowPost;
+    
+    timeScale->getWindowSize(&rollingWindowSize, &averageWindowPre, &averageWindowPost);
+    
+    xmlNode->setAttribute("rollingWindowSize", rollingWindowSize);
+    xmlNode->setAttribute("averageWindowPre", averageWindowPre);
+    xmlNode->setAttribute("averageWindowPost", averageWindowPost);
+    
 }
 
 void CanvasOptionsBar::loadParameters(XmlElement* xml)
 {
     XmlElement* xmlNode = xml->getChildByName("OPTIONS");
 
-    if(xmlNode)
+    if (xmlNode)
     {
         renderModeSelection->setSelectedId(xmlNode->getIntAttribute("renderMode", 1), sendNotification);
 
@@ -311,6 +320,15 @@ void CanvasOptionsBar::loadParameters(XmlElement* xml)
         colourSchemeSelection->setSelectedId(xmlNode->getIntAttribute("colourScheme", 1));
 
 		showAverageViewButton->setToggleState(xmlNode->getBoolAttribute("showAverageView", false), sendNotification);
+
+        float rollingWindowSize, averageWindowPre, averageWindowPost;
+
+		rollingWindowSize = xmlNode->getDoubleAttribute("rollingWindowSize", 8.0f);
+        averageWindowPre = xmlNode->getDoubleAttribute("averageWindowPre", 0.5f);
+        averageWindowPost = xmlNode->getDoubleAttribute("averageWindowPost", 0.5f);
+
+        timeScale->setRollingViewWindowSize(rollingWindowSize);
+		timeScale->setAverageViewWindowSize(averageWindowPre, averageWindowPost);
     }
 }
 

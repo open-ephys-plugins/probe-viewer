@@ -43,7 +43,7 @@ public:
 
     /** Constructor */
     CanvasOptionsBar(class ChannelViewCanvas* channelsView,
-                     class ProbeViewerTimeScale* timescale);
+                     class ProbeViewerTimeScale* timeScale);
 
     /** Destructor */
     virtual ~CanvasOptionsBar() override;
@@ -128,7 +128,7 @@ public:
 
 private:
     class ChannelViewCanvas* channelsView;
-    class ProbeViewerTimeScale* timescale;
+    class ProbeViewerTimeScale* timeScale;
 
     float marginWidth;
 

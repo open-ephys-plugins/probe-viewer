@@ -62,6 +62,12 @@ public:
     /** Updates settings for sub-views*/
 	void updateViewSettings();
 
+    /** Updates average view window size*/
+    void updateAverageViewWindow(float preSeconds, float postSeconds);
+
+    /** Updates rolling view window size*/
+    void updateRollingViewWindow(float windowSize);
+
     /** Called on resize */
     void resized();
 

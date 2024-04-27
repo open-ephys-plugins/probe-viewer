@@ -92,6 +92,8 @@ void AverageView::paint(Graphics& g)
 
     if (updateImage)
     {
+        int zeroMarker = int(preWindow / (preWindow + postWindow) * float(AVERAGE_VIEW_WIDTH));
+        
         float boundSpread = canvas->optionsBar->getRMSBoundSpread();
         const float lowerBound = canvas->optionsBar->getRMSLowBound();
         
@@ -101,7 +103,7 @@ void AverageView::paint(Graphics& g)
         {
 			for (int pixel = 0; pixel < AVERAGE_VIEW_WIDTH; ++pixel)
 			{
-                if (pixel == AVERAGE_VIEW_WIDTH / 2)
+                if (pixel == zeroMarker)
                 {
                     for (int i = 0; i < 2; i++)
                     {
@@ -147,6 +149,21 @@ void AverageView::setSampleRate(float sampleRate_)
         / float(AVERAGE_VIEW_WIDTH);
 }
 
+
+void AverageView::setWindow(float pre, float post)
+{
+	preWindow = pre;
+	postWindow = post;
+
+	samplesPerPixel = sampleRate * (preWindow + postWindow)
+		/ float(AVERAGE_VIEW_WIDTH);
+
+    updateImage = true;
+
+    screenBuffer.clear();
+    numTrials = 1;
+    repaint();
+}
 
 void AverageView::fillFromBuffer(CircularBuffer* dataBuffer)
 {
