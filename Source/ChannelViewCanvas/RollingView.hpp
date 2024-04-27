@@ -248,13 +248,13 @@ public:
      *  Return the number of samples used to calculate each pixel for
      *  this channel.
      */
-    int getNumSamplesPerPixel();
+    float getNumSamplesPerPixel();
 
 private:
     RollingView* rollingView;
     CanvasOptionsBar* optionsBar;
 
-    int samplesPerPixel;
+    float samplesPerPixel;
     float sampleRate;
     int channelID;
 

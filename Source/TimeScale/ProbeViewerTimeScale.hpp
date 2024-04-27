@@ -28,23 +28,68 @@
 
 namespace ProbeViewer {
 
+/** 
+    Generic timescale display
+*/
+class TimeScale : public Component
+{
+public:
+    /** Constructor */
+	TimeScale();
+
+    /** Destructor */
+	virtual ~TimeScale() override { }
+    
+	/** Render the timescale */
+	void paint(Graphics& g) override;
+
+	/** Set window */
+	void setWindowSize(float preSeconds, float postSeconds);
+
+private:
+    float preSeconds = 0.0f;
+    float postSeconds = 10.0f;
+    float resolution = 0.5;
+    
+    Font font;
+};
+
+/**
+
+	Displays a timescale for the ProbeViewerCanvas
+
+*/
 class ProbeViewerTimeScale : public Component
 {
 public:
-    ProbeViewerTimeScale(float timeScale, float resolution);
-    virtual ~ProbeViewerTimeScale() override;
 
-    void paint(Graphics& g) override;
+    /** Constructor */
+    ProbeViewerTimeScale();
+
+    /** Destructor */
+    virtual ~ProbeViewerTimeScale() override { }
+
+    /** Called when clicked */
     void resized() override;
 
+    /** Sets the window size (in seconds) of the rolling view*/
+    void setRollingViewWindowSize(float windowSize);
+
+    /** Sets the window size (in seconds) of the average view (pre and post)*/
+    void setAverageViewWindowSize(float preWindow, float postWindow);
+
+    /** Shows/hides the average view timescale */
+    void showAverageView(bool show);
+
+    /** Set distance between edge of canvas and start of timescale */
     void setMarginOffset(float marginOffset);
 
 private:
-    float timeScale;
-    float resolution;
-    float marginWidth;
 
-    Font font;
+    std::unique_ptr<TimeScale> rollingViewTimeScale;
+    std::unique_ptr<TimeScale> averageViewTimeScale;
+
+    float margin = 0.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerTimeScale);
 };

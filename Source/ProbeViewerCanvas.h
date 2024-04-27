@@ -146,7 +146,8 @@ private:
     std::vector<size_t> inputDownsamplingIndex;
     size_t numSamplesToChunk;
 
-
+    Array<float> samples;
+    
     kiss_fftr_cfg fft_cfg;
     std::vector<float> fftInput;
     kiss_fft_cpx fftOutput[ProbeViewerCanvas::FFT_SIZE/2 + 1];

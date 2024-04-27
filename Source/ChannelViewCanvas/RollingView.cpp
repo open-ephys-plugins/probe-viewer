@@ -351,7 +351,7 @@ float ProbeChannelDisplay::getSampleRate()
     return sampleRate;
 }
 
-int ProbeChannelDisplay::getNumSamplesPerPixel()
+float ProbeChannelDisplay::getNumSamplesPerPixel()
 {
     return samplesPerPixel;
 }

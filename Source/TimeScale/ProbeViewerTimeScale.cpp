@@ -25,59 +25,122 @@
 
 using namespace ProbeViewer;
 
-ProbeViewerTimeScale::ProbeViewerTimeScale(float timeScale, float resolution)
-: timeScale(timeScale)
-, resolution(resolution)
-, marginWidth(0)
-, font("Default", 16, Font::plain)
+TimeScale::TimeScale() :
+    font("Default", 16, Font::plain)
 {
-    
+
 }
 
-ProbeViewerTimeScale::~ProbeViewerTimeScale()
-{ }
-
-void ProbeViewerTimeScale::paint(Graphics& g)
+void TimeScale::paint(Graphics& g)
 {
     g.setColour(Colour(35, 35, 35));
     
     g.fillRect(0, 0, getWidth(), 30);
     
-    const int componentTimeScaleWidth = getWidth() - marginWidth;
-    const int numDivisions = timeScale / resolution;
+    const int componentTimeScaleWidth = getWidth();
+    const int numDivisions = floor((preSeconds + postSeconds) / resolution);
     
     // draw left-most zero baseline
     g.setFont(font);
     g.setColour(Colour(150, 150, 150));
-    g.drawLine(marginWidth, 0, marginWidth, getHeight(), 3);
+    g.drawLine(0, 0, 0, getHeight(), 3);
     
-    g.drawText("s:", marginWidth - 25, getHeight()-15, 100, 15, Justification::left, false);
+    //g.drawText("s:", 0, getHeight()-15, 100, 15, Justification::left, false);
     
-    float divisionWidth = componentTimeScaleWidth / float(numDivisions);
-    for (int division = 1; division <= numDivisions; ++division)
+    float stepSize = componentTimeScaleWidth / float(numDivisions);
+
+	float zeroMarker = preSeconds / (preSeconds + postSeconds) * componentTimeScaleWidth;
+ 
+    // draw positive values
+    float offset = zeroMarker;
+    int index = 0;
+    
+	while (offset < componentTimeScaleWidth)
+	{
+		int lineEnd = (index % 2 == 0) ? 0 : getHeight() / 2;
+        
+        g.drawLine(offset, getHeight(), offset, lineEnd, 1);
+        g.drawText(String(index * resolution), offset + 6, getHeight()-15, 100, 15, Justification::left, false);
+
+        offset += stepSize;
+        index++;
+	}
+
+    // draw negative values
+    offset = zeroMarker;
+    index = 0;
+
+    while (offset > 0)
     {
-        float xOffset = marginWidth + divisionWidth * division;
-        if (division % 4 == 0)
-        {
-            g.drawLine(xOffset, 0, xOffset, getHeight(), 3);
-            g.drawText(String(division * resolution), xOffset + 6, getHeight()-15, 100, 15, Justification::left, false);
-        }
-        else if (division % 2 == 0)
-        {
-            g.drawLine(xOffset, getHeight() / 2, xOffset, getHeight(), 3);
-            g.drawText(String(division * resolution), xOffset + 6, getHeight()-15, 100, 15, Justification::left, false);
-        }
-        else
-        {
-            g.drawLine(xOffset, getHeight() / 4 * 3, xOffset, getHeight(), 2);
-        }
+        int lineEnd = (index % 2 == 0) ? 0 : getHeight() / 2;
+
+        g.drawLine(offset, getHeight(), offset, lineEnd, 1);
+        g.drawText(String(-index * resolution), offset + 6, getHeight() - 15, 100, 15, Justification::left, false);
+
+        offset -= stepSize;
+        index++;
     }
 }
 
+void TimeScale::setWindowSize(float pre, float post)
+{
+    preSeconds = pre;
+    postSeconds = post;
+
+    float windowSize = pre + post;
+
+    if (windowSize > 5)
+        resolution = 1.0f;
+    else if ((windowSize <= 5) && (windowSize > 0.5))
+        resolution = 0.25f;
+    else
+        resolution = 0.1f;
+    
+    repaint();
+}
+
+ProbeViewerTimeScale::ProbeViewerTimeScale()
+{
+    rollingViewTimeScale = std::make_unique<TimeScale>();
+	averageViewTimeScale = std::make_unique<TimeScale>();
+
+    addAndMakeVisible(rollingViewTimeScale.get());
+    addChildComponent(averageViewTimeScale.get());
+}
+
+
 void ProbeViewerTimeScale::resized()
-{ }
+{ 
+
+    if (averageViewTimeScale->isVisible())
+    {
+        averageViewTimeScale->setBounds(getWidth() - 290, 0, 290, getHeight());
+        rollingViewTimeScale->setBounds(margin, 0, getWidth() - margin - 300, getHeight());
+    }
+    else {
+        rollingViewTimeScale->setBounds(margin, 0, getWidth() - margin, getHeight());
+    }
+
+}
+
+void ProbeViewerTimeScale::setRollingViewWindowSize(float windowSize)
+{
+	rollingViewTimeScale->setWindowSize(0, windowSize);
+}
+
+void ProbeViewerTimeScale::setAverageViewWindowSize(float preWindow, float postWindow)
+{
+    averageViewTimeScale->setWindowSize(preWindow, postWindow);
+}
+
+void ProbeViewerTimeScale::showAverageView(bool show)
+{
+	averageViewTimeScale->setVisible(show);
+	resized();
+}
 
 void ProbeViewerTimeScale::setMarginOffset(float marginOffset)
 {
-    marginWidth = marginOffset;
+    margin = marginOffset;
+    resized();
 }

@@ -11,11 +11,14 @@
 #include "ChannelViewCanvas.hpp"
 #include "../ProbeViewerCanvas.h"
 #include "../Utilities/ColourScheme.hpp"
+#include "../TimeScale/ProbeViewerTimeScale.hpp"
 
 using namespace ProbeViewer;
 
-CanvasOptionsBar::CanvasOptionsBar(class ChannelViewCanvas* channelsView)
-: channelsView(channelsView)
+CanvasOptionsBar::CanvasOptionsBar(class ChannelViewCanvas* channelsView_,
+    class ProbeViewerTimeScale* timescale_)
+: channelsView(channelsView_)
+, timescale(timescale_)
 , marginWidth(0)
 , labelFont("Fira Code", "Regular", 16.0f)
 , labelColour(100, 100, 100)
@@ -39,7 +42,12 @@ CanvasOptionsBar::CanvasOptionsBar(class ChannelViewCanvas* channelsView)
     renderModeSelection->addListener(this);
     renderModeSelection->setSelectedId(1, dontSendNotification);
     addAndMakeVisible(renderModeSelection);
-    
+
+    showAverageViewButton = new ShowAverageViewButton();
+    showAverageViewButton->setClickingTogglesState(true);
+	showAverageViewButton->setToggleState(false, dontSendNotification);
+	showAverageViewButton->addListener(this);
+	addAndMakeVisible(showAverageViewButton);
     
     
     // colour scheme options
@@ -84,13 +92,15 @@ void CanvasOptionsBar::resized()
 {
     renderModeSelectionLabel->setBounds(0, 0, 95, getHeight());
     renderModeSelection->setBounds(renderModeSelectionLabel->getRight(), 2, 100, getHeight() - 4);
+
+    showAverageViewButton->setBounds(getRight() - 50, 0, 45, getHeight());
     
-    int colourSchemeOffset = 700;
-    if (getWidth() > colourSchemeOffset) colourSchemeOffset = getWidth();
-    colourSchemeSelectionLabel->setBounds(colourSchemeOffset - 170, 0, 70, getHeight());
+    //int colourSchemeOffset = 700;
+    //if (getWidth() > colourSchemeOffset) colourSchemeOffset = getWidth();
+    colourSchemeSelectionLabel->setBounds(getRight() - 220, 0, 70, getHeight());
     colourSchemeSelection->setBounds(colourSchemeSelectionLabel->getRight(), 2, 90, getHeight() - 4);
     
-    Rectangle<int> subOptionBounds(marginWidth + 3, 0, colourSchemeOffset - marginWidth - 170 - 3, getHeight());
+    Rectangle<int> subOptionBounds(marginWidth + 3, 0, getWidth() - marginWidth - 220 - 3, getHeight());
     rmsSubOptionComponent->setBounds(subOptionBounds);
     fftSubOptionComponent->setBounds(subOptionBounds);
     spikeRateSubOptionComponent->setBounds(subOptionBounds);
@@ -159,10 +169,38 @@ void CanvasOptionsBar::comboBoxChanged(ComboBox *cb)
     }
 }
 
+void CanvasOptionsBar::buttonClicked(Button* button)
+{
+    if (button == showAverageViewButton)
+    {
+		channelsView->showAverageView(showAverageViewButton->getToggleState());
+		timescale->showAverageView(showAverageViewButton->getToggleState());
+    }
+}
+
 void CanvasOptionsBar::setMarginOffset(float marginOffset)
 {
     marginWidth = marginOffset;
     resized();
+}
+
+void ShowAverageViewButton::paint(Graphics& g)
+{
+    
+    g.setFont(Font(12.0f, Font::plain));
+    
+    if (getToggleState())
+    {
+        g.setColour(Colour(200, 200, 200));
+        g.drawText("HIDE", 0, 3, getWidth(), getHeight()/2, Justification::centred);
+    }
+    else {
+        g.setColour(Colour(150, 150, 150));
+        g.drawText("SHOW", 0, 3, getWidth(), getHeight()/2, Justification::centred);
+    }
+
+    g.drawText("AVG", 0, getHeight() / 2, getWidth(), getHeight() / 2 - 3, Justification::centred);
+
 }
 
 // BEGIN PUBLIC ACCESSOR DELEGATES
@@ -247,6 +285,8 @@ void CanvasOptionsBar::saveParameters(XmlElement* xml)
     xmlNode->setAttribute("spikeThreshold", getSpikeRateThreshold());
 
     xmlNode->setAttribute("colourScheme", colourSchemeSelection->getSelectedId());
+
+    xmlNode->setAttribute("showAverageView", showAverageViewButton->getToggleState());
 }
 
 void CanvasOptionsBar::loadParameters(XmlElement* xml)
@@ -269,6 +309,8 @@ void CanvasOptionsBar::loadParameters(XmlElement* xml)
             xmlNode->getStringAttribute("spikeThreshold", String()));
 
         colourSchemeSelection->setSelectedId(xmlNode->getIntAttribute("colourScheme", 1));
+
+		showAverageViewButton->setToggleState(xmlNode->getBoolAttribute("showAverageView", false), sendNotification);
     }
 }
 

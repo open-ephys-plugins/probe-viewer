@@ -43,19 +43,26 @@ using namespace ProbeViewer;
 
 #pragma mark - ProbeViewerCanvas -
 
+const float ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE = 8.0f;
+
 ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode *processor_)
-    : pvProcessor(processor_), fft_cfg(kiss_fftr_alloc(ProbeViewerCanvas::FFT_SIZE, false, 0, 0)), numChannels(0), numSamplesToChunk(1)
+    : pvProcessor(processor_), 
+    fft_cfg(kiss_fftr_alloc(ProbeViewerCanvas::FFT_SIZE, false, 0, 0)), 
+    numChannels(0), 
+    numSamplesToChunk(1)
 {
     dataBuffer = pvProcessor->getCircularBufferPtr();
 
     updateChannelBrowsers();
 
-    timeScale = new ProbeViewerTimeScale(ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE, 0.5f);
+    timeScale = new ProbeViewerTimeScale();
+    timeScale->setRollingViewWindowSize(ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE);
+    timeScale->setAverageViewWindowSize(0.5, 0.5);
     addAndMakeVisible(timeScale);
 
     channelsView = new ChannelViewCanvas(this);
 
-    optionsBar = new CanvasOptionsBar(channelsView);
+    optionsBar = new CanvasOptionsBar(channelsView, timeScale);
     addAndMakeVisible(optionsBar);
     optionsBar->addListener(channelsView->averageView.get());
     
@@ -154,7 +161,6 @@ void ProbeViewerCanvas::refresh()
     updateScreenBuffers();
 
     channelsView->rollingView->refresh();
-    //channelsView->averageView->refresh();
 }
 
 void ProbeViewerCanvas::beginAnimation()
@@ -215,7 +221,7 @@ void ProbeViewerCanvas::paint(Graphics &g)
 
 void ProbeViewerCanvas::resized()
 {
-    timeScale->setBounds(0, 0, getWidth() - 300, 30);
+    timeScale->setBounds(0, 0, getWidth(), 30);
     optionsBar->setBounds(0, getHeight() - 30, getWidth(), 30);
 
     for(auto browser : channelBrowsers)
@@ -368,10 +374,18 @@ void ProbeViewerCanvas::updateScreenBuffers()
         {
             const int numSamplesToRead = dataBuffer->getNumSamplesReadyForDrawing(channel);
             const int numCachedSamples = getNumCachedSamples(channel);
-            const int samplesPerPixel = channelsView->rollingView->channels[channel]->getNumSamplesPerPixel();
-            const int numPixelsToCreate = (numCachedSamples + numSamplesToRead) / samplesPerPixel;
+            const float samplesPerPixel = channelsView->rollingView->channels[channel]->getNumSamplesPerPixel();
+            const float numPixelsToCreate = float(numCachedSamples + numSamplesToRead) / samplesPerPixel;
 
-            if (numPixelsToCreate == 0)
+            
+
+           // if (channel == 0)
+			//    std::cout << "numCachedSamples: " << numCachedSamples 
+            //              << " numSamplesToRead: " << numSamplesToRead 
+            //              << " samplesPerPixel: " << samplesPerPixel 
+            //               << " numPixelsToCreate: " << numPixelsToCreate << std::endl;
+
+            if (numPixelsToCreate == 0.0f)
             {
                 numTicks = 0;
                 break;
@@ -379,23 +393,23 @@ void ProbeViewerCanvas::updateScreenBuffers()
             else {
 
                 if (channel == 0)
-                    numTicks = numPixelsToCreate;
+                    numTicks = floor(numPixelsToCreate);
                 else
                 {
                     if (numTicks > numPixelsToCreate)
-                        numTicks = numPixelsToCreate;
+                        numTicks = floor(numPixelsToCreate);
                 }
             }
                 
             int sampleBufferIndex = 0;
+            
+            samples.resize(numTicks);
 
-            for (int pix = 0; pix < numPixelsToCreate; ++pix)
+            for (int pix = 0; pix < numTicks; ++pix)
             {
                 float min = 0;
                 float max = 0;
-                Array<float> samples;
-                samples.resize(samplesPerPixel);
-
+                
                 // find min, max for cached samples
                 if (pix == 0 && numCachedSamples > 0)
                 {
@@ -420,7 +434,9 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 }
 
                 // find min, max for new buffer samples
-                for (int sampIdx = (pix == 0 && numCachedSamples > 0 ? numCachedSamples : 0); sampIdx < samplesPerPixel; ++sampIdx)
+                for (int sampIdx = (pix == 0 && numCachedSamples > 0 ? numCachedSamples : 0); 
+                    sampIdx < samplesPerPixel; 
+                    ++sampIdx)
                 {
                     const auto val = dataBuffer->getSample(sampleBufferIndex, channel);
                     samples.set(sampIdx, val);
@@ -499,11 +515,18 @@ void ProbeViewerCanvas::updateScreenBuffers()
 
             }
 
+            //if (channel == 0)
+           // {
+            //    std::cout << "Adding : " << numSamplesToRead - sampleBufferIndex << " to cache" << std::endl;
+            //}
+
             for (int sampIdx = sampleBufferIndex; sampIdx < numSamplesToRead; ++sampIdx)
             {
                 partialBufferCache[channel]->add(dataBuffer->getSample(sampleBufferIndex, channel));
             }
         }
+
+        //std::cout << "numPixelUpdates: " << numTicks << std::endl;
 
         channelsView->rollingView->numPixelUpdates = numTicks;
         channelsView->rollingView->isDirty.set(true);
@@ -523,9 +546,7 @@ int ProbeViewerCanvas::getNumCachedSamples(int channel)
     return partialBufferCache[channel]->size();
 }
 
-#pragma mark - ProbeViewerCanvas Constants
 
-const float ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE = 10.0f;
 // load the fftWindow with a Hanning window
 const std::vector<float> ProbeViewerCanvas::fftWindow = []() -> std::vector<float> {
     std::vector<float> window;

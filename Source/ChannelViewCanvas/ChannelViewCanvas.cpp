@@ -39,13 +39,27 @@ ChannelViewCanvas::ChannelViewCanvas(class ProbeViewerCanvas* canvas)
     averageView = std::make_unique<AverageView>(this);
 
     addAndMakeVisible(rollingView.get());
-    addAndMakeVisible(averageView.get());
+    addChildComponent(averageView.get());
 }
+
+void ChannelViewCanvas::showAverageView(bool show)
+{
+	averageView->setVisible(show);
+	resized();
+}
+
 
 void ChannelViewCanvas::resized()
 {
-    rollingView->setBounds(0, 0, getWidth() - 300, getHeight());
-    averageView->setBounds(getWidth() - 290, 0, 290, getHeight());   
+    if (averageView->isVisible())
+    {
+		rollingView->setBounds(0, 0, getWidth() - 300, getHeight());
+		averageView->setBounds(getWidth() - 290, 0, 290, getHeight());
+	}
+	else
+	{
+		rollingView->setBounds(0, 0, getWidth(), getHeight());
+    } 
 }
 
 

@@ -56,6 +56,9 @@ public:
     /** Returns number of channels to draw*/
 	int getNumChannels() const;
 
+    /** Toggles whether to show / hide average view*/
+    void showAverageView(bool);
+
     /** Updates settings for sub-views*/
 	void updateViewSettings();
 
