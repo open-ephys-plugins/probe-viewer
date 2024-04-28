@@ -123,14 +123,14 @@ void TimeScale::mouseDown(const MouseEvent& e)
             m.addItem(98, "Pre Window", false);
             m.addItem(2, "50 ms", true, preSeconds == 0.05f);
             m.addItem(3, "0.1 s", true, preSeconds == 0.1f);
-            m.addItem(4, "0.2 s", true, preSeconds == 0.2f);
+            m.addItem(4, "0.3 s", true, preSeconds == 0.3f);
             m.addItem(5, "0.5 s", true, preSeconds == 0.5f);
             m.addItem(6, "1.0 s", true, preSeconds == 1.0f);
             m.addSeparator();
 			m.addItem(99, "Post Window", false);
 			m.addItem(7, "50 ms", true, postSeconds == 0.05f);
 			m.addItem(8, "0.1 s", true, postSeconds == 0.1f);
-			m.addItem(9, "0.2 s", true, postSeconds == 0.2f);
+			m.addItem(9, "0.3 s", true, postSeconds == 0.3f);
 			m.addItem(10, "0.5 s", true, postSeconds == 0.5f);
 			m.addItem(11, "1.0 s", true, postSeconds == 1.0f);
             
@@ -147,7 +147,7 @@ void TimeScale::mouseDown(const MouseEvent& e)
 				preSeconds = 0.1f;
 				break;
 			case 4:
-				preSeconds = 0.2f;
+				preSeconds = 0.3f;
 				break;
 			case 5:
 				preSeconds = 0.5f;
@@ -162,7 +162,7 @@ void TimeScale::mouseDown(const MouseEvent& e)
 				postSeconds = 0.1f;
 				break;
 			case 9:
-				postSeconds = 0.2f;
+				postSeconds = 0.3f;
 				break;
 			case 10:
 				postSeconds = 0.5f;

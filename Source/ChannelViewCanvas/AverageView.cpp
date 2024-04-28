@@ -88,7 +88,7 @@ void AverageView::paint(Graphics& g)
     const float verticalScale =  float(channelHeight * numChannels) / (numChannels * 2);
     const float horizontalScale = getWidth() / float(AVERAGE_VIEW_WIDTH);
 
-    const auto transform = AffineTransform::scale(horizontalScale, verticalScale);
+    const auto transform = AffineTransform::scale(horizontalScale, verticalScale).followedBy(AffineTransform::verticalFlip(getHeight()));
 
     if (updateImage)
     {
