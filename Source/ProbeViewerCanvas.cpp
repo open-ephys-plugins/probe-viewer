@@ -55,7 +55,7 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode *processor_)
 
     updateChannelBrowsers();
 
-    channelsView = new ChannelViewCanvas(this);
+    channelsView = new ChannelViewCanvas(this, pvProcessor);
 
     timeScale = new ProbeViewerTimeScale(channelsView);
     timeScale->setRollingViewWindowSize(ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE);

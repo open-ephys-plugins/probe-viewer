@@ -26,14 +26,15 @@
 #include "ChannelViewCanvas.hpp"
 #include "CanvasOptionsBar.hpp"
 #include "../Utilities/CircularBuffer.hpp"
+#include "../ProbeViewerNode.h"
 
 using namespace ProbeViewer;
 
 const int AVERAGE_VIEW_WIDTH = 300;
 
-AverageView::AverageView(ChannelViewCanvas* canvas) :
-
-    canvas(canvas),
+AverageView::AverageView(ChannelViewCanvas* canvas_, ProbeViewerNode* node_) :
+    canvas(canvas_),
+    node(node_),
     numChannels(1),
     numTrials(0),
     channelHeight(10),
@@ -163,6 +164,39 @@ void AverageView::setWindow(float pre, float post)
     screenBuffer.clear();
     numTrials = 1;
     repaint();
+}
+
+void AverageView::mouseDown(const MouseEvent& e)
+{
+    if (e.mods.isRightButtonDown())
+    {
+        PopupMenu m;
+
+        m.addItem(98, "TTL Trigger Line", false);
+        m.addItem(99, "None", true, triggerLine == -1);
+        m.addItem(1, "TTL 1", true, triggerLine == 0);
+        m.addItem(2, "TTL 2", true, triggerLine == 1);
+		m.addItem(3, "TTL 3", true, triggerLine == 2);
+		m.addItem(4, "TTL 4", true, triggerLine == 3);
+		m.addItem(5, "TTL 5", true, triggerLine == 4);
+		m.addItem(6, "TTL 6", true, triggerLine == 5);
+		m.addItem(7, "TTL 7", true, triggerLine == 6);
+		m.addItem(8, "TTL 8", true, triggerLine == 7);
+        
+		const int result = m.show();
+
+        if (result == 0)
+            return;
+
+        if (result == 99)
+            triggerLine = -1;
+        else
+            triggerLine = result - 1;
+
+        node->getParameter("trigger_line")->setNextValue(triggerLine);
+		setWindow(preWindow, postWindow);
+		
+	}
 }
 
 void AverageView::fillFromBuffer(CircularBuffer* dataBuffer)

@@ -178,7 +178,7 @@ void TimeScale::mouseDown(const MouseEvent& e)
             m.addItem(2, "5 s", true, postSeconds == 5.f);
             m.addItem(3, "8 s", true, postSeconds == 8.f);
             m.addItem(4, "10 s", true, postSeconds == 10.f);
-            m.addItem(5, "20 s", true, postSeconds == 20.f);
+            m.addItem(5, "15 s", true, postSeconds == 15.f);
 
             const int result = m.show();
 
@@ -196,7 +196,7 @@ void TimeScale::mouseDown(const MouseEvent& e)
                 postSeconds = 10.f;
                 break;
             case 5:
-                postSeconds = 20.f;
+                postSeconds = 15.f;
                 break;
             }
         }

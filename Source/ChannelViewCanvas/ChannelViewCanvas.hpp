@@ -33,8 +33,6 @@
 
 namespace ProbeViewer {
 
-class ProbeViewerCanvas;
-
 enum class RenderMode : int
 {
     RMS,
@@ -48,7 +46,7 @@ class ChannelViewCanvas : public Component
 public:
 
     /** Constructor */
-    ChannelViewCanvas(ProbeViewerCanvas*);
+    ChannelViewCanvas(class ProbeViewerCanvas*, class ProbeViewerNode*);
 
     /** Destructor */
     virtual ~ChannelViewCanvas() override { };
@@ -104,7 +102,7 @@ public:
     std::unique_ptr<AverageView> averageView;
 
 private:
-	ProbeViewerCanvas* parentCanvas;
+	class ProbeViewerCanvas* parentCanvas;
 
     RenderMode renderMode;
 

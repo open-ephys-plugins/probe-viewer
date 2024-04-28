@@ -35,7 +35,7 @@ class AverageView : public Component,
 public:
 
     /** Constructor */
-    AverageView(class ChannelViewCanvas* canvas);
+    AverageView(class ChannelViewCanvas* canvas, class ProbeViewerNode* node);
 
     /** Destructor */
     virtual ~AverageView() override { }
@@ -68,6 +68,9 @@ public:
     /** Called when options are changed*/
 	void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
 
+    /** Used to set TTL trigger line */
+    void mouseDown(const MouseEvent& e);
+
 private:
 
 	AudioBuffer<float> screenBuffer;
@@ -78,6 +81,7 @@ private:
     Image screenBufferImage;
 
     class ChannelViewCanvas* canvas;
+    class ProbeViewerNode* node;
 
     int numChannels;
     int numTrials;
@@ -87,6 +91,8 @@ private:
     float samplesPerPixel;
     float sampleRate;
     bool updateImage = false;
+
+    int triggerLine = -1;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AverageView);
 };

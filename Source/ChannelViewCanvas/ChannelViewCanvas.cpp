@@ -26,17 +26,19 @@
 #include "AverageView.hpp"
 #include "RollingView.hpp"
 #include "../ProbeViewerCanvas.h"
+#include "../ProbeViewerNode.h"
 
 using namespace ProbeViewer;
 
 
-ChannelViewCanvas::ChannelViewCanvas(class ProbeViewerCanvas* canvas)
+ChannelViewCanvas::ChannelViewCanvas(class ProbeViewerCanvas* canvas,
+    class ProbeViewerNode* node)
     : parentCanvas(canvas),
       renderMode(RenderMode::RMS),
       colourSchemeId(ColourSchemeId::INFERNO)
 {
     rollingView = std::make_unique<RollingView>(this);
-    averageView = std::make_unique<AverageView>(this);
+    averageView = std::make_unique<AverageView>(this, node);
 
     addAndMakeVisible(rollingView.get());
     addChildComponent(averageView.get());

@@ -33,6 +33,9 @@ ProbeViewerNode::ProbeViewerNode()
 {
 	streamToDraw = -1;
 	numStreams = -1;
+
+	addIntParameter(Parameter::GLOBAL_SCOPE, "trigger_line", "The TTL trigger line", -1, -1, 15);
+
 }
 
 ProbeViewerNode::~ProbeViewerNode()
@@ -68,7 +71,7 @@ void ProbeViewerNode::handleTTLEvent(TTLEventPtr event)
 	const int64 sampleNumber = event->getSampleNumber();
 	const uint16 streamId = event->getChannelInfo()->getStreamId();
 
-	if (eventState && eventLine == 5)
+	if (eventState && eventLine == (int) getParameter("trigger_line")->getValue())
 	{
 		dataBufferMap[streamId]->setTrigger(sampleNumber);
 	}

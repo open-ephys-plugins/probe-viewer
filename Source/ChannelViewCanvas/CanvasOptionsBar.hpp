@@ -147,6 +147,8 @@ private:
     ScopedPointer<class RMSSubOptionComponent> rmsSubOptionComponent;
     ScopedPointer<class FFTSubOptionComponent> fftSubOptionComponent;
     ScopedPointer<class SpikeRateSubOptionComponent> spikeRateSubOptionComponent;
+
+    bool displayLineSelectionInstructions = true;
 };
 
 /** 
