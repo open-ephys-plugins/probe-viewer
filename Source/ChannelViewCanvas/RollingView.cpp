@@ -39,7 +39,7 @@ RollingView::RollingView(ChannelViewCanvas* canvas) :
 , numPixelUpdates(0)
 , canvas(canvas)
 , channelHeight(10)
-, screenBufferImage(Image::RGB, CHANNEL_DISPLAY_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * 384, false)
+, screenBufferImage(Image::RGB, CHANNEL_DISPLAY_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * 384, false, SoftwareImageType())
 , frontBackBufferPixelOffset(0)
 , frontBufferIndex(0)
 , fullRedraw(false)
@@ -102,7 +102,7 @@ void RollingView::updateViewSettings()
     if (numChannels > 0)
     {
 
-        screenBufferImage = Image(Image::RGB, CHANNEL_DISPLAY_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * numChannels, false);
+        screenBufferImage = Image(Image::RGB, CHANNEL_DISPLAY_WIDTH, CHANNEL_DISPLAY_MAX_HEIGHT * numChannels, false, SoftwareImageType());
 
         // get number of tiles that covers display width, the drawing mechanics will need
         // to be adapted for display widths other than the current fixed value of 1920 pixels wide
@@ -234,7 +234,7 @@ BitmapRenderTile::BitmapRenderTile(int width, int height, int numChannels)
 , height(height)
 , numChannels(numChannels)
 {
-    renderImage = Image(Image::RGB, width, height, false);
+    renderImage = Image(Image::RGB, width, height, false, SoftwareImageType());
     
     const int subImageHeight = height / numChannels;
     

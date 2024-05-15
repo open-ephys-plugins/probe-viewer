@@ -32,14 +32,17 @@ ProbeViewerNode::ProbeViewerNode()
 : GenericProcessor ("Probe Viewer")
 {
 	streamToDraw = -1;
-	numStreams = -1;
-
-	addIntParameter(Parameter::GLOBAL_SCOPE, "trigger_line", "The TTL trigger line", -1, -1, 15);
-
 }
 
 ProbeViewerNode::~ProbeViewerNode()
 { }
+
+
+void ProbeViewerNode::registerParameters()
+{
+	addIntParameter(Parameter::PROCESSOR_SCOPE, "trigger_line", "Trigger Line", "The TTL trigger line", -1, -1, 15);
+	addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "display_stream", "Display Stream", "The stream to display", {}, 0);
+}
 
 AudioProcessorEditor* ProbeViewerNode::createEditor()
 {
@@ -81,11 +84,6 @@ void ProbeViewerNode::handleTTLEvent(TTLEventPtr event)
 void ProbeViewerNode::updateSettings()
 {
     LOGD("Setting num inputs on ProbeViewer to ", getNumInputs());
-
-	ProbeViewerEditor * ed = (ProbeViewerEditor*) getEditor();
-	ed->updateStreamSelectorOptions();
-
-	LOGD("Selected Stream ID: ", streamToDraw);
 	
 	for(auto stream : getDataStreams())
 	{
@@ -130,6 +128,18 @@ void ProbeViewerNode::updateSettings()
 
 }
 
+void ProbeViewerNode::parameterValueChanged(Parameter* param)
+{
+	if (param->getName() == "display_stream")
+	{
+		String streamKey = param->getValueAsString();
+		if (auto stream = getDataStream(streamKey))
+			setDisplayedStream(getDataStream(streamKey)->getStreamId());
+		else
+			setDisplayedStream(-1);
+	}
+}
+
 bool ProbeViewerNode::startAcquisition()
 {
 	((ProbeViewerEditor*) getEditor())->enable();
@@ -145,6 +155,7 @@ bool ProbeViewerNode::stopAcquisition()
 void ProbeViewerNode::setDisplayedStream(int idx)
 {
 	streamToDraw = idx;
+	((ProbeViewerEditor*)getEditor())->displayStreamChanged();
 }
 
 uint16 ProbeViewerNode::getDisplayedStream()

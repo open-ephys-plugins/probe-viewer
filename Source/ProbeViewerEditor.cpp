@@ -33,22 +33,16 @@ ProbeViewerEditor::ProbeViewerEditor(GenericProcessor* parentNode)
 					  hasNoInputs(true)
 {
     probeViewerProcessor = (ProbeViewerNode *)parentNode;
-        
-    desiredWidth = 180;
-    
-    streamSelectionLabel = std::make_unique<Label>("Stream Selection Label", "Display Stream:");
-    streamSelectionLabel->setBounds(10, 30, 130, 24);
-    addAndMakeVisible(streamSelectionLabel.get());
-
-	streamSelection = std::make_unique<ComboBox>("Stream Selector");
-    streamSelection->setBounds(15, 60, 155, 20);
-    streamSelection->addListener(this);
-    addAndMakeVisible(streamSelection.get());
+            
+    desiredWidth = 175;
+	addSelectedStreamParameterEditor(Parameter::PROCESSOR_SCOPE, "display_stream", 15, 30);
+	auto* streamEditor = getParameterEditor("display_stream");
+	streamEditor->setLayout(ParameterEditor::nameOnTop);
+	streamEditor->setSize(140, 40);
     
     streamSampleRateLabel = std::make_unique<Label>("Stream Sample Rate Label", "Sample Rate:");
-	streamSampleRateLabel->setFont(Font("Fira Code", "SemiBold", 16.0f));
-	streamSampleRateLabel->setJustificationType(Justification::centred);
-    streamSampleRateLabel->setBounds(10, 90, 160, 24);
+	streamSampleRateLabel->setFont(FontOptions("Inter", "Medium", 14.0f));
+    streamSampleRateLabel->setBounds(15, 90, 140, 24);
     addAndMakeVisible(streamSampleRateLabel.get());
 }
 
@@ -56,106 +50,36 @@ ProbeViewerEditor::~ProbeViewerEditor()
 { }
 
 
-void ProbeViewerEditor::comboBoxChanged(ComboBox* cb)
-{
-    if (cb == streamSelection.get())
-    {
-        setDrawableStream(cb->getSelectedId());
-    }
-
-	if (canvas != nullptr)
-		canvas->update();
-}
-
 Visualizer* ProbeViewerEditor::createNewCanvas()
 {
     return new ProbeViewerCanvas(probeViewerProcessor);
 }
 
-void ProbeViewerEditor::updateStreamSelectorOptions()
+void ProbeViewerEditor::updateSettings()
 {
-    bool needsUpdate = false;
-	int subprocessorToSet = streamSelection->getSelectedId();
-
-	for (auto stream: probeViewerProcessor->getDataStreams())
-	{
-		if(!inputStreamIds.contains(stream->getStreamId()))
-		{
-			needsUpdate = true;
-			break;
-		}
-	}
-
-	if (probeViewerProcessor->getNumDataStreams() != inputStreamIds.size())
-		needsUpdate = true;
-
-	if (needsUpdate || subprocessorToSet == 0)
-	{	
-		inputStreamIds.clear();
-		streamSelection->clear(dontSendNotification);
-
-		// Add all datastreams to combobox
-		for (auto stream: probeViewerProcessor->getDataStreams())
-		{
-			int streamID = stream->getStreamId();
-
-			inputStreamIds.add(streamID);
-			streamSelection->addItem("[" + String(stream->getSourceNodeId()) + "] " +
-									 stream->getName(), streamID);
-		}
-
-		// Check and select datastream if available
-		if (inputStreamIds.size() > 0)
-		{
-			if(!inputStreamIds.contains(subprocessorToSet))
-				subprocessorToSet = inputStreamIds[0];
-
-			streamSelection->setSelectedId(subprocessorToSet, dontSendNotification);
-		}
-		else
-		{
-			subprocessorToSet = -1;
-		}
-
-		setDrawableStream(subprocessorToSet);
-
-	}
-
 	if (canvas != nullptr)
 	{
 		static_cast<ProbeViewerCanvas*>(canvas.get())->updateChannelBrowsers();
 	}
 }
 
-void ProbeViewerEditor::saveVisualizerEditorParameters(XmlElement* xml)
+void ProbeViewerEditor::displayStreamChanged()
 {
-	xml->setAttribute("selectedStream", streamSelection->getSelectedItemIndex());
-}
-
-void ProbeViewerEditor::loadVisualizerEditorParameters(XmlElement* xml)
-{
-
-	streamSelection->setSelectedItemIndex(xml->getIntAttribute("selectedStream"), sendNotification);
-}
-
-void ProbeViewerEditor::setDrawableStream(int index)
-{
-	if (index > 0)
+	if (canvas != nullptr)
 	{
-		probeViewerProcessor->setDisplayedStream(index);
-		float rate = probeViewerProcessor->getStreamSampleRate();
+		static_cast<ProbeViewerCanvas*>(canvas.get())->updateSettings();
+	}
+	
+	float rate = probeViewerProcessor->getStreamSampleRate();
 
-		String sampleRateLabelText = "Sample Rate: ";
+	String sampleRateLabelText = "Sample Rate: ";
+	
+	if (rate > 0)
 		sampleRateLabelText += String(rate);
-		streamSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-	}
 	else
-	{
-		probeViewerProcessor->setDisplayedStream(-1);
-
-		String sampleRateLabelText = "Sample Rate: <NA>";
-		streamSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
-	}
+		sampleRateLabelText += "<NA>";
+	
+	streamSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
 }
 
 

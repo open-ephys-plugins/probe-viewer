@@ -44,19 +44,19 @@ public:
      */
 
     /** Called when the component's tab becomes visible again.*/
-    virtual void refreshState() override;
+    void refreshState() override;
 
     /** Called when parameters of underlying data processor are changed.*/
-    virtual void update() override;
+    void updateSettings() override;
 
     /** Called instead of "repaint" to avoid redrawing underlying components if not necessary.*/
-    virtual void refresh() override;
+    void refresh() override;
 
     /** Called when data acquisition is active.*/
-    virtual void beginAnimation() override;
+    void beginAnimation() override;
 
     /** Called when data acquisition ends.*/
-    virtual void endAnimation() override;
+    void endAnimation() override;
 
     /** Saves parameters */
     void saveCustomParametersToXml(XmlElement* xml) override;

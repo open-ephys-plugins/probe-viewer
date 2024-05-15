@@ -38,7 +38,7 @@ AverageView::AverageView(ChannelViewCanvas* canvas_, ProbeViewerNode* node_) :
     numChannels(1),
     numTrials(0),
     channelHeight(10),
-    screenBufferImage(Image::RGB, AVERAGE_VIEW_WIDTH, 1, true)
+    screenBufferImage(Image::RGB, AVERAGE_VIEW_WIDTH, 1, true, SoftwareImageType())
 {
 
 }
@@ -52,7 +52,7 @@ void AverageView::updateViewSettings()
     if (numChannels == 0)
         numChannels = 1;
 
-    screenBufferImage = Image(Image::RGB, AVERAGE_VIEW_WIDTH, numChannels * 2, true);
+    screenBufferImage = Image(Image::RGB, AVERAGE_VIEW_WIDTH, numChannels * 2, true, SoftwareImageType());
 
 	screenBuffer.setSize(numChannels, AVERAGE_VIEW_WIDTH);
     screenBuffer.clear();

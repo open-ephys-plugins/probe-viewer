@@ -94,7 +94,7 @@ void ProbeViewerCanvas::refreshState()
     channelsView->resized();
 }
 
-void ProbeViewerCanvas::update()
+void ProbeViewerCanvas::updateSettings()
 {
 
     isUpdating = true;
@@ -234,7 +234,7 @@ void ProbeViewerCanvas::resized()
         optionsBar->setMarginOffset(cb->getWidth());
 
         channelsView->setBounds(0, 0, viewport->getWidth(), 
-            channelsView->rollingView->getChannelHeight() * channelsView->rollingView->channels.size());
+        channelsView->rollingView->getChannelHeight() * channelsView->rollingView->channels.size());
         
         viewport->setBounds(cb->getRight(),
                             timeScale->getBottom() + 2,

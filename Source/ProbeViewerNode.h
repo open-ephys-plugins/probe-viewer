@@ -39,6 +39,8 @@ public:
     /** Destructor */
     virtual ~ProbeViewerNode() override;
 
+    void registerParameters() override;
+
     /** Creates the editor UI */
     AudioProcessorEditor* createEditor() override;
 
@@ -50,6 +52,8 @@ public:
 
     /** Updates settings */
     void updateSettings() override;
+
+    void parameterValueChanged(Parameter*) override;
 
     /** Updates the displayed stream, then calls updateSettings() */
 	void setDisplayedStream(int idx);
@@ -83,7 +87,6 @@ private:
     std::map<uint16, CircularBuffer*> dataBufferMap;
 
 	int streamToDraw;
-	int numStreams;
 	int lastChannelInStream;
 
 	Array<bool> channelsToDraw;

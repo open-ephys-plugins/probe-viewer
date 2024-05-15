@@ -29,8 +29,7 @@
 namespace ProbeViewer {
 
 class ProbeViewerEditor
-    : public VisualizerEditor,
-      public ComboBox::Listener
+    : public VisualizerEditor
 {
 public:
 
@@ -41,7 +40,7 @@ public:
     virtual ~ProbeViewerEditor() override;
 
     /** Sets the drawable stream */
-    void comboBoxChanged(ComboBox *cb) override;
+    void displayStreamChanged();
 
     /** Called by the base class VisualizerEditor to display the canvas
         when the user chooses to display one
@@ -50,12 +49,8 @@ public:
      */
     virtual Visualizer* createNewCanvas() override;
 
-    void saveVisualizerEditorParameters(XmlElement* xml) override;
-
-    void loadVisualizerEditorParameters(XmlElement* xml) override;
-
     /** Updates available streams*/
-	void updateStreamSelectorOptions();
+	void updateSettings() override;
 
     /** Sets custom regions by electrode index */
     void setRegions(uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
@@ -66,15 +61,9 @@ private:
 
     class ProbeViewerNode* probeViewerProcessor;
 
-    std::unique_ptr<Label> streamSelectionLabel;
-    std::unique_ptr<ComboBox> streamSelection;
-
     std::unique_ptr<Label> streamSampleRateLabel;
 
     bool hasNoInputs;
-
-    void setDrawableStream(int index);
-    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerEditor);
 };
