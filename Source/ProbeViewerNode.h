@@ -77,7 +77,7 @@ public:
     CircularBuffer* getCircularBufferPtr();
 
     /** Responds to config messages with region info */
-    String handleConfigMessage(String msg) override;
+    String handleConfigMessage(const String& msg) override;
 
 private:
     static const float bufferLengthSeconds;

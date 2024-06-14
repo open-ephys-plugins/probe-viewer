@@ -83,7 +83,10 @@ void ProbeViewerNode::handleTTLEvent(TTLEventPtr event)
 
 void ProbeViewerNode::updateSettings()
 {
-    LOGD("Setting num inputs on ProbeViewer to ", getNumInputs());
+	for (auto buffer : dataBuffers)
+	{
+		buffer->prepareToUpdate();
+	}
 	
 	for(auto stream : getDataStreams())
 	{
@@ -97,7 +100,6 @@ void ProbeViewerNode::updateSettings()
 		else
 		{
 			dataBufferMap[streamId]->sampleRate = stream->getSampleRate();
-			dataBufferMap[streamId]->prepareToUpdate();
 		}
 
 		dataBufferMap[streamId]->updateChannelInfo(stream->getContinuousChannels());
@@ -181,13 +183,13 @@ int ProbeViewerNode::getNumStreamChannels()
 
 CircularBuffer* ProbeViewerNode::getCircularBufferPtr()
 {
-	if(streamToDraw >= 0)
+	if(streamToDraw >= 0 && dataBufferMap.count(streamToDraw) > 0)
 		return dataBufferMap[streamToDraw];
 	else
 		return nullptr;
 }
 
-String ProbeViewerNode::handleConfigMessage(String msg)
+String ProbeViewerNode::handleConfigMessage(const String& msg)
 {
 	
 	// message format

@@ -344,7 +344,12 @@ ChannelViewCanvas *ProbeViewerCanvas::getChannelViewCanvasPtr()
 
 ChannelBrowser *ProbeViewerCanvas::getChannelBrowserPtr()
 {
-    return channelBrowserMap[pvProcessor->getDisplayedStream()];
+    uint16 displayStream = pvProcessor->getDisplayedStream();
+    
+    if (channelBrowserMap.count(displayStream) > 0)
+        return channelBrowserMap[displayStream];
+    else
+        return nullptr;
 }
 
 // TODO: (kelly) this should be implemented differently, as is it will shift the array after every pop
