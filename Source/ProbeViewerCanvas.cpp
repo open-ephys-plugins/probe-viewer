@@ -211,7 +211,7 @@ void ProbeViewerCanvas::loadCustomParametersFromXml (XmlElement* xml)
 
 void ProbeViewerCanvas::paint (Graphics& g)
 {
-    g.fillAll (Colour (58, 58, 58));
+    g.fillAll (findColour (ThemeColours::componentBackground).darker (0.2f));
 }
 
 void ProbeViewerCanvas::resized()

@@ -17,18 +17,19 @@ using namespace ProbeViewer;
 
 CanvasOptionsBar::CanvasOptionsBar (class ChannelViewCanvas* channelsView_,
                                     class ProbeViewerTimeScale* timeScale_)
-    : channelsView (channelsView_), timeScale (timeScale_), marginWidth (0), labelFont ("Fira Code", "Regular", 16.0f), labelColour (100, 100, 100)
+    : channelsView (channelsView_), timeScale (timeScale_), marginWidth (0)
 {
-    rmsSubOptionComponent = new RMSSubOptionComponent (labelFont, labelColour);
-    fftSubOptionComponent = new FFTSubOptionComponent (labelFont, labelColour);
-    spikeRateSubOptionComponent = new SpikeRateSubOptionComponent (labelFont, labelColour);
+    labelFont = FontOptions ("Inter", "Regular", 16.0f);
+
+    rmsSubOptionComponent = new RMSSubOptionComponent (labelFont);
+    fftSubOptionComponent = new FFTSubOptionComponent (labelFont);
+    spikeRateSubOptionComponent = new SpikeRateSubOptionComponent (labelFont);
 
     currentSubOptionComponent = rmsSubOptionComponent;
     addAndMakeVisible (currentSubOptionComponent);
 
     renderModeSelectionLabel = new Label ("renderModeSelectionLabel", "Render Mode");
     renderModeSelectionLabel->setFont (labelFont);
-    renderModeSelectionLabel->setColour (Label::textColourId, labelColour);
     addAndMakeVisible (renderModeSelectionLabel);
 
     StringArray renderModeNames = { "RMS Signal", "Freq. Band Power", "Spike Rate" };
@@ -48,7 +49,6 @@ CanvasOptionsBar::CanvasOptionsBar (class ChannelViewCanvas* channelsView_,
     // colour scheme options
     colourSchemeSelectionLabel = new Label ("colourSchemeSelectionLabel", "Colour\nScheme");
     colourSchemeSelectionLabel->setFont (labelFont);
-    colourSchemeSelectionLabel->setColour (Label::textColourId, labelColour);
     addAndMakeVisible (colourSchemeSelectionLabel);
 
     StringArray colourSchemeNames = { "Inferno", "Plasma", "Magma", "Viridis", "Jet" };
@@ -68,10 +68,10 @@ CanvasOptionsBar::~CanvasOptionsBar()
 
 void CanvasOptionsBar::paint (Graphics& g)
 {
-    g.setColour (Colour (25, 25, 25));
+    g.setColour (findColour (ThemeColours::componentBackground));
     g.fillRect (0, 0, getWidth(), getHeight());
 
-    g.setColour (Colour (80, 80, 80));
+    g.setColour (findColour (ThemeColours::componentBackground));
     g.drawLine (marginWidth, 0, marginWidth, getHeight(), 1);
 }
 
@@ -87,14 +87,14 @@ void CanvasOptionsBar::addListener (ComboBox::Listener* listener)
 void CanvasOptionsBar::resized()
 {
     renderModeSelectionLabel->setBounds (0, 0, 95, getHeight());
-    renderModeSelection->setBounds (renderModeSelectionLabel->getRight(), 2, 100, getHeight() - 4);
+    renderModeSelection->setBounds (renderModeSelectionLabel->getRight(), 4, 100, getHeight() - 8);
 
     showAverageViewButton->setBounds (getRight() - 50, 0, 45, getHeight());
 
     //int colourSchemeOffset = 700;
     //if (getWidth() > colourSchemeOffset) colourSchemeOffset = getWidth();
     colourSchemeSelectionLabel->setBounds (getRight() - 220, 0, 70, getHeight());
-    colourSchemeSelection->setBounds (colourSchemeSelectionLabel->getRight(), 2, 90, getHeight() - 4);
+    colourSchemeSelection->setBounds (colourSchemeSelectionLabel->getRight(), 4, 90, getHeight() - 8);
 
     Rectangle<int> subOptionBounds (marginWidth + 3, 0, getWidth() - marginWidth - 220 - 3, getHeight());
     rmsSubOptionComponent->setBounds (subOptionBounds);
@@ -182,16 +182,16 @@ void CanvasOptionsBar::setMarginOffset (float marginOffset)
 
 void ShowAverageViewButton::paint (Graphics& g)
 {
-    g.setFont (Font (12.0f, Font::plain));
+    g.setFont (FontOptions ("Inter", "Regular", 12.0f));
 
     if (getToggleState())
     {
-        g.setColour (Colour (200, 200, 200));
+        g.setColour (findColour (ThemeColours::defaultText));
         g.drawText ("HIDE", 0, 3, getWidth(), getHeight() / 2, Justification::centred);
     }
     else
     {
-        g.setColour (Colour (150, 150, 150));
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.75f));
         g.drawText ("SHOW", 0, 3, getWidth(), getHeight() / 2, Justification::centred);
     }
 
@@ -327,13 +327,12 @@ void CanvasOptionsBar::loadParameters (XmlElement* xml)
 
 #pragma mark - RMSSubOptionComponent -
 
-RMSSubOptionComponent::RMSSubOptionComponent (Font labelFont, Colour labelColour)
-    : labelFont (labelFont), labelColour (labelColour), lowValueBound (0), hiValueBound (250)
+RMSSubOptionComponent::RMSSubOptionComponent (Font labelFont)
+    : labelFont (labelFont), lowValueBound (0), hiValueBound (250)
 {
     // low value plotting threshold
     lowValueBoundLabel = new Label ("lowValueBoundLabel", "Low:");
     lowValueBoundLabel->setFont (labelFont);
-    lowValueBoundLabel->setColour (Label::textColourId, labelColour);
     addAndMakeVisible (lowValueBoundLabel);
 
     lowValueBoundSelectionOptions.addArray ({ "0",
@@ -357,7 +356,6 @@ RMSSubOptionComponent::RMSSubOptionComponent (Font labelFont, Colour labelColour
     // hi value plotting threshold
     hiValueBoundLabel = new Label ("hiValueBoundLabel", "High:");
     hiValueBoundLabel->setFont (labelFont);
-    hiValueBoundLabel->setColour (Label::textColourId, labelColour);
     addAndMakeVisible (hiValueBoundLabel);
 
     hiValueBoundSelectionOptions.addArray ({ "0",
@@ -385,7 +383,7 @@ RMSSubOptionComponent::~RMSSubOptionComponent()
 
 void RMSSubOptionComponent::paint (Graphics& g)
 {
-    g.setColour (Colours::darkgrey);
+    g.setColour (findColour (ThemeColours::defaultText));
     g.drawRect (0, 0, getWidth(), getHeight());
     g.drawFittedText ("RMS OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
 }
@@ -393,9 +391,9 @@ void RMSSubOptionComponent::paint (Graphics& g)
 void RMSSubOptionComponent::resized()
 {
     lowValueBoundLabel->setBounds (0, 0, 40, getHeight());
-    lowValueBoundSelection->setBounds (lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    lowValueBoundSelection->setBounds (lowValueBoundLabel->getRight(), 4, 60, getHeight() - 8);
     hiValueBoundLabel->setBounds (lowValueBoundSelection->getRight() + 10, 0, 50, getHeight());
-    hiValueBoundSelection->setBounds (hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    hiValueBoundSelection->setBounds (hiValueBoundLabel->getRight(), 4, 60, getHeight() - 8);
 }
 
 void RMSSubOptionComponent::addListener (ComboBox::Listener* listener)
@@ -480,13 +478,12 @@ void RMSSubOptionComponent::setRMSBounds (String low, String high)
 
 #pragma mark - FFTSubOptionComponent -
 
-FFTSubOptionComponent::FFTSubOptionComponent (Font labelFont, Colour labelColour)
-    : labelFont (labelFont), labelColour (labelColour), binSelectionValue (0), maxFreq (44100.0f / 2.0f)
+FFTSubOptionComponent::FFTSubOptionComponent (Font labelFont)
+    : labelFont (labelFont), binSelectionValue (0), maxFreq (44100.0f / 2.0f)
 {
     // low value plotting threshold
     lowValueBoundLabel = new Label ("lowValueBoundLabel", "Low (dB):");
     lowValueBoundLabel->setFont (labelFont);
-    lowValueBoundLabel->setColour (Label::textColourId, labelColour);
     addAndMakeVisible (lowValueBoundLabel);
 
     lowValueBound = -100;
@@ -501,7 +498,6 @@ FFTSubOptionComponent::FFTSubOptionComponent (Font labelFont, Colour labelColour
     // hi value plotting threshold
     hiValueBoundLabel = new Label ("hiValueBoundLabel", "High (dB):");
     hiValueBoundLabel->setFont (labelFont);
-    hiValueBoundLabel->setColour (Label::textColourId, labelColour);
     addAndMakeVisible (hiValueBoundLabel);
 
     hiValueBound = 0;
@@ -516,7 +512,6 @@ FFTSubOptionComponent::FFTSubOptionComponent (Font labelFont, Colour labelColour
     // bin selection
     binSelectionLabel = new Label ("binSelectionLabel", "Center Freq.:");
     binSelectionLabel->setFont (labelFont);
-    binSelectionLabel->setColour (Label::textColourId, labelColour);
     addAndMakeVisible (binSelectionLabel);
 
     binSelectionOptions.addArray ({ "1", "8", "16", "32", "64", "128", "256" });
@@ -534,7 +529,7 @@ FFTSubOptionComponent::~FFTSubOptionComponent()
 
 void FFTSubOptionComponent::paint (Graphics& g)
 {
-    g.setColour (Colours::darkgrey);
+    g.setColour (findColour (ThemeColours::defaultText));
     g.drawRect (0, 0, getWidth(), getHeight());
     g.drawFittedText ("FFT OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
 }
@@ -542,13 +537,13 @@ void FFTSubOptionComponent::paint (Graphics& g)
 void FFTSubOptionComponent::resized()
 {
     lowValueBoundLabel->setBounds (0, 0, 70, getHeight());
-    lowValueBoundSelection->setBounds (lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    lowValueBoundSelection->setBounds (lowValueBoundLabel->getRight(), 4, 60, getHeight() - 8);
 
     hiValueBoundLabel->setBounds (lowValueBoundSelection->getRight() + 10, 0, 75, getHeight());
-    hiValueBoundSelection->setBounds (hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    hiValueBoundSelection->setBounds (hiValueBoundLabel->getRight(), 4, 60, getHeight() - 8);
 
     binSelectionLabel->setBounds (hiValueBoundSelection->getRight() + 10, 0, 100, getHeight());
-    binSelection->setBounds (binSelectionLabel->getRight(), 2, 80, getHeight() - 4);
+    binSelection->setBounds (binSelectionLabel->getRight(), 4, 80, getHeight() - 8);
 }
 
 namespace
@@ -671,13 +666,12 @@ void FFTSubOptionComponent::setFFTParams (String low, String high, String bin)
 
 #pragma mark - SpikeRateSubOptionComponent -
 
-SpikeRateSubOptionComponent::SpikeRateSubOptionComponent (Font labelFont, Colour labelColour)
-    : labelFont (labelFont), labelColour (labelColour)
+SpikeRateSubOptionComponent::SpikeRateSubOptionComponent (Font labelFont)
+    : labelFont (labelFont)
 {
     // low bound plotting threshold
     lowValueBoundLabel = new Label ("lowValueBoundLabel", "Low:");
     lowValueBoundLabel->setFont (labelFont);
-    lowValueBoundLabel->setColour (Label::textColourId, labelColour);
     addAndMakeVisible (lowValueBoundLabel);
 
     lowValueBoundSelectionOptions.add ("0");
@@ -692,7 +686,6 @@ SpikeRateSubOptionComponent::SpikeRateSubOptionComponent (Font labelFont, Colour
     // hi bound plotting threshold
     hiValueBoundLabel = new Label ("hiValueBoundLabel", "High:");
     hiValueBoundLabel->setFont (labelFont);
-    hiValueBoundLabel->setColour (Label::textColourId, labelColour);
     addAndMakeVisible (hiValueBoundLabel);
 
     hiValueBoundSelectionOptions.add ("10000");
@@ -707,7 +700,6 @@ SpikeRateSubOptionComponent::SpikeRateSubOptionComponent (Font labelFont, Colour
     // spike onset threshold
     thresholdSelectionLabel = new Label ("thresholdSelectionLabel", "Threshold (uV):");
     thresholdSelectionLabel->setFont (labelFont);
-    thresholdSelectionLabel->setColour (Label::textColourId, labelColour);
     addAndMakeVisible (thresholdSelectionLabel);
 
     thresholdSelectionOptions.addArray ({ "-25", "-50", "-75", "-100", "-150", "-200" });
@@ -726,7 +718,7 @@ SpikeRateSubOptionComponent::~SpikeRateSubOptionComponent()
 
 void SpikeRateSubOptionComponent::paint (Graphics& g)
 {
-    g.setColour (Colours::darkgrey);
+    g.setColour (findColour (ThemeColours::defaultText));
     g.drawRect (0, 0, getWidth(), getHeight());
     g.drawFittedText ("SPIKE RATE OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
 }
@@ -734,13 +726,13 @@ void SpikeRateSubOptionComponent::paint (Graphics& g)
 void SpikeRateSubOptionComponent::resized()
 {
     lowValueBoundLabel->setBounds (0, 0, 40, getHeight());
-    lowValueBoundSelection->setBounds (lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    lowValueBoundSelection->setBounds (lowValueBoundLabel->getRight(), 4, 60, getHeight() - 8);
 
     hiValueBoundLabel->setBounds (lowValueBoundSelection->getRight() + 10, 0, 50, getHeight());
-    hiValueBoundSelection->setBounds (hiValueBoundLabel->getRight(), 2, 70, getHeight() - 4);
+    hiValueBoundSelection->setBounds (hiValueBoundLabel->getRight(), 4, 70, getHeight() - 8);
 
     thresholdSelectionLabel->setBounds (hiValueBoundSelection->getRight() + 10, 0, 120, getHeight());
-    thresholdSelection->setBounds (thresholdSelectionLabel->getRight(), 2, 60, getHeight() - 4);
+    thresholdSelection->setBounds (thresholdSelectionLabel->getRight(), 4, 60, getHeight() - 8);
 }
 
 void SpikeRateSubOptionComponent::addListener (ComboBox::Listener* listener)

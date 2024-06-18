@@ -128,7 +128,6 @@ private:
     float marginWidth;
 
     Font labelFont;
-    Colour labelColour;
 
     ScopedPointer<Label> renderModeSelectionLabel;
 
@@ -155,7 +154,7 @@ class RMSSubOptionComponent : public Component, public ComboBox::Listener
 {
 public:
     /** Constructor */
-    RMSSubOptionComponent (Font labelFont, Colour labelColour);
+    RMSSubOptionComponent (Font labelFont);
 
     /** Destructor */
     virtual ~RMSSubOptionComponent() override;
@@ -186,7 +185,6 @@ public:
 
 private:
     Font labelFont;
-    Colour labelColour;
 
     StringArray lowValueBoundSelectionOptions;
     ScopedPointer<Label> lowValueBoundLabel;
@@ -208,7 +206,7 @@ class FFTSubOptionComponent : public Component, public ComboBox::Listener
 {
 public:
     /** Constructor */
-    FFTSubOptionComponent (Font labelFont, Colour labelColour);
+    FFTSubOptionComponent (Font labelFont);
 
     /** Destructor */
     virtual ~FFTSubOptionComponent() override;
@@ -251,7 +249,6 @@ public:
 
 private:
     Font labelFont;
-    Colour labelColour;
 
     StringArray lowValueBoundSelectionOptions;
     ScopedPointer<Label> lowValueBoundLabel;
@@ -283,7 +280,7 @@ class SpikeRateSubOptionComponent : public Component, public ComboBox::Listener
 {
 public:
     /** Constructor */
-    SpikeRateSubOptionComponent (Font labelFont, Colour labelColour);
+    SpikeRateSubOptionComponent (Font labelFont);
 
     /** Destructor */
     virtual ~SpikeRateSubOptionComponent() override;
@@ -324,7 +321,6 @@ public:
 
 private:
     Font labelFont;
-    Colour labelColour;
 
     StringArray lowValueBoundSelectionOptions;
     ScopedPointer<Label> lowValueBoundLabel;

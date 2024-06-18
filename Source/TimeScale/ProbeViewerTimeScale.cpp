@@ -28,14 +28,14 @@
 using namespace ProbeViewer;
 
 TimeScale::TimeScale (ChannelViewCanvas* canvas_, bool isForAverageView_) : canvas (canvas_),
-                                                                            isForAverageView (isForAverageView_),
-                                                                            font ("Default", 16, Font::plain)
+                                                                            isForAverageView (isForAverageView_)
 {
+    font = FontOptions (16.0f);
 }
 
 void TimeScale::paint (Graphics& g)
 {
-    g.setColour (Colour (35, 35, 35));
+    g.setColour (findColour (ThemeColours::widgetBackground));
 
     g.fillRect (0, 0, getWidth(), 30);
 
@@ -44,7 +44,7 @@ void TimeScale::paint (Graphics& g)
 
     // draw left-most zero baseline
     g.setFont (font);
-    g.setColour (Colour (150, 150, 150));
+    g.setColour (findColour (ThemeColours::defaultText));
     g.drawLine (0, 0, 0, getHeight(), 3);
 
     //g.drawText("s:", 0, getHeight()-15, 100, 15, Justification::left, false);

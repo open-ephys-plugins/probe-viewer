@@ -58,7 +58,7 @@ void ChannelBrowser::paint (Graphics& g)
     }
 
     // draw channel numbers
-    g.setColour (Colours::grey);
+    g.setColour (findColour (ThemeColours::defaultText));
     g.setFont (12);
 
     int ch = 0;
@@ -73,7 +73,7 @@ void ChannelBrowser::paint (Graphics& g)
     }
 
     // draw shank outline
-    g.setColour (Colours::lightgrey);
+    g.setColour (findColour (ThemeColours::outline));
     g.drawRect (xOffset, 8, 10, graphicBottomPos - 2);
     // g.strokePath(shankPath, PathStrokeType(1.0));
 
@@ -141,7 +141,7 @@ void ChannelBrowser::paint (Graphics& g)
 
             if (alpha > 0.0f)
             {
-                g.setColour (Colours::lightgrey.withAlpha (alpha));
+                g.setColour (findColour (ThemeColours::defaultText).withAlpha (alpha));
                 int actual_channel = channelOrder[channel];
                 int depth = int (channelMetadata[actual_channel].depth);
 
@@ -167,7 +167,7 @@ void ChannelBrowser::paint (Graphics& g)
 
                     stringWidth = chanFont.getStringWidth (depthText);
 
-                    g.setColour (Colours::grey.withAlpha (alpha));
+                    g.setColour (findColour (ThemeColours::defaultFill).withAlpha (alpha));
                     g.drawText (depthText,
                                 xLocation - stringWidth - 7,
                                 yLocation + 15,
@@ -181,11 +181,11 @@ void ChannelBrowser::paint (Graphics& g)
 
     // draw borders around zoom area
 
-    g.setColour (Colours::darkgrey.withAlpha (0.7f));
-    g.fillRect (25, 0, 15, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight);
-    g.fillRect (25, zoomInfo->lowerBound - zoomInfo->zoomOffset, 15, zoomInfo->zoomOffset + 10);
+    g.setColour (findColour (ThemeColours::componentParentBackground).withAlpha (0.6f));
+    g.fillRect (24, 0, 16, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight);
+    g.fillRect (24, zoomInfo->lowerBound - zoomInfo->zoomOffset, 16, zoomInfo->zoomOffset + 10);
 
-    g.setColour (Colours::grey);
+    g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
 
     Path upperBorder;
     upperBorder.startNewSubPath (5, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight);
@@ -211,7 +211,7 @@ void ChannelBrowser::paint (Graphics& g)
         //LOGD("Drawing region names");
         float xLocation, yLocation, yLocation2;
 
-        g.setColour (Colours::black);
+        g.setColour (findColour (ThemeColours::defaultText));
         g.setFont (15);
         float iconHeight = zoomInfo->channelHeight;
 
