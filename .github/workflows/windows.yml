@@ -13,7 +13,7 @@ jobs:
         os: [windows-2019]
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
     - name: setup
       env: 
         repo: open-ephys-gui
@@ -33,7 +33,7 @@ jobs:
         cmake -G "Visual Studio 16 2019" -A x64 .. 
       shell: bash
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v2
     - name: build-plugin
       run: |
         cd Build
