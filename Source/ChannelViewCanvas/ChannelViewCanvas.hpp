@@ -31,7 +31,8 @@
 #include "AverageView.hpp"
 #include "RollingView.hpp"
 
-namespace ProbeViewer {
+namespace ProbeViewer
+{
 
 enum class RenderMode : int
 {
@@ -40,31 +41,29 @@ enum class RenderMode : int
     FFT
 };
 
-
 class ChannelViewCanvas : public Component
 {
 public:
-
     /** Constructor */
-    ChannelViewCanvas(class ProbeViewerCanvas*, class ProbeViewerNode*);
+    ChannelViewCanvas (class ProbeViewerCanvas*, class ProbeViewerNode*);
 
     /** Destructor */
-    virtual ~ChannelViewCanvas() override { };
+    virtual ~ChannelViewCanvas() override {};
 
     /** Returns number of channels to draw*/
-	int getNumChannels() const;
+    int getNumChannels() const;
 
     /** Toggles whether to show / hide average view*/
-    void showAverageView(bool);
+    void showAverageView (bool);
 
     /** Updates settings for sub-views*/
-	void updateViewSettings();
+    void updateViewSettings();
 
     /** Updates average view window size*/
-    void updateAverageViewWindow(float preSeconds, float postSeconds);
+    void updateAverageViewWindow (float preSeconds, float postSeconds);
 
     /** Updates rolling view window size*/
-    void updateRollingViewWindow(float windowSize);
+    void updateRollingViewWindow (float windowSize);
 
     /** Called on resize */
     void resized();
@@ -79,7 +78,7 @@ public:
      *  Set the RenderMode that should be displayed on screen (FFT, RMS,
      *  or SpikeRate).
      */
-    void setCurrentRenderMode(RenderMode r);
+    void setCurrentRenderMode (RenderMode r);
 
     /**
      *  Return a value describing the current user-selected colour
@@ -94,24 +93,21 @@ public:
      *  Changing this value does not overwrite old pixels, but will draw
      *  all subsequent pixels with the new mapping.
      */
-    void setCurrentColourScheme(ColourSchemeId schemeId);
+    void setCurrentColourScheme (ColourSchemeId schemeId);
 
     class CanvasOptionsBar* optionsBar;
 
-	std::unique_ptr<RollingView> rollingView;
+    std::unique_ptr<RollingView> rollingView;
     std::unique_ptr<AverageView> averageView;
 
 private:
-	class ProbeViewerCanvas* parentCanvas;
+    class ProbeViewerCanvas* parentCanvas;
 
     RenderMode renderMode;
 
     ColourSchemeId colourSchemeId;
-
 };
 
-}
-
-
+} // namespace ProbeViewer
 
 #endif /* ChannelViewCanvas_hpp */

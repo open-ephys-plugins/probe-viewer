@@ -27,14 +27,14 @@
 
 #include "ProbeViewerCanvas.h"
 
-#include "ProbeViewerNode.h"
 #include "ProbeViewerEditor.h"
+#include "ProbeViewerNode.h"
 
 #include "ChannelBrowser/ChannelBrowser.hpp"
-#include "ChannelViewCanvas/ChannelViewCanvas.hpp"
-#include "ChannelViewCanvas/CanvasOptionsBar.hpp"
-#include "ChannelViewCanvas/RollingView.hpp"
 #include "ChannelViewCanvas/AverageView.hpp"
+#include "ChannelViewCanvas/CanvasOptionsBar.hpp"
+#include "ChannelViewCanvas/ChannelViewCanvas.hpp"
+#include "ChannelViewCanvas/RollingView.hpp"
 
 #include "TimeScale/ProbeViewerTimeScale.hpp"
 #include "Utilities/CircularBuffer.hpp"
@@ -45,39 +45,39 @@ using namespace ProbeViewer;
 
 const float ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE = 8.0f;
 
-ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode *processor_)
-    : pvProcessor(processor_), 
-    fft_cfg(kiss_fftr_alloc(ProbeViewerCanvas::FFT_SIZE, false, 0, 0)), 
-    numChannels(0), 
-    numSamplesToChunk(1)
+ProbeViewerCanvas::ProbeViewerCanvas (ProbeViewerNode* processor_)
+    : pvProcessor (processor_),
+      fft_cfg (kiss_fftr_alloc (ProbeViewerCanvas::FFT_SIZE, false, 0, 0)),
+      numChannels (0),
+      numSamplesToChunk (1)
 {
     dataBuffer = pvProcessor->getCircularBufferPtr();
 
     updateChannelBrowsers();
 
-    channelsView = new ChannelViewCanvas(this, pvProcessor);
+    channelsView = new ChannelViewCanvas (this, pvProcessor);
 
-    timeScale = new ProbeViewerTimeScale(channelsView);
-    timeScale->setRollingViewWindowSize(ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE);
-    timeScale->setAverageViewWindowSize(0.5, 0.5);
-    addAndMakeVisible(timeScale);
+    timeScale = new ProbeViewerTimeScale (channelsView);
+    timeScale->setRollingViewWindowSize (ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE);
+    timeScale->setAverageViewWindowSize (0.5, 0.5);
+    addAndMakeVisible (timeScale);
 
-    optionsBar = new CanvasOptionsBar(channelsView, timeScale);
-    addAndMakeVisible(optionsBar);
-    optionsBar->addListener(channelsView->averageView.get());
-    
-    optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
+    optionsBar = new CanvasOptionsBar (channelsView, timeScale);
+    addAndMakeVisible (optionsBar);
+    optionsBar->addListener (channelsView->averageView.get());
+
+    optionsBar->setFFTParams (ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
     channelsView->optionsBar = optionsBar;
 
-    viewport = new ProbeViewerViewport(this, channelsView);
-    viewport->setViewedComponent(channelsView, false);
-    viewport->setScrollBarsShown(false, false);
-    addAndMakeVisible(viewport);
+    viewport = new ProbeViewerViewport (this, channelsView);
+    viewport->setViewedComponent (channelsView, false);
+    viewport->setScrollBarsShown (false, false);
+    addAndMakeVisible (viewport);
 
     // init the fft input/output containers
     for (int i = 0; i < ProbeViewerCanvas::FFT_SIZE; ++i)
     {
-        fftInput.push_back(0.0f);
+        fftInput.push_back (0.0f);
     }
 
     isUpdating = false;
@@ -85,7 +85,7 @@ ProbeViewerCanvas::ProbeViewerCanvas(ProbeViewerNode *processor_)
 
 ProbeViewerCanvas::~ProbeViewerCanvas()
 {
-    free(fft_cfg);
+    free (fft_cfg);
 }
 
 void ProbeViewerCanvas::refreshState()
@@ -96,60 +96,56 @@ void ProbeViewerCanvas::refreshState()
 
 void ProbeViewerCanvas::updateSettings()
 {
-
     isUpdating = true;
 
     dataBuffer = pvProcessor->getCircularBufferPtr();
 
-    if(dataBuffer)
+    if (dataBuffer)
         dataBuffer->clearSamplesReadyForDrawing();
 
-    numChannels = jmax(pvProcessor->getNumStreamChannels(), 0);
+    numChannels = jmax (pvProcessor->getNumStreamChannels(), 0);
 
     channelsView->updateViewSettings();
-    
+
     partialBufferCache.clear();
     channelFFTSampleBuffer.clear();
     inputDownsamplingIndex.clear();
-    
-    for(auto browser : channelBrowsers)
+
+    for (auto browser : channelBrowsers)
     {
         if (browser->id == pvProcessor->getDisplayedStream())
         {
-            setChannelHeight(browser->getChannelHeight());
-            browser->setVisible(true);
+            setChannelHeight (browser->getChannelHeight());
+            browser->setVisible (true);
         }
         else
         {
-            browser->setVisible(false);
+            browser->setVisible (false);
         }
-            
     }
 
     float sampleRate = pvProcessor->getStreamSampleRate();
-    channelsView->averageView->setSampleRate(sampleRate);
-    
+    channelsView->averageView->setSampleRate (sampleRate);
+
     for (int i = 0; i < numChannels; ++i)
     {
-        auto channelDisplay = 
-            new ProbeChannelDisplay(channelsView->rollingView.get(),
-                                    optionsBar, 
-                                    i,
-                                    sampleRate);
-        channelDisplay->setWindow(channelsView->rollingView->windowSize);
-        channelsView->rollingView->channels.add(channelDisplay);
+        auto channelDisplay =
+            new ProbeChannelDisplay (channelsView->rollingView.get(),
+                                     optionsBar,
+                                     i,
+                                     sampleRate);
+        channelDisplay->setWindow (channelsView->rollingView->windowSize);
+        channelsView->rollingView->channels.add (channelDisplay);
 
+        partialBufferCache.add (new Array<float>());
 
-        partialBufferCache.add(new Array<float>());
-
-        channelFFTSampleBuffer.add(new FFTSampleCacheBuffer(ProbeViewerCanvas::FFT_SIZE));
-        inputDownsamplingIndex.push_back(0);
+        channelFFTSampleBuffer.add (new FFTSampleCacheBuffer (ProbeViewerCanvas::FFT_SIZE));
+        inputDownsamplingIndex.push_back (0);
     }
 
-    numSamplesToChunk = int(sampleRate / ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
+    numSamplesToChunk = int (sampleRate / ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
 
-    optionsBar->setFFTParams(ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
-
+    optionsBar->setFFTParams (ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
 
     resized();
 
@@ -173,142 +169,135 @@ void ProbeViewerCanvas::endAnimation()
     stopCallbacks();
 }
 
-void ProbeViewerCanvas::setRegions(uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours)
+void ProbeViewerCanvas::setRegions (uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours)
 {
-    channelBrowserMap[streamId]->setRegions(electrodeInds, regionNames, regionColours);
+    channelBrowserMap[streamId]->setRegions (electrodeInds, regionNames, regionColours);
 }
 
-
-void ProbeViewerCanvas::saveCustomParametersToXml(XmlElement* xml)
+void ProbeViewerCanvas::saveCustomParametersToXml (XmlElement* xml)
 {
-    XmlElement* xmlNode = xml->createNewChildElement("CANVAS");
-    
-    for(auto browser : channelBrowsers)
+    XmlElement* xmlNode = xml->createNewChildElement ("CANVAS");
+
+    for (auto browser : channelBrowsers)
     {
-        browser->saveParameters(xmlNode);
+        browser->saveParameters (xmlNode);
     }
 
-    optionsBar->saveParameters(xmlNode);
+    optionsBar->saveParameters (xmlNode);
 }
 
-void ProbeViewerCanvas::loadCustomParametersFromXml(XmlElement* xml)
+void ProbeViewerCanvas::loadCustomParametersFromXml (XmlElement* xml)
 {
-    XmlElement* xmlNode = xml->getChildByName("CANVAS");
+    XmlElement* xmlNode = xml->getChildByName ("CANVAS");
 
-    if(!xmlNode)
+    if (! xmlNode)
         return;
-    
+
     for (auto* streamXml : xmlNode->getChildIterator())
     {
-        if (streamXml->hasTagName("STREAM"))
+        if (streamXml->hasTagName ("STREAM"))
         {
-            int streamId = streamXml->getIntAttribute("id");
+            int streamId = streamXml->getIntAttribute ("id");
 
-            if (channelBrowserMap.find(streamId) == channelBrowserMap.end())
+            if (channelBrowserMap.find (streamId) == channelBrowserMap.end())
                 continue;
             else
-                channelBrowserMap[streamId]->loadParameters(streamXml);
+                channelBrowserMap[streamId]->loadParameters (streamXml);
         }
     }
 
-    optionsBar->loadParameters(xmlNode);
+    optionsBar->loadParameters (xmlNode);
 }
 
-void ProbeViewerCanvas::paint(Graphics &g)
+void ProbeViewerCanvas::paint (Graphics& g)
 {
-	g.fillAll(Colour(58,58,58));
+    g.fillAll (Colour (58, 58, 58));
 }
 
 void ProbeViewerCanvas::resized()
 {
-    timeScale->setBounds(0, 0, getWidth(), 30);
-    optionsBar->setBounds(0, getHeight() - 30, getWidth(), 30);
+    timeScale->setBounds (0, 0, getWidth(), 30);
+    optionsBar->setBounds (0, getHeight() - 30, getWidth(), 30);
 
-    for(auto browser : channelBrowsers)
-        browser->setBounds(0, timeScale->getBottom(), 200, getHeight() - timeScale->getHeight() - optionsBar->getHeight());
+    for (auto browser : channelBrowsers)
+        browser->setBounds (0, timeScale->getBottom(), 200, getHeight() - timeScale->getHeight() - optionsBar->getHeight());
 
     ChannelBrowser* cb = getChannelBrowserPtr();
-    if(cb)
+    if (cb)
     {
-        timeScale->setMarginOffset(cb->getWidth());
-        optionsBar->setMarginOffset(cb->getWidth());
+        timeScale->setMarginOffset (cb->getWidth());
+        optionsBar->setMarginOffset (cb->getWidth());
 
-        channelsView->setBounds(0, 0, viewport->getWidth(), 
-        channelsView->rollingView->getChannelHeight() * channelsView->rollingView->channels.size());
-        
-        viewport->setBounds(cb->getRight(),
-                            timeScale->getBottom() + 2,
-                            getWidth() - cb->getWidth(),
-                            getHeight() - timeScale->getHeight() - optionsBar->getHeight() - 4);
+        channelsView->setBounds (0, 0, viewport->getWidth(), channelsView->rollingView->getChannelHeight() * channelsView->rollingView->channels.size());
 
-        viewport->setViewPositionProportionately(0, cb->getViewportScrollPositionRatio());
+        viewport->setBounds (cb->getRight(),
+                             timeScale->getBottom() + 2,
+                             getWidth() - cb->getWidth(),
+                             getHeight() - timeScale->getHeight() - optionsBar->getHeight() - 4);
+
+        viewport->setViewPositionProportionately (0, cb->getViewportScrollPositionRatio());
     }
 }
 
 void ProbeViewerCanvas::updateChannelBrowsers()
 {
-
     for (auto browser : channelBrowsers)
     {
         browser->reset();
     }
-    
-    for(auto stream : pvProcessor->getDataStreams())
-	{
-		uint16 streamId = stream->getStreamId();
 
-		if(channelBrowserMap.count(streamId) == 0)
-		{
-			channelBrowserMap[streamId] = channelBrowsers.add(new ChannelBrowser(this, streamId));
-            addChildComponent(channelBrowserMap[streamId]);
-		}
-		
+    for (auto stream : pvProcessor->getDataStreams())
+    {
+        uint16 streamId = stream->getStreamId();
+
+        if (channelBrowserMap.count (streamId) == 0)
+        {
+            channelBrowserMap[streamId] = channelBrowsers.add (new ChannelBrowser (this, streamId));
+            addChildComponent (channelBrowserMap[streamId]);
+        }
+
         channelBrowserMap[streamId]->reset();
 
-		for (int i = 0; i < stream->getChannelCount(); i++)
-		{
-			auto chan = stream->getContinuousChannels()[i];
+        for (int i = 0; i < stream->getChannelCount(); i++)
+        {
+            auto chan = stream->getContinuousChannels()[i];
 
             uint16 electrode_index = i; // default to channel index
 
-            int metadataIndex = chan->findMetadata(MetadataDescriptor::MetadataType::UINT16, 1, "neuropixels.electrode_index");
+            int metadataIndex = chan->findMetadata (MetadataDescriptor::MetadataType::UINT16, 1, "neuropixels.electrode_index");
 
             //LOGD("MetadataIndex: ", metadataIndex);
 
             if (metadataIndex >= 0)
             {
-                const MetadataValue* metadataValue = chan->getMetadataValue(metadataIndex);
-                metadataValue->getValue(electrode_index); // update index if available
+                const MetadataValue* metadataValue = chan->getMetadataValue (metadataIndex);
+                metadataValue->getValue (electrode_index); // update index if available
                 //LOGD("Channel ", i, " electrode index: ", electrode_index);
             }
-                
-			channelBrowserMap[streamId]->addChannel(i, chan->getName(), chan->position.y, electrode_index);
-		}
+
+            channelBrowserMap[streamId]->addChannel (i, chan->getName(), chan->position.y, electrode_index);
+        }
 
         channelBrowserMap[streamId]->createChannelColours();
 
         channelBrowserMap[streamId]->updateChannelSitesRendering();
+    }
 
-	}
-
-	Array<ChannelBrowser*> toDelete;
+    Array<ChannelBrowser*> toDelete;
 
     for (auto browser : channelBrowsers)
     {
-
         if (browser->getNumChannels() == 0)
         {
-            channelBrowserMap.erase(browser->id);
-            toDelete.add(browser);
+            channelBrowserMap.erase (browser->id);
+            toDelete.add (browser);
         }
-
     }
 
     for (auto browser : toDelete)
     {
-        channelBrowsers.removeObject(browser, true);
+        channelBrowsers.removeObject (browser, true);
     }
-
 }
 
 int ProbeViewerCanvas::getNumChannels()
@@ -316,10 +305,10 @@ int ProbeViewerCanvas::getNumChannels()
     return numChannels;
 }
 
-void ProbeViewerCanvas::setChannelHeight(float height)
+void ProbeViewerCanvas::setChannelHeight (float height)
 {
-    channelsView->rollingView->setChannelHeight(height);
-    channelsView->averageView->setChannelHeight(height);
+    channelsView->rollingView->setChannelHeight (height);
+    channelsView->averageView->setChannelHeight (height);
 }
 
 float ProbeViewerCanvas::getChannelHeight()
@@ -327,67 +316,65 @@ float ProbeViewerCanvas::getChannelHeight()
     return channelsView->rollingView->getChannelHeight();
 }
 
-float ProbeViewerCanvas::getChannelSampleRate(int channel)
+float ProbeViewerCanvas::getChannelSampleRate (int channel)
 {
     return channelsView->rollingView->channels[channel]->getSampleRate();
 }
 
-ProbeViewerViewport *ProbeViewerCanvas::getViewportPtr()
+ProbeViewerViewport* ProbeViewerCanvas::getViewportPtr()
 {
     return viewport;
 }
 
-ChannelViewCanvas *ProbeViewerCanvas::getChannelViewCanvasPtr()
+ChannelViewCanvas* ProbeViewerCanvas::getChannelViewCanvasPtr()
 {
     return channelsView;
 }
 
-ChannelBrowser *ProbeViewerCanvas::getChannelBrowserPtr()
+ChannelBrowser* ProbeViewerCanvas::getChannelBrowserPtr()
 {
     uint16 displayStream = pvProcessor->getDisplayedStream();
-    
-    if (channelBrowserMap.count(displayStream) > 0)
+
+    if (channelBrowserMap.count (displayStream) > 0)
         return channelBrowserMap[displayStream];
     else
         return nullptr;
 }
 
 // TODO: (kelly) this should be implemented differently, as is it will shift the array after every pop
-float ProbeViewerCanvas::popFrontCachedSampleForChannel(int channel)
+float ProbeViewerCanvas::popFrontCachedSampleForChannel (int channel)
 {
     float val = 0;
-    if (!partialBufferCache[channel]->isEmpty())
+    if (! partialBufferCache[channel]->isEmpty())
     {
-        val = partialBufferCache[channel]->getReference(0);
-        partialBufferCache[channel]->remove(0);
+        val = partialBufferCache[channel]->getReference (0);
+        partialBufferCache[channel]->remove (0);
     }
     return val;
 }
 
 void ProbeViewerCanvas::updateScreenBuffers()
 {
-    if(!dataBuffer || isUpdating)
+    if (! dataBuffer || isUpdating)
         return;
-    
+
     if (dataBuffer->hasSamplesReadyForDrawing())
     {
-        ScopedLock drawLock(*dataBuffer->getMutex());
+        ScopedLock drawLock (*dataBuffer->getMutex());
         int numTicks = 0;
         RenderMode modeId = channelsView->getCurrentRenderMode();
 
         for (int channel = 0; channel < numChannels; ++channel)
         {
-            const int numSamplesToRead = dataBuffer->getNumSamplesReadyForDrawing(channel);
-            const int numCachedSamples = getNumCachedSamples(channel);
+            const int numSamplesToRead = dataBuffer->getNumSamplesReadyForDrawing (channel);
+            const int numCachedSamples = getNumCachedSamples (channel);
             const float samplesPerPixel = channelsView->rollingView->channels[channel]->getNumSamplesPerPixel();
-            const float numPixelsToCreate = float(numCachedSamples + numSamplesToRead) / samplesPerPixel;
+            const float numPixelsToCreate = float (numCachedSamples + numSamplesToRead) / samplesPerPixel;
 
-            
-
-           // if (channel == 0)
-			//    std::cout << "numCachedSamples: " << numCachedSamples 
-            //              << " numSamplesToRead: " << numSamplesToRead 
-            //              << " samplesPerPixel: " << samplesPerPixel 
+            // if (channel == 0)
+            //    std::cout << "numCachedSamples: " << numCachedSamples
+            //              << " numSamplesToRead: " << numSamplesToRead
+            //              << " samplesPerPixel: " << samplesPerPixel
             //               << " numPixelsToCreate: " << numPixelsToCreate << std::endl;
 
             if (numPixelsToCreate == 0.0f)
@@ -395,33 +382,33 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 numTicks = 0;
                 break;
             }
-            else {
-
+            else
+            {
                 if (channel == 0)
-                    numTicks = floor(numPixelsToCreate);
+                    numTicks = floor (numPixelsToCreate);
                 else
                 {
                     if (numTicks > numPixelsToCreate)
-                        numTicks = floor(numPixelsToCreate);
+                        numTicks = floor (numPixelsToCreate);
                 }
             }
-                
+
             int sampleBufferIndex = 0;
-            
-            samples.resize(numTicks);
+
+            samples.resize (numTicks);
 
             for (int pix = 0; pix < numTicks; ++pix)
             {
                 float min = 0;
                 float max = 0;
-                
+
                 // find min, max for cached samples
                 if (pix == 0 && numCachedSamples > 0)
                 {
                     for (int cachedSampIdx = 0; cachedSampIdx < numCachedSamples; ++cachedSampIdx)
                     {
-                        const auto val = popFrontCachedSampleForChannel(channel);
-                        samples.set(cachedSampIdx, val);
+                        const auto val = popFrontCachedSampleForChannel (channel);
+                        samples.set (cachedSampIdx, val);
 
                         if (cachedSampIdx == 0)
                         {
@@ -439,12 +426,12 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 }
 
                 // find min, max for new buffer samples
-                for (int sampIdx = (pix == 0 && numCachedSamples > 0 ? numCachedSamples : 0); 
-                    sampIdx < samplesPerPixel; 
-                    ++sampIdx)
+                for (int sampIdx = (pix == 0 && numCachedSamples > 0 ? numCachedSamples : 0);
+                     sampIdx < samplesPerPixel;
+                     ++sampIdx)
                 {
-                    const auto val = dataBuffer->getSample(sampleBufferIndex, channel);
-                    samples.set(sampIdx, val);
+                    const auto val = dataBuffer->getSample (sampleBufferIndex, channel);
+                    samples.set (sampIdx, val);
 
                     if (sampIdx == 0)
                     {
@@ -485,80 +472,78 @@ void ProbeViewerCanvas::updateScreenBuffers()
                     else // FFT
                     {
                         if (inputDownsamplingIndex[channel]++ == 0)
-                            channelFFTSampleBuffer[channel]->pushSample(medianOffsetVal / 500.0f);
+                            channelFFTSampleBuffer[channel]->pushSample (medianOffsetVal / 500.0f);
                         else if (inputDownsamplingIndex[channel] >= numSamplesToChunk)
                             inputDownsamplingIndex[channel] = 0;
                     }
                 }
 
-
                 if (modeId == RenderMode::RMS)
                 {
-                    rms = sqrtf(rms / samplesPerPixel);
+                    rms = sqrtf (rms / samplesPerPixel);
 
-                    channelsView->rollingView->pushPixelValueForChannel(channel, rms);
+                    channelsView->rollingView->pushPixelValueForChannel (channel, rms);
                 }
                 else if (modeId == RenderMode::SPIKE_RATE)
                 {
-                    spikeRate = numSpikesInPixel / (samplesPerPixel / getChannelSampleRate(channel));
-                    channelsView->rollingView->pushPixelValueForChannel(channel, spikeRate);
+                    spikeRate = numSpikesInPixel / (samplesPerPixel / getChannelSampleRate (channel));
+                    channelsView->rollingView->pushPixelValueForChannel (channel, spikeRate);
                 }
                 else
                 {
                     for (int sampleIdx = 0; sampleIdx < ProbeViewerCanvas::FFT_SIZE; ++sampleIdx)
                     {
-                        fftInput[sampleIdx] = fftWindow[sampleIdx] * channelFFTSampleBuffer[channel]->readSample(sampleIdx);
+                        fftInput[sampleIdx] = fftWindow[sampleIdx] * channelFFTSampleBuffer[channel]->readSample (sampleIdx);
                     }
 
-                    kiss_fftr(fft_cfg, fftInput.data(), fftOutput);
+                    kiss_fftr (fft_cfg, fftInput.data(), fftOutput);
 
                     const int bin = optionsBar->getFFTCenterFrequencyBin();
-                    const float fftValueDb = 20 * log10((fftOutput[bin].r * fftOutput[bin].r + fftOutput[bin].i * fftOutput[bin].i) * 2 / ProbeViewerCanvas::FFT_SIZE);
-                
-                    channelsView->rollingView->pushPixelValueForChannel(channel, fftValueDb);
-                }
+                    const float fftValueDb = 20 * log10 ((fftOutput[bin].r * fftOutput[bin].r + fftOutput[bin].i * fftOutput[bin].i) * 2 / ProbeViewerCanvas::FFT_SIZE);
 
+                    channelsView->rollingView->pushPixelValueForChannel (channel, fftValueDb);
+                }
             }
 
             //if (channel == 0)
-           // {
+            // {
             //    std::cout << "Adding : " << numSamplesToRead - sampleBufferIndex << " to cache" << std::endl;
             //}
 
             for (int sampIdx = sampleBufferIndex; sampIdx < numSamplesToRead; ++sampIdx)
             {
-                partialBufferCache[channel]->add(dataBuffer->getSample(sampleBufferIndex, channel));
+                partialBufferCache[channel]->add (dataBuffer->getSample (sampleBufferIndex, channel));
             }
         }
 
         //std::cout << "numPixelUpdates: " << numTicks << std::endl;
 
         channelsView->rollingView->numPixelUpdates = numTicks;
-        channelsView->rollingView->isDirty.set(true);
+        channelsView->rollingView->isDirty.set (true);
 
         if (dataBuffer->triggered)
         {
-            channelsView->averageView->fillFromBuffer(dataBuffer);
+            channelsView->averageView->fillFromBuffer (dataBuffer);
         }
 
         dataBuffer->clearSamplesReadyForDrawing();
-        repaint(0, 0, getWidth(), getHeight());
+        repaint (0, 0, getWidth(), getHeight());
     }
 }
 
-int ProbeViewerCanvas::getNumCachedSamples(int channel)
+int ProbeViewerCanvas::getNumCachedSamples (int channel)
 {
     return partialBufferCache[channel]->size();
 }
 
-
 // load the fftWindow with a Hanning window
-const std::vector<float> ProbeViewerCanvas::fftWindow = []() -> std::vector<float> {
+const std::vector<float> ProbeViewerCanvas::fftWindow = []() -> std::vector<float>
+{
     std::vector<float> window;
 
     for (int i = 0; i < ProbeViewerCanvas::FFT_SIZE; ++i)
     {
-        window.push_back(0.5 * (1 - cos((2 * M_PI * i) / (ProbeViewerCanvas::FFT_SIZE - 1))));
+        window.push_back (0.5 * (1 - cos ((2 * M_PI * i) / (ProbeViewerCanvas::FFT_SIZE - 1))));
     }
 
     return window;
@@ -566,21 +551,21 @@ const std::vector<float> ProbeViewerCanvas::fftWindow = []() -> std::vector<floa
 
 #pragma mark - ProbeViewerCanvas::FFTSampleCacheBuffer -
 
-ProbeViewerCanvas::FFTSampleCacheBuffer::FFTSampleCacheBuffer(int size)
-    : writeIdx(0), readIdx(1), bufferSize(size)
+ProbeViewerCanvas::FFTSampleCacheBuffer::FFTSampleCacheBuffer (int size)
+    : writeIdx (0), readIdx (1), bufferSize (size)
 {
-    buffer.resize(size);
+    buffer.resize (size);
 }
 
 ProbeViewerCanvas::FFTSampleCacheBuffer::~FFTSampleCacheBuffer()
 {
 }
 
-void ProbeViewerCanvas::FFTSampleCacheBuffer::resize(const int size)
+void ProbeViewerCanvas::FFTSampleCacheBuffer::resize (const int size)
 {
     bufferSize = size;
     buffer.clear();
-    buffer = std::vector<float>(size, 0.0f);
+    buffer = std::vector<float> (size, 0.0f);
 
     writeIdx = 0;
     readIdx = 1;
@@ -588,7 +573,7 @@ void ProbeViewerCanvas::FFTSampleCacheBuffer::resize(const int size)
 
 namespace
 {
-void incrementIndices(int &writeIdx, int &readIdx, int bufferSize)
+void incrementIndices (int& writeIdx, int& readIdx, int bufferSize)
 {
     writeIdx = readIdx++;
 
@@ -597,20 +582,20 @@ void incrementIndices(int &writeIdx, int &readIdx, int bufferSize)
         readIdx = 0;
     }
 
-    jassert(writeIdx < bufferSize);
-    jassert(readIdx < bufferSize);
+    jassert (writeIdx < bufferSize);
+    jassert (readIdx < bufferSize);
 }
 } // namespace
 
-void ProbeViewerCanvas::FFTSampleCacheBuffer::pushSample(const float sample)
+void ProbeViewerCanvas::FFTSampleCacheBuffer::pushSample (const float sample)
 {
     buffer[writeIdx] = sample;
-    incrementIndices(writeIdx, readIdx, bufferSize);
+    incrementIndices (writeIdx, readIdx, bufferSize);
 }
 
-float ProbeViewerCanvas::FFTSampleCacheBuffer::readSample(int index) const
+float ProbeViewerCanvas::FFTSampleCacheBuffer::readSample (int index) const
 {
-    jassert(index < bufferSize);
+    jassert (index < bufferSize);
 
     index += readIdx;
 
@@ -619,15 +604,15 @@ float ProbeViewerCanvas::FFTSampleCacheBuffer::readSample(int index) const
         index -= bufferSize;
     }
 
-    jassert(index < bufferSize);
+    jassert (index < bufferSize);
 
     return buffer[index];
 }
 
 #pragma mark - ProbeViewerViewport -
 
-ProbeViewerViewport::ProbeViewerViewport(ProbeViewerCanvas *canvas, ChannelViewCanvas *channelsView)
-    : Viewport(), canvas(canvas), channelsView(channelsView)
+ProbeViewerViewport::ProbeViewerViewport (ProbeViewerCanvas* canvas, ChannelViewCanvas* channelsView)
+    : Viewport(), canvas (canvas), channelsView (channelsView)
 {
 }
 
@@ -635,7 +620,7 @@ ProbeViewerViewport::~ProbeViewerViewport()
 {
 }
 
-void ProbeViewerViewport::visibleAreaChanged(const Rectangle<int> &newVisibleArea)
+void ProbeViewerViewport::visibleAreaChanged (const Rectangle<int>& newVisibleArea)
 {
-    canvas->repaint(getBoundsInParent());
+    canvas->repaint (getBoundsInParent());
 }

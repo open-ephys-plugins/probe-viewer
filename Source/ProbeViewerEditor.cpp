@@ -23,71 +23,70 @@
 
 #include "ProbeViewerEditor.h"
 
-#include "ProbeViewerNode.h"
 #include "ProbeViewerCanvas.h"
+#include "ProbeViewerNode.h"
 
 using namespace ProbeViewer;
 
-ProbeViewerEditor::ProbeViewerEditor(GenericProcessor* parentNode)
-					: VisualizerEditor(parentNode, "ProbeViewer"),
-					  hasNoInputs(true)
+ProbeViewerEditor::ProbeViewerEditor (GenericProcessor* parentNode)
+    : VisualizerEditor (parentNode, "ProbeViewer"),
+      hasNoInputs (true)
 {
-    probeViewerProcessor = (ProbeViewerNode *)parentNode;
-            
+    probeViewerProcessor = (ProbeViewerNode*) parentNode;
+
     desiredWidth = 175;
-	addSelectedStreamParameterEditor(Parameter::PROCESSOR_SCOPE, "display_stream", 15, 30);
-	auto* streamEditor = getParameterEditor("display_stream");
-	streamEditor->setLayout(ParameterEditor::nameOnTop);
-	streamEditor->setSize(140, 40);
-    
-    streamSampleRateLabel = std::make_unique<Label>("Stream Sample Rate Label", "Sample Rate:");
-	streamSampleRateLabel->setFont(FontOptions("Inter", "Medium", 14.0f));
-    streamSampleRateLabel->setBounds(15, 90, 140, 24);
-    addAndMakeVisible(streamSampleRateLabel.get());
+    addSelectedStreamParameterEditor (Parameter::PROCESSOR_SCOPE, "display_stream", 15, 30);
+    auto* streamEditor = getParameterEditor ("display_stream");
+    streamEditor->setLayout (ParameterEditor::nameOnTop);
+    streamEditor->setSize (140, 40);
+
+    streamSampleRateLabel = std::make_unique<Label> ("Stream Sample Rate Label", "Sample Rate:");
+    streamSampleRateLabel->setFont (FontOptions ("Inter", "Medium", 14.0f));
+    streamSampleRateLabel->setBounds (15, 90, 140, 24);
+    addAndMakeVisible (streamSampleRateLabel.get());
 }
 
 ProbeViewerEditor::~ProbeViewerEditor()
-{ }
-
+{
+}
 
 Visualizer* ProbeViewerEditor::createNewCanvas()
 {
-    return new ProbeViewerCanvas(probeViewerProcessor);
+    return new ProbeViewerCanvas (probeViewerProcessor);
 }
 
 void ProbeViewerEditor::updateSettings()
 {
-	if (canvas != nullptr)
-	{
-		static_cast<ProbeViewerCanvas*>(canvas.get())->updateChannelBrowsers();
-	}
+    if (canvas != nullptr)
+    {
+        static_cast<ProbeViewerCanvas*> (canvas.get())->updateChannelBrowsers();
+    }
 }
 
 void ProbeViewerEditor::displayStreamChanged()
 {
-	if (canvas != nullptr)
-	{
-		static_cast<ProbeViewerCanvas*>(canvas.get())->updateSettings();
-	}
-	
-	float rate = probeViewerProcessor->getStreamSampleRate();
+    if (canvas != nullptr)
+    {
+        static_cast<ProbeViewerCanvas*> (canvas.get())->updateSettings();
+    }
 
-	String sampleRateLabelText = "Sample Rate: ";
-	
-	if (rate > 0)
-		sampleRateLabelText += String(rate);
-	else
-		sampleRateLabelText += "<NA>";
-	
-	streamSampleRateLabel->setText(sampleRateLabelText, dontSendNotification);
+    float rate = probeViewerProcessor->getStreamSampleRate();
+
+    String sampleRateLabelText = "Sample Rate: ";
+
+    if (rate > 0)
+        sampleRateLabelText += String (rate);
+    else
+        sampleRateLabelText += "<NA>";
+
+    streamSampleRateLabel->setText (sampleRateLabelText, dontSendNotification);
 }
 
-
 /** Sets custom depths and regions */
-void ProbeViewerEditor::setRegions(uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours)
+void ProbeViewerEditor::setRegions (uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours)
 {
-	if (canvas != nullptr)
-	{
-		static_cast<ProbeViewerCanvas*>(canvas.get())->setRegions(streamId, electrodeInds, regionNames, regionColours);
-	}
+    if (canvas != nullptr)
+    {
+        static_cast<ProbeViewerCanvas*> (canvas.get())->setRegions (streamId, electrodeInds, regionNames, regionColours);
+    }
 }

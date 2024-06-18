@@ -27,14 +27,14 @@
 #include "VisualizerWindowHeaders.h"
 #include "kissfft/kiss_fftr.h"
 
-namespace ProbeViewer {
+namespace ProbeViewer
+{
 
 class ProbeViewerCanvas : public Visualizer
 {
 public:
-
     /** Constructor */
-    ProbeViewerCanvas(class ProbeViewerNode*);
+    ProbeViewerCanvas (class ProbeViewerNode*);
 
     /** Destructor */
     virtual ~ProbeViewerCanvas() override;
@@ -59,19 +59,19 @@ public:
     void endAnimation() override;
 
     /** Saves parameters */
-    void saveCustomParametersToXml(XmlElement* xml) override;
+    void saveCustomParametersToXml (XmlElement* xml) override;
 
     /** Loads parameters */
-    void loadCustomParametersFromXml(XmlElement* xml) override;
+    void loadCustomParametersFromXml (XmlElement* xml) override;
 
     /** Fill background */
-    void paint(Graphics& g) override;
+    void paint (Graphics& g) override;
 
-	/** Change size */
+    /** Change size */
     void resized() override;
 
     /** Set custom brain regions for each electrode */
-    void setRegions(uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
+    void setRegions (uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
 
     /**
      *  Custom member methods
@@ -90,7 +90,7 @@ public:
      *  height of the channel as it should appear on the screen, as opposed to
      *  the height at which it should be rendered internally.
      */
-    void setChannelHeight(float height);
+    void setChannelHeight (float height);
 
     /**
      *  Get the SCREEN pixel height at which each channel is rendered.
@@ -100,7 +100,7 @@ public:
     /**
      *  Get the stored sample rate for a specific channel.
      */
-    float getChannelSampleRate(int channel);
+    float getChannelSampleRate (int channel);
 
     /**
      *  Return a pointer for the viewport wrapping the channel canvas area
@@ -112,7 +112,7 @@ public:
      *  rendered directly.
      */
     class ChannelViewCanvas* getChannelViewCanvasPtr();
-    
+
     /**
      *  Return a pointer for the Channel Browser component 
      */
@@ -124,9 +124,9 @@ public:
     static const int FFT_SIZE = 1 << ProbeViewerCanvas::FFT_ORDER;
     static const int FFT_TARGET_SAMPLE_RATE = 1000;
 #else
-	static constexpr int FFT_ORDER = 8;
-	static constexpr int FFT_SIZE = 1 << ProbeViewerCanvas::FFT_ORDER;
-	static constexpr int FFT_TARGET_SAMPLE_RATE = 1000;
+    static constexpr int FFT_ORDER = 8;
+    static constexpr int FFT_SIZE = 1 << ProbeViewerCanvas::FFT_ORDER;
+    static constexpr int FFT_TARGET_SAMPLE_RATE = 1000;
 #endif
 
 private:
@@ -147,32 +147,27 @@ private:
     size_t numSamplesToChunk;
 
     Array<float> samples;
-    
+
     kiss_fftr_cfg fft_cfg;
     std::vector<float> fftInput;
-    kiss_fft_cpx fftOutput[ProbeViewerCanvas::FFT_SIZE/2 + 1];
-
-
+    kiss_fft_cpx fftOutput[ProbeViewerCanvas::FFT_SIZE / 2 + 1];
 
     class FFTSampleCacheBuffer
     {
     public:
-
         /**
          *
          */
-        FFTSampleCacheBuffer(int size);
+        FFTSampleCacheBuffer (int size);
         ~FFTSampleCacheBuffer();
-
 
         /**
          *  FFTSampleCacheBuffer is non-copyable and non-moveable
          */
-        FFTSampleCacheBuffer(const FFTSampleCacheBuffer &) = delete;
-        FFTSampleCacheBuffer(FFTSampleCacheBuffer &&) = delete;
-        FFTSampleCacheBuffer& operator=(const FFTSampleCacheBuffer &) = delete;
-        FFTSampleCacheBuffer& operator=(FFTSampleCacheBuffer &) = delete;
-
+        FFTSampleCacheBuffer (const FFTSampleCacheBuffer&) = delete;
+        FFTSampleCacheBuffer (FFTSampleCacheBuffer&&) = delete;
+        FFTSampleCacheBuffer& operator= (const FFTSampleCacheBuffer&) = delete;
+        FFTSampleCacheBuffer& operator= (FFTSampleCacheBuffer&) = delete;
 
         /**
          *  Resizes the internal memory structure to the size given in the
@@ -182,7 +177,7 @@ private:
          *  resets the write and read indices, and reverts the structure
          *  to its initialization state at the new buffer size.
          */
-        void resize(int size);
+        void resize (int size);
 
         /**
          *  Push one new sample to the end of the buffer.
@@ -191,7 +186,7 @@ private:
          *  oldest sample and incrementing the write and read indices forward
          *  by one position. The increment automatically wraps.
          */
-        void pushSample(const float sample);
+        void pushSample (const float sample);
 
         /**
          *  Read one sample from the buffer at the given index.
@@ -200,8 +195,7 @@ private:
          *                  the buffer will automatically adjust for the current
          *                  position of the internal readIdx.
          */
-        float readSample(int index) const;
-
+        float readSample (int index) const;
 
         /**
          *  Return the number of writable samples available to this buffer
@@ -224,10 +218,10 @@ private:
     bool isUpdating;
 
     void updateScreenBuffers();
-    int getNumCachedSamples(int channel);
-    float popFrontCachedSampleForChannel(int channel);
+    int getNumCachedSamples (int channel);
+    float popFrontCachedSampleForChannel (int channel);
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerCanvas);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProbeViewerCanvas);
 };
 
 /** 
@@ -238,23 +232,22 @@ private:
 class ProbeViewerViewport : public Viewport
 {
 public:
-
     /** Constructor */
-    ProbeViewerViewport(ProbeViewerCanvas*, class ChannelViewCanvas*);
+    ProbeViewerViewport (ProbeViewerCanvas*, class ChannelViewCanvas*);
 
     /** Destructor */
     virtual ~ProbeViewerViewport() override;
 
     /** Scrolling callback */
-    void visibleAreaChanged(const Rectangle<int>& newVisibleArea);
+    void visibleAreaChanged (const Rectangle<int>& newVisibleArea);
 
 private:
     ProbeViewerCanvas* canvas;
     class ChannelViewCanvas* channelsView;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerViewport);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProbeViewerViewport);
 };
 
-}
+} // namespace ProbeViewer
 
 #endif /* __PROBEVIEWERCANVAS_H__ */

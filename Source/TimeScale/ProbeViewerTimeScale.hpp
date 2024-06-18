@@ -26,7 +26,8 @@
 
 #include "VisualizerWindowHeaders.h"
 
-namespace ProbeViewer {
+namespace ProbeViewer
+{
 
 /** 
     Generic timescale display
@@ -35,31 +36,31 @@ class TimeScale : public Component
 {
 public:
     /** Constructor */
-	TimeScale(class ChannelViewCanvas* canvas, 
-        bool isForAverageView);
+    TimeScale (class ChannelViewCanvas* canvas,
+               bool isForAverageView);
 
     /** Destructor */
-	virtual ~TimeScale() override { }
-    
-	/** Render the timescale */
-	void paint(Graphics& g) override;
+    virtual ~TimeScale() override {}
+
+    /** Render the timescale */
+    void paint (Graphics& g) override;
 
     /** Used to set timescale.*/
-    void mouseDown(const MouseEvent& e);
+    void mouseDown (const MouseEvent& e);
 
-	/** Set window */
-	void setWindowSize(float preSeconds, float postSeconds);
-    
+    /** Set window */
+    void setWindowSize (float preSeconds, float postSeconds);
+
     float preSeconds = 0.0f;
     float postSeconds = 10.0f;
-private:
 
+private:
     float resolution = 0.5;
 
     bool isForAverageView;
 
     class ChannelViewCanvas* canvas;
-    
+
     Font font;
 };
 
@@ -71,41 +72,39 @@ private:
 class ProbeViewerTimeScale : public Component
 {
 public:
-
     /** Constructor */
-    ProbeViewerTimeScale(class ChannelViewCanvas*);
+    ProbeViewerTimeScale (class ChannelViewCanvas*);
 
     /** Destructor */
-    virtual ~ProbeViewerTimeScale() override { }
+    virtual ~ProbeViewerTimeScale() override {}
 
     /** Called when clicked */
     void resized() override;
 
     /** Sets the window size (in seconds) of the rolling view*/
-    void setRollingViewWindowSize(float windowSize);
+    void setRollingViewWindowSize (float windowSize);
 
     /** Sets the window size (in seconds) of the average view (pre and post)*/
-    void setAverageViewWindowSize(float preWindow, float postWindow);
+    void setAverageViewWindowSize (float preWindow, float postWindow);
 
     /** Gets the window size (in seconds) of the average and rolling view*/
-    void getWindowSize(float* rollingWindowSize, float* averageWindowPre, float* averageWindowPost);
+    void getWindowSize (float* rollingWindowSize, float* averageWindowPre, float* averageWindowPost);
 
     /** Shows/hides the average view timescale */
-    void showAverageView(bool show);
+    void showAverageView (bool show);
 
     /** Set distance between edge of canvas and start of timescale */
-    void setMarginOffset(float marginOffset);
+    void setMarginOffset (float marginOffset);
 
 private:
-
     std::unique_ptr<TimeScale> rollingViewTimeScale;
     std::unique_ptr<TimeScale> averageViewTimeScale;
 
     float margin = 0.0f;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerTimeScale);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProbeViewerTimeScale);
 };
 
-};
+}; // namespace ProbeViewer
 
 #endif /* ProbeViewerTimeScale_hpp */

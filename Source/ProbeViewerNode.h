@@ -27,12 +27,12 @@
 #include "ProcessorHeaders.h"
 #include "Utilities/CircularBuffer.hpp"
 
-namespace ProbeViewer {
+namespace ProbeViewer
+{
 
 class ProbeViewerNode : public GenericProcessor
 {
 public:
-
     /** Constructor */
     ProbeViewerNode();
 
@@ -45,27 +45,27 @@ public:
     AudioProcessorEditor* createEditor() override;
 
     /** Pushes samples to the data buffer*/
-    void process(AudioBuffer<float>& buffer) override;
+    void process (AudioBuffer<float>& buffer) override;
 
     /** Handles incoming events used as triggers */
-    void handleTTLEvent(TTLEventPtr event);
+    void handleTTLEvent (TTLEventPtr event);
 
     /** Updates settings */
     void updateSettings() override;
 
-    void parameterValueChanged(Parameter*) override;
+    void parameterValueChanged (Parameter*) override;
 
     /** Updates the displayed stream, then calls updateSettings() */
-	void setDisplayedStream(int idx);
+    void setDisplayedStream (int idx);
 
     /** Gtes the displayed stream id*/
-	uint16 getDisplayedStream();
+    uint16 getDisplayedStream();
 
     /** Returns the sample rate of the currently selected stream*/
-	float getStreamSampleRate();
+    float getStreamSampleRate();
 
     /** Returns the number of samples in the currently selected stream*/
-	int getNumStreamChannels();
+    int getNumStreamChannels();
 
     /** Enables the editor */
     bool startAcquisition() override;
@@ -77,7 +77,7 @@ public:
     CircularBuffer* getCircularBufferPtr();
 
     /** Responds to config messages with region info */
-    String handleConfigMessage(const String& msg) override;
+    String handleConfigMessage (const String& msg) override;
 
 private:
     static const float bufferLengthSeconds;
@@ -86,14 +86,14 @@ private:
 
     std::map<uint16, CircularBuffer*> dataBufferMap;
 
-	int streamToDraw;
-	int lastChannelInStream;
+    int streamToDraw;
+    int lastChannelInStream;
 
-	Array<bool> channelsToDraw;
+    Array<bool> channelsToDraw;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerNode);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProbeViewerNode);
 };
 
-}
+} // namespace ProbeViewer
 
 #endif /* __PROBEVIEWERNODE_H__ */

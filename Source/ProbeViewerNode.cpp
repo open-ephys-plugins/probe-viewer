@@ -23,25 +23,25 @@
 
 #include "ProbeViewerNode.h"
 
-#include "ProbeViewerEditor.h"
 #include "ProbeViewerCanvas.h"
+#include "ProbeViewerEditor.h"
 
 using namespace ProbeViewer;
 
 ProbeViewerNode::ProbeViewerNode()
-: GenericProcessor ("Probe Viewer")
+    : GenericProcessor ("Probe Viewer")
 {
-	streamToDraw = -1;
+    streamToDraw = -1;
 }
 
 ProbeViewerNode::~ProbeViewerNode()
-{ }
-
+{
+}
 
 void ProbeViewerNode::registerParameters()
 {
-	addIntParameter(Parameter::PROCESSOR_SCOPE, "trigger_line", "Trigger Line", "The TTL trigger line", -1, -1, 15);
-	addSelectedStreamParameter(Parameter::PROCESSOR_SCOPE, "display_stream", "Display Stream", "The stream to display", {}, 0);
+    addIntParameter (Parameter::PROCESSOR_SCOPE, "trigger_line", "Trigger Line", "The TTL trigger line", -1, -1, 15);
+    addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "display_stream", "Display Stream", "The stream to display", {}, 0);
 }
 
 AudioProcessorEditor* ProbeViewerNode::createEditor()
@@ -50,101 +50,95 @@ AudioProcessorEditor* ProbeViewerNode::createEditor()
     return editor.get();
 }
 
-void ProbeViewerNode::process(AudioBuffer<float>& buffer)
+void ProbeViewerNode::process (AudioBuffer<float>& buffer)
 {
-
-	for (int chan = 0; chan < buffer.getNumChannels(); chan++)
+    for (int chan = 0; chan < buffer.getNumChannels(); chan++)
     {
-		uint16 streamId = continuousChannels[chan]->getStreamId();
-		int localId = continuousChannels[chan]->getLocalIndex();
-		int globalId = continuousChannels[chan]->getGlobalIndex();
-		uint32 nSamples = getNumSamplesInBlock(streamId);
-		int64 sampleNumber = getFirstSampleNumberForBlock(streamId);
+        uint16 streamId = continuousChannels[chan]->getStreamId();
+        int localId = continuousChannels[chan]->getLocalIndex();
+        int globalId = continuousChannels[chan]->getGlobalIndex();
+        uint32 nSamples = getNumSamplesInBlock (streamId);
+        int64 sampleNumber = getFirstSampleNumberForBlock (streamId);
 
-		dataBufferMap[streamId]->addData(buffer, localId, globalId, nSamples, sampleNumber);
-	}
+        dataBufferMap[streamId]->addData (buffer, localId, globalId, nSamples, sampleNumber);
+    }
 
-	checkForEvents();
+    checkForEvents();
 }
 
-void ProbeViewerNode::handleTTLEvent(TTLEventPtr event)
+void ProbeViewerNode::handleTTLEvent (TTLEventPtr event)
 {
-	const int eventState = event->getState() ? 1 : 0;
-	const int eventLine = event->getLine();
-	const int64 sampleNumber = event->getSampleNumber();
-	const uint16 streamId = event->getChannelInfo()->getStreamId();
+    const int eventState = event->getState() ? 1 : 0;
+    const int eventLine = event->getLine();
+    const int64 sampleNumber = event->getSampleNumber();
+    const uint16 streamId = event->getChannelInfo()->getStreamId();
 
-	if (eventState && eventLine == (int) getParameter("trigger_line")->getValue())
-	{
-		dataBufferMap[streamId]->setTrigger(sampleNumber);
-	}
-	
+    if (eventState && eventLine == (int) getParameter ("trigger_line")->getValue())
+    {
+        dataBufferMap[streamId]->setTrigger (sampleNumber);
+    }
 }
 
 void ProbeViewerNode::updateSettings()
 {
-	for (auto buffer : dataBuffers)
-	{
-		buffer->prepareToUpdate();
-	}
-	
-	for(auto stream : getDataStreams())
-	{
-		uint16 streamId = stream->getStreamId();
+    for (auto buffer : dataBuffers)
+    {
+        buffer->prepareToUpdate();
+    }
 
-		if(dataBufferMap.count(streamId) == 0)
-		{
-			dataBuffers.add(new CircularBuffer(streamId, stream->getSampleRate(), bufferLengthSeconds));
-			dataBufferMap[streamId] = dataBuffers.getLast();
-		}
-		else
-		{
-			dataBufferMap[streamId]->sampleRate = stream->getSampleRate();
-		}
+    for (auto stream : getDataStreams())
+    {
+        uint16 streamId = stream->getStreamId();
 
-		dataBufferMap[streamId]->updateChannelInfo(stream->getContinuousChannels());
+        if (dataBufferMap.count (streamId) == 0)
+        {
+            dataBuffers.add (new CircularBuffer (streamId, stream->getSampleRate(), bufferLengthSeconds));
+            dataBufferMap[streamId] = dataBuffers.getLast();
+        }
+        else
+        {
+            dataBufferMap[streamId]->sampleRate = stream->getSampleRate();
+        }
 
-	}
+        dataBufferMap[streamId]->updateChannelInfo (stream->getContinuousChannels());
+    }
 
-	Array<CircularBuffer*> toDelete;
+    Array<CircularBuffer*> toDelete;
 
     for (auto dataBuffer : dataBuffers)
     {
-
         if (dataBuffer->isNeeded)
         {
             dataBuffer->update();
         }
         else
-		{
-            dataBufferMap.erase(dataBuffer->id);
-            toDelete.add(dataBuffer);
+        {
+            dataBufferMap.erase (dataBuffer->id);
+            toDelete.add (dataBuffer);
         }
-
     }
 
     for (auto dataBuffer : toDelete)
     {
-        dataBuffers.removeObject(dataBuffer, true);
+        dataBuffers.removeObject (dataBuffer, true);
     }
-
 }
 
-void ProbeViewerNode::parameterValueChanged(Parameter* param)
+void ProbeViewerNode::parameterValueChanged (Parameter* param)
 {
-	if (param->getName() == "display_stream")
-	{
-		String streamKey = param->getValueAsString();
-		if (auto stream = getDataStream(streamKey))
-			setDisplayedStream(getDataStream(streamKey)->getStreamId());
-		else
-			setDisplayedStream(-1);
-	}
+    if (param->getName() == "display_stream")
+    {
+        String streamKey = param->getValueAsString();
+        if (auto stream = getDataStream (streamKey))
+            setDisplayedStream (getDataStream (streamKey)->getStreamId());
+        else
+            setDisplayedStream (-1);
+    }
 }
 
 bool ProbeViewerNode::startAcquisition()
 {
-	((ProbeViewerEditor*) getEditor())->enable();
+    ((ProbeViewerEditor*) getEditor())->enable();
     return true;
 }
 
@@ -154,163 +148,159 @@ bool ProbeViewerNode::stopAcquisition()
     return true;
 }
 
-void ProbeViewerNode::setDisplayedStream(int idx)
+void ProbeViewerNode::setDisplayedStream (int idx)
 {
-	streamToDraw = idx;
-	((ProbeViewerEditor*)getEditor())->displayStreamChanged();
+    streamToDraw = idx;
+    ((ProbeViewerEditor*) getEditor())->displayStreamChanged();
 }
 
 uint16 ProbeViewerNode::getDisplayedStream()
 {
-	return streamToDraw;
+    return streamToDraw;
 }
 
 float ProbeViewerNode::getStreamSampleRate()
 {
-	if(streamToDraw >= 0)
-		return getDataStream(streamToDraw)->getSampleRate();
-	else
-		return 0.0f;
+    if (streamToDraw >= 0)
+        return getDataStream (streamToDraw)->getSampleRate();
+    else
+        return 0.0f;
 }
 
 int ProbeViewerNode::getNumStreamChannels()
 {
-	if(streamToDraw >= 0)
-		return getDataStream(streamToDraw)->getChannelCount() ;
-	else
-		return 0;
+    if (streamToDraw >= 0)
+        return getDataStream (streamToDraw)->getChannelCount();
+    else
+        return 0;
 }
 
 CircularBuffer* ProbeViewerNode::getCircularBufferPtr()
 {
-	if(streamToDraw >= 0 && dataBufferMap.count(streamToDraw) > 0)
-		return dataBufferMap[streamToDraw];
-	else
-		return nullptr;
+    if (streamToDraw >= 0 && dataBufferMap.count (streamToDraw) > 0)
+        return dataBufferMap[streamToDraw];
+    else
+        return nullptr;
 }
 
-String ProbeViewerNode::handleConfigMessage(const String& msg)
+String ProbeViewerNode::handleConfigMessage (const String& msg)
 {
-	
-	// message format
-	// "<probe_name>;<start_index_1>-<end_index_1>,<region_ID_1>,<hex_color_1>;<start_index_2>-<end_index_2>,...
+    // message format
+    // "<probe_name>;<start_index_1>-<end_index_1>,<region_ID_1>,<hex_color_1>;<start_index_2>-<end_index_2>,...
 
-	// Example:
-	// ProbeA;0-69,PT,FF909F;70-97,PVT,FF909F;98-161,-,000000;162-173,-,000000,174-185,SF,90CBED;...
+    // Example:
+    // ProbeA;0-69,PT,FF909F;70-97,PVT,FF909F;98-161,-,000000;162-173,-,000000,174-185,SF,90CBED;...
 
-	//LOGD(msg);
-	LOGD("Probe Viewer ", getNodeId(), " received message of length ", msg.length());
-	
-	int firstSemicolon = msg.indexOf(";");
-	String probeName;
-	String electrodeInfo;
+    //LOGD(msg);
+    LOGD ("Probe Viewer ", getNodeId(), " received message of length ", msg.length());
 
-	if (firstSemicolon > -1)
-	{
-		probeName = msg.substring(0, firstSemicolon);
-		electrodeInfo = msg.substring(firstSemicolon + 1);
-		LOGD("Probe name: ", probeName);
-	}
-	else {
-		LOGD("No probe name detected.");
-		return "No probe name detected.";
-	}
+    int firstSemicolon = msg.indexOf (";");
+    String probeName;
+    String electrodeInfo;
 
-	Array<uint16> streamIds;
+    if (firstSemicolon > -1)
+    {
+        probeName = msg.substring (0, firstSemicolon);
+        electrodeInfo = msg.substring (firstSemicolon + 1);
+        LOGD ("Probe name: ", probeName);
+    }
+    else
+    {
+        LOGD ("No probe name detected.");
+        return "No probe name detected.";
+    }
 
-	for (auto stream : dataStreams)
-	{
+    Array<uint16> streamIds;
 
-		String streamName = stream->getName();
+    for (auto stream : dataStreams)
+    {
+        String streamName = stream->getName();
 
-		if (streamName.endsWith("-AP"))
-		{
-			streamName = streamName.substring(0, streamName.length() - 3);
-		}
-		else if (streamName.endsWith("-LFP"))
-		{
-			streamName = streamName.substring(0, streamName.length() - 4);
-		}
+        if (streamName.endsWith ("-AP"))
+        {
+            streamName = streamName.substring (0, streamName.length() - 3);
+        }
+        else if (streamName.endsWith ("-LFP"))
+        {
+            streamName = streamName.substring (0, streamName.length() - 4);
+        }
 
+        if (probeName.equalsIgnoreCase (streamName))
+            streamIds.add (stream->getStreamId());
+    }
 
-		if (probeName.equalsIgnoreCase(streamName))
-			streamIds.add(stream->getStreamId());
+    LOGD ("Number of matching streams: ", streamIds.size());
 
-	}
+    if (streamIds.size() == 0)
+    {
+        return "No matching stream detected.";
+    }
 
-	LOGD("Number of matching streams: ", streamIds.size());
+    Array<int> electrodeInds;
+    Array<String> regionNames;
+    Array<Colour> regionColours;
 
-	if (streamIds.size() == 0)
-	{
-		return "No matching stream detected.";
-	}
-		
+    StringArray tokens = StringArray::fromTokens (electrodeInfo, ";", "");
 
-	Array<int> electrodeInds;
-	Array<String> regionNames;
-	Array<Colour> regionColours;
+    for (auto token : tokens)
+    {
+        //LOGC(token);
 
-	StringArray tokens = StringArray::fromTokens(electrodeInfo, ";", "");
+        StringArray rangeInfo = StringArray::fromTokens (token, ",", "");
 
-	for (auto token : tokens)
-	{
-		//LOGC(token);
+        int firstElectrode = -1;
+        int lastElectrode = -1;
+        String regionName = "";
+        Colour regionColour = Colours::black;
 
-		StringArray rangeInfo = StringArray::fromTokens(token, ",", "");
+        int hyphen = rangeInfo[0].indexOf ("-");
 
-		int firstElectrode = -1;
-		int lastElectrode = -1;
-		String regionName = "";
-		Colour regionColour = Colours::black;
+        if (hyphen > -1)
+        {
+            firstElectrode = rangeInfo[0].substring (0, hyphen).getIntValue();
+            lastElectrode = rangeInfo[0].substring (hyphen + 1).getIntValue();
+            //LOGD("First electrode: ", firstElectrode);
+            //LOGD("Last electrode: ", lastElectrode);
+        }
 
-		int hyphen = rangeInfo[0].indexOf("-");
+        if (rangeInfo.size() > 1)
+        {
+            regionName = rangeInfo[1];
 
-		if (hyphen > -1)
-		{
-			firstElectrode = rangeInfo[0].substring(0, hyphen).getIntValue();
-			lastElectrode = rangeInfo[0].substring(hyphen + 1).getIntValue();
-			//LOGD("First electrode: ", firstElectrode);
-			//LOGD("Last electrode: ", lastElectrode);
-		}
+            if (regionName.startsWith ("SSp"))
+                regionName = "SSp";
+            //LOGD("Region name: ", regionName);
+        }
 
-		if (rangeInfo.size() > 1)
-		{
-			regionName = rangeInfo[1];
+        if (rangeInfo.size() > 2)
+        {
+            regionColour = Colour::fromString ("#FF" + rangeInfo[2].toUpperCase());
+            //LOGD("Original color: ", rangeInfo[2]);
+            //LOGD("Region colour: ", regionColour.toString());
+        }
 
-			if (regionName.startsWith("SSp"))
-				regionName = "SSp";
-			//LOGD("Region name: ", regionName);
-		}
+        if (firstElectrode > -1 && lastElectrode > -1)
+        {
+            //LOGD("Adding new range.");
 
-		if (rangeInfo.size() > 2)
-		{
-			regionColour = Colour::fromString("#FF" + rangeInfo[2].toUpperCase());
-			//LOGD("Original color: ", rangeInfo[2]);
-			//LOGD("Region colour: ", regionColour.toString());
-		}
+            for (int i = firstElectrode; i < lastElectrode + 1; i++)
+            {
+                electrodeInds.add (i);
+                regionNames.add (regionName);
+                regionColours.add (regionColour);
+            }
+        }
+    }
 
-		if (firstElectrode > -1 && lastElectrode > -1)
-		{
-			//LOGD("Adding new range.");
+    if (electrodeInds.size() > 0)
+    {
+        ProbeViewerEditor* ed = (ProbeViewerEditor*) getEditor();
 
-			for (int i = firstElectrode; i < lastElectrode + 1; i++)
-			{
-				electrodeInds.add(i);
-				regionNames.add(regionName);
-				regionColours.add(regionColour);
-			}
-		}
-	}
-		
-	if (electrodeInds.size() > 0)
-	{
-		ProbeViewerEditor* ed = (ProbeViewerEditor*)getEditor();
+        for (auto streamId : streamIds)
+            ed->setRegions (streamId, electrodeInds, regionNames, regionColours);
+    }
 
-		for (auto streamId : streamIds)
-			ed->setRegions(streamId, electrodeInds, regionNames, regionColours);
-	}
-	
-	return "Success";
+    return "Success";
 }
 
 const float ProbeViewerNode::bufferLengthSeconds = 10.0f;

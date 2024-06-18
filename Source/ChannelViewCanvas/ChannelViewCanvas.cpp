@@ -23,58 +23,54 @@
 
 #include "ChannelViewCanvas.hpp"
 
-#include "AverageView.hpp"
-#include "RollingView.hpp"
 #include "../ProbeViewerCanvas.h"
 #include "../ProbeViewerNode.h"
+#include "AverageView.hpp"
+#include "RollingView.hpp"
 
 using namespace ProbeViewer;
 
-
-ChannelViewCanvas::ChannelViewCanvas(class ProbeViewerCanvas* canvas,
-    class ProbeViewerNode* node)
-    : parentCanvas(canvas),
-      renderMode(RenderMode::RMS),
-      colourSchemeId(ColourSchemeId::INFERNO)
+ChannelViewCanvas::ChannelViewCanvas (class ProbeViewerCanvas* canvas,
+                                      class ProbeViewerNode* node)
+    : parentCanvas (canvas),
+      renderMode (RenderMode::RMS),
+      colourSchemeId (ColourSchemeId::INFERNO)
 {
-    rollingView = std::make_unique<RollingView>(this);
-    averageView = std::make_unique<AverageView>(this, node);
+    rollingView = std::make_unique<RollingView> (this);
+    averageView = std::make_unique<AverageView> (this, node);
 
-    addAndMakeVisible(rollingView.get());
-    addChildComponent(averageView.get());
+    addAndMakeVisible (rollingView.get());
+    addChildComponent (averageView.get());
 }
 
-void ChannelViewCanvas::showAverageView(bool show)
+void ChannelViewCanvas::showAverageView (bool show)
 {
-	averageView->setVisible(show);
-	resized();
+    averageView->setVisible (show);
+    resized();
 }
 
-void ChannelViewCanvas::updateAverageViewWindow(float preSeconds, float postSeconds)
+void ChannelViewCanvas::updateAverageViewWindow (float preSeconds, float postSeconds)
 {
-	averageView->setWindow(preSeconds, postSeconds);
+    averageView->setWindow (preSeconds, postSeconds);
 }
 
-void ChannelViewCanvas::updateRollingViewWindow(float windowSize)
+void ChannelViewCanvas::updateRollingViewWindow (float windowSize)
 {
-    rollingView->setWindow(windowSize);
+    rollingView->setWindow (windowSize);
 }
-
-
 
 void ChannelViewCanvas::resized()
 {
     if (averageView->isVisible())
     {
-		rollingView->setBounds(0, 0, getWidth() - 300, getHeight());
-		averageView->setBounds(getWidth() - 290, 0, 290, getHeight());
-	}
-	else
-	{
-		rollingView->setBounds(0, 0, getWidth(), getHeight());
-    } 
+        rollingView->setBounds (0, 0, getWidth() - 300, getHeight());
+        averageView->setBounds (getWidth() - 290, 0, 290, getHeight());
+    }
+    else
+    {
+        rollingView->setBounds (0, 0, getWidth(), getHeight());
+    }
 }
-
 
 int ChannelViewCanvas::getNumChannels() const
 {
@@ -87,13 +83,12 @@ void ChannelViewCanvas::updateViewSettings()
     averageView->updateViewSettings();
 }
 
-
 RenderMode ChannelViewCanvas::getCurrentRenderMode() const
 {
     return renderMode;
 }
 
-void ChannelViewCanvas::setCurrentRenderMode(RenderMode r)
+void ChannelViewCanvas::setCurrentRenderMode (RenderMode r)
 {
     renderMode = r;
     rollingView->fullRedraw = true;
@@ -105,7 +100,7 @@ ColourSchemeId ChannelViewCanvas::getCurrentColourScheme() const
     return colourSchemeId;
 }
 
-void ChannelViewCanvas::setCurrentColourScheme(ColourSchemeId schemeId)
+void ChannelViewCanvas::setCurrentColourScheme (ColourSchemeId schemeId)
 {
     colourSchemeId = schemeId;
 }

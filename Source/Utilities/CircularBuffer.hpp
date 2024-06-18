@@ -26,12 +26,13 @@
 
 #include "VisualizerWindowHeaders.h"
 
-namespace ProbeViewer {
+namespace ProbeViewer
+{
 
 class CircularBuffer
 {
 public:
-    CircularBuffer(int id, float sampleRate, int bufferLengthSec);
+    CircularBuffer (int id, float sampleRate, int bufferLengthSec);
     virtual ~CircularBuffer();
 
     /** Resets buffer*/
@@ -41,18 +42,18 @@ public:
     void update();
 
     /** Sets the channel number and depth*/
-    void updateChannelInfo(Array<ContinuousChannel*> channels);
+    void updateChannelInfo (Array<ContinuousChannel*> channels);
 
     /**
      *  Return the current location of the read point for a specific channel.
      */
-    int getChannelReadIndex(int channel) const;
+    int getChannelReadIndex (int channel) const;
 
     /**
      *  Return the number of samples that are fresh since the last time
      *  ::clearSamplesReadyForDrawing was called.
      */
-    int getNumSamplesReadyForDrawing(int channel) const;
+    int getNumSamplesReadyForDrawing (int channel) const;
 
     /**
      *  Returns a value indicating whether or not this CircularBuffer has
@@ -67,12 +68,12 @@ public:
      */
     void clearSamplesReadyForDrawing();
 
-     /** Adds continuous data*/
-    void addData(AudioBuffer<float>& buffer, 
-        int localChanId, 
-        int globalChanId, 
-        int nSamples,
-        int64 sampleNumber);
+    /** Adds continuous data*/
+    void addData (AudioBuffer<float>& buffer,
+                  int localChanId,
+                  int globalChanId,
+                  int nSamples,
+                  int64 sampleNumber);
 
     /**
      *  Return a single sample at a specific index and from a specific channel.
@@ -80,13 +81,13 @@ public:
      *  Sample-wise reading should only be done after getting this object's
      *  mutex from ::getMutex below.
      */
-    float getSample(int sampIdx, int channel) const;
+    float getSample (int sampIdx, int channel) const;
 
     /**
      *  Sets a flag indicating that a trigger was received
      *
      */
-    void setTrigger(int64 sampleNumber);
+    void setTrigger (int64 sampleNumber);
 
     /**
      *  Return the mutex for locking the internal data buffer during sample read
@@ -111,7 +112,7 @@ private:
 
     Array<int> readIndex;
     Array<int> writeIndex;
-	Array<bool> shouldDraw;
+    Array<bool> shouldDraw;
 
     Atomic<int> samplesReadyForDrawing;
     Array<int> channelOrder;
@@ -120,8 +121,7 @@ private:
     int previousSize;
 
     CriticalSection dataMutex;
-
 };
-}
+} // namespace ProbeViewer
 
 #endif /* CircularBuffer_hpp */

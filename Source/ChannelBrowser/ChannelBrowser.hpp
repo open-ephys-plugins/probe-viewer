@@ -26,7 +26,8 @@
 
 #include "VisualizerWindowHeaders.h"
 
-namespace ProbeViewer {
+namespace ProbeViewer
+{
 
 class ChannelBrowser : public Component, public Timer
 {
@@ -34,29 +35,33 @@ public:
     static const unsigned int MARGIN_WIDTH;
 
     /** Constructor */
-    ChannelBrowser(class ProbeViewerCanvas* canvas, int id);
+    ChannelBrowser (class ProbeViewerCanvas* canvas, int id);
 
     /** Destructor*/
-    virtual ~ChannelBrowser() override { }
+    virtual ~ChannelBrowser() override {}
 
     /** Renders the channel browser*/
-    void paint(Graphics&) override;
+    void paint (Graphics&) override;
 
     /** Returns the height (in pixels) of each channel */
     float getChannelHeight();
 
     /** Timer callback*/
-    void timerCallback() override { repaint(); stopTimer(); }
+    void timerCallback() override
+    {
+        repaint();
+        stopTimer();
+    }
 
     /** Mouse callbacks */
-    void mouseMove(const MouseEvent& event);
-    void mouseDown(const MouseEvent& event);
-    void mouseDrag(const MouseEvent& event);
-    void mouseUp(const MouseEvent& event);
-    void mouseWheelMove(const MouseEvent& event, const MouseWheelDetails& wheel);
+    void mouseMove (const MouseEvent& event);
+    void mouseDown (const MouseEvent& event);
+    void mouseDrag (const MouseEvent& event);
+    void mouseUp (const MouseEvent& event);
+    void mouseWheelMove (const MouseEvent& event, const MouseWheelDetails& wheel);
 
     /** Add a new channel to draw*/
-    void addChannel(int channelNum, String channelName, float depth, int electrode_index);  
+    void addChannel (int channelNum, String channelName, float depth, int electrode_index);
 
     /** Creates colors after all channels have been added */
     void createChannelColours();
@@ -71,13 +76,13 @@ public:
     int getNumChannels() const;
 
     /** Set region info (e.g. from Pinpoint or Trajectory Explorer) */
-    void setRegions(Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
+    void setRegions (Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
 
     float getViewportScrollPositionRatio();
 
-    void saveParameters(XmlElement* xml);
+    void saveParameters (XmlElement* xml);
 
-    void loadParameters(XmlElement* xml);
+    void loadParameters (XmlElement* xml);
 
     static const unsigned int NUM_PROBE_READ_SITES;
     static const int PROBE_VIEW_X_OFFSET;
@@ -85,7 +90,6 @@ public:
     int id;
 
 private:
-
     class ProbeViewerCanvas* canvas;
 
     Array<Colour> customColours;
@@ -104,10 +108,11 @@ private:
 
     Rectangle<int> selectionBox;
     bool isSelectionActive = false;
-    
+
     bool isMouseActionLocked = false;
 
-    struct ChannelMetadata{
+    struct ChannelMetadata
+    {
         int num = -1;
         String name = "";
         float depth = -1;
@@ -118,11 +123,11 @@ private:
     Array<ChannelMetadata> channelMetadata;
     Array<int> channelOrder;
 
-    Colour getChannelColour(int channel);
-    int getNearestChannelIdx(int x, int y);
+    Colour getChannelColour (int channel);
+    int getNearestChannelIdx (int x, int y);
     MouseCursor getMouseCursor();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChannelBrowser);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelBrowser);
 };
 
 /**
@@ -133,27 +138,27 @@ struct ProbeGraphicZoomInfo
 {
     ProbeGraphicZoomInfo() = default;
 
-    bool isMouseOverZoomRegion = {false};
-    bool isMouseOverUpperBorder = {false};
-    bool isMouseOverLowerBorder = {false};
-    bool isMouseOverChannel = {false};
+    bool isMouseOverZoomRegion = { false };
+    bool isMouseOverUpperBorder = { false };
+    bool isMouseOverLowerBorder = { false };
+    bool isMouseOverChannel = { false };
 
-    int zoomHeight = {16};
-    int zoomOffset = {0};
-    int initialOffset = {0};
-    int initialHeight = {0};
-    int lowerBound = {513};
-    int dragZoneWidth = {8};
+    int zoomHeight = { 16 };
+    int zoomOffset = { 0 };
+    int initialOffset = { 0 };
+    int initialHeight = { 0 };
+    int lowerBound = { 513 };
+    int dragZoneWidth = { 8 };
 
-    int lowestChan = {0};
-    int highestChan = {0};
+    int lowestChan = { 0 };
+    int highestChan = { 0 };
 
-    float channelHeight = {10};
-    
-    juce::Point<int> lastPosition = {0, 0};
-    float viewportScrollPositionRatio = {1};
+    float channelHeight = { 10 };
+
+    juce::Point<int> lastPosition = { 0, 0 };
+    float viewportScrollPositionRatio = { 1 };
 };
 
-}
+} // namespace ProbeViewer
 
 #endif /* ChannelBrowser_hpp */

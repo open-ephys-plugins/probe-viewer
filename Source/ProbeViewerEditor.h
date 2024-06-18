@@ -26,15 +26,15 @@
 
 #include "VisualizerEditorHeaders.h"
 
-namespace ProbeViewer {
+namespace ProbeViewer
+{
 
 class ProbeViewerEditor
     : public VisualizerEditor
 {
 public:
-
     /** Constructor */
-    ProbeViewerEditor(GenericProcessor* parentNode);
+    ProbeViewerEditor (GenericProcessor* parentNode);
 
     /** Destructor */
     virtual ~ProbeViewerEditor() override;
@@ -50,11 +50,10 @@ public:
     virtual Visualizer* createNewCanvas() override;
 
     /** Updates available streams*/
-	void updateSettings() override;
+    void updateSettings() override;
 
     /** Sets custom regions by electrode index */
-    void setRegions(uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
-
+    void setRegions (uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
 
 private:
     Array<int> inputStreamIds;
@@ -65,9 +64,9 @@ private:
 
     bool hasNoInputs;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeViewerEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProbeViewerEditor);
 };
 
-}
+} // namespace ProbeViewer
 
 #endif /* __PROBEVIEWEREDITOR_H__ */

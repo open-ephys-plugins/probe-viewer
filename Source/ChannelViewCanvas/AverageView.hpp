@@ -26,19 +26,18 @@
 
 #include "VisualizerWindowHeaders.h"
 
-
-namespace ProbeViewer {
+namespace ProbeViewer
+{
 
 class AverageView : public Component,
-    public ComboBox::Listener
+                    public ComboBox::Listener
 {
 public:
-
     /** Constructor */
-    AverageView(class ChannelViewCanvas* canvas, class ProbeViewerNode* node);
+    AverageView (class ChannelViewCanvas* canvas, class ProbeViewerNode* node);
 
     /** Destructor */
-    virtual ~AverageView() override { }
+    virtual ~AverageView() override {}
 
     /** Updates settings */
     void updateViewSettings();
@@ -46,34 +45,32 @@ public:
     /**
     *  Set the height in pixels of the displayed channels (data and reference)
     */
-    void setChannelHeight(float height);
-
+    void setChannelHeight (float height);
 
     /**
     *  Set the sample rate of the displayed stream
     */
-    void setSampleRate(float sampleRate);
+    void setSampleRate (float sampleRate);
 
     /**
      *  Extracts samples from a circular buffer
      */
-    void fillFromBuffer(class CircularBuffer* buffer);
+    void fillFromBuffer (class CircularBuffer* buffer);
 
     /** Sets the pre/post time window */
-	void setWindow(float preWindow, float postWindow);
+    void setWindow (float preWindow, float postWindow);
 
-	/** Render the view */
-    void paint(Graphics& g);
+    /** Render the view */
+    void paint (Graphics& g);
 
     /** Called when options are changed*/
-	void comboBoxChanged(ComboBox* comboBoxThatHasChanged) override;
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
 
     /** Used to set TTL trigger line */
-    void mouseDown(const MouseEvent& e);
+    void mouseDown (const MouseEvent& e);
 
 private:
-
-	AudioBuffer<float> screenBuffer;
+    AudioBuffer<float> screenBuffer;
     AudioBuffer<float> cacheBuffer;
     Array<int> pixelIndex;
     Array<int> numCachedSamples;
@@ -86,7 +83,7 @@ private:
     int numChannels;
     int numTrials;
     float channelHeight;
-	float preWindow = 0.5;
+    float preWindow = 0.5;
     float postWindow = 0.5;
     float samplesPerPixel;
     float sampleRate;
@@ -94,10 +91,9 @@ private:
 
     int triggerLine = -1;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AverageView);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AverageView);
 };
 
-}
-
+} // namespace ProbeViewer
 
 #endif /* AverageView_hpp */

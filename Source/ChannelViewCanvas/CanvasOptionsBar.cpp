@@ -8,199 +8,194 @@
 
 #include "CanvasOptionsBar.hpp"
 
-#include "ChannelViewCanvas.hpp"
 #include "../ProbeViewerCanvas.h"
-#include "../Utilities/ColourScheme.hpp"
 #include "../TimeScale/ProbeViewerTimeScale.hpp"
+#include "../Utilities/ColourScheme.hpp"
+#include "ChannelViewCanvas.hpp"
 
 using namespace ProbeViewer;
 
-CanvasOptionsBar::CanvasOptionsBar(class ChannelViewCanvas* channelsView_,
-    class ProbeViewerTimeScale* timeScale_)
-: channelsView(channelsView_)
-, timeScale(timeScale_)
-, marginWidth(0)
-, labelFont("Fira Code", "Regular", 16.0f)
-, labelColour(100, 100, 100)
+CanvasOptionsBar::CanvasOptionsBar (class ChannelViewCanvas* channelsView_,
+                                    class ProbeViewerTimeScale* timeScale_)
+    : channelsView (channelsView_), timeScale (timeScale_), marginWidth (0), labelFont ("Fira Code", "Regular", 16.0f), labelColour (100, 100, 100)
 {
-    rmsSubOptionComponent = new RMSSubOptionComponent(labelFont, labelColour);
-    fftSubOptionComponent = new FFTSubOptionComponent(labelFont, labelColour);
-    spikeRateSubOptionComponent = new SpikeRateSubOptionComponent(labelFont, labelColour);
-    
+    rmsSubOptionComponent = new RMSSubOptionComponent (labelFont, labelColour);
+    fftSubOptionComponent = new FFTSubOptionComponent (labelFont, labelColour);
+    spikeRateSubOptionComponent = new SpikeRateSubOptionComponent (labelFont, labelColour);
+
     currentSubOptionComponent = rmsSubOptionComponent;
-    addAndMakeVisible(currentSubOptionComponent);
-    
-    renderModeSelectionLabel = new Label("renderModeSelectionLabel", "Render Mode");
-    renderModeSelectionLabel->setFont(labelFont);
-    renderModeSelectionLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(renderModeSelectionLabel);
-    
-    StringArray renderModeNames = {"RMS Signal", "Freq. Band Power", "Spike Rate"};
-    renderModeSelection = new ComboBox("renderModeSelection");
-    renderModeSelection->addItemList(renderModeNames, 1);
-    renderModeSelection->setEditableText(false);
-    renderModeSelection->addListener(this);
-    renderModeSelection->setSelectedId(1, dontSendNotification);
-    addAndMakeVisible(renderModeSelection);
+    addAndMakeVisible (currentSubOptionComponent);
+
+    renderModeSelectionLabel = new Label ("renderModeSelectionLabel", "Render Mode");
+    renderModeSelectionLabel->setFont (labelFont);
+    renderModeSelectionLabel->setColour (Label::textColourId, labelColour);
+    addAndMakeVisible (renderModeSelectionLabel);
+
+    StringArray renderModeNames = { "RMS Signal", "Freq. Band Power", "Spike Rate" };
+    renderModeSelection = new ComboBox ("renderModeSelection");
+    renderModeSelection->addItemList (renderModeNames, 1);
+    renderModeSelection->setEditableText (false);
+    renderModeSelection->addListener (this);
+    renderModeSelection->setSelectedId (1, dontSendNotification);
+    addAndMakeVisible (renderModeSelection);
 
     showAverageViewButton = new ShowAverageViewButton();
-    showAverageViewButton->setClickingTogglesState(true);
-	showAverageViewButton->setToggleState(false, dontSendNotification);
-	showAverageViewButton->addListener(this);
-	addAndMakeVisible(showAverageViewButton);
-    
-    
+    showAverageViewButton->setClickingTogglesState (true);
+    showAverageViewButton->setToggleState (false, dontSendNotification);
+    showAverageViewButton->addListener (this);
+    addAndMakeVisible (showAverageViewButton);
+
     // colour scheme options
-    colourSchemeSelectionLabel = new Label("colourSchemeSelectionLabel", "Colour\nScheme");
-    colourSchemeSelectionLabel->setFont(labelFont);
-    colourSchemeSelectionLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(colourSchemeSelectionLabel);
-    
-    StringArray colourSchemeNames = {"Inferno", "Plasma", "Magma", "Viridis", "Jet"};
-    colourSchemeSelection = new ComboBox("colourSchemeSelection");
-    colourSchemeSelection->addItemList(colourSchemeNames, 1);
-    colourSchemeSelection->setEditableText(false);
-    colourSchemeSelection->addListener(this);
-    colourSchemeSelection->setSelectedId(1, dontSendNotification);
-    addAndMakeVisible(colourSchemeSelection);
-    
-    setBufferedToImage(true);
+    colourSchemeSelectionLabel = new Label ("colourSchemeSelectionLabel", "Colour\nScheme");
+    colourSchemeSelectionLabel->setFont (labelFont);
+    colourSchemeSelectionLabel->setColour (Label::textColourId, labelColour);
+    addAndMakeVisible (colourSchemeSelectionLabel);
+
+    StringArray colourSchemeNames = { "Inferno", "Plasma", "Magma", "Viridis", "Jet" };
+    colourSchemeSelection = new ComboBox ("colourSchemeSelection");
+    colourSchemeSelection->addItemList (colourSchemeNames, 1);
+    colourSchemeSelection->setEditableText (false);
+    colourSchemeSelection->addListener (this);
+    colourSchemeSelection->setSelectedId (1, dontSendNotification);
+    addAndMakeVisible (colourSchemeSelection);
+
+    setBufferedToImage (true);
 }
 
 CanvasOptionsBar::~CanvasOptionsBar()
-{ }
-
-void CanvasOptionsBar::paint(Graphics& g)
 {
-    g.setColour(Colour(25, 25, 25));
-    g.fillRect(0, 0, getWidth(), getHeight());
-    
-    g.setColour(Colour(80, 80, 80));
-    g.drawLine(marginWidth, 0, marginWidth, getHeight(), 1);
 }
 
-void CanvasOptionsBar::addListener(ComboBox::Listener* listener)
+void CanvasOptionsBar::paint (Graphics& g)
 {
-	renderModeSelection->addListener(listener);
-	colourSchemeSelection->addListener(listener);
-    rmsSubOptionComponent->addListener(listener);
-	fftSubOptionComponent->addListener(listener);
-	spikeRateSubOptionComponent->addListener(listener);
+    g.setColour (Colour (25, 25, 25));
+    g.fillRect (0, 0, getWidth(), getHeight());
+
+    g.setColour (Colour (80, 80, 80));
+    g.drawLine (marginWidth, 0, marginWidth, getHeight(), 1);
+}
+
+void CanvasOptionsBar::addListener (ComboBox::Listener* listener)
+{
+    renderModeSelection->addListener (listener);
+    colourSchemeSelection->addListener (listener);
+    rmsSubOptionComponent->addListener (listener);
+    fftSubOptionComponent->addListener (listener);
+    spikeRateSubOptionComponent->addListener (listener);
 }
 
 void CanvasOptionsBar::resized()
 {
-    renderModeSelectionLabel->setBounds(0, 0, 95, getHeight());
-    renderModeSelection->setBounds(renderModeSelectionLabel->getRight(), 2, 100, getHeight() - 4);
+    renderModeSelectionLabel->setBounds (0, 0, 95, getHeight());
+    renderModeSelection->setBounds (renderModeSelectionLabel->getRight(), 2, 100, getHeight() - 4);
 
-    showAverageViewButton->setBounds(getRight() - 50, 0, 45, getHeight());
-    
+    showAverageViewButton->setBounds (getRight() - 50, 0, 45, getHeight());
+
     //int colourSchemeOffset = 700;
     //if (getWidth() > colourSchemeOffset) colourSchemeOffset = getWidth();
-    colourSchemeSelectionLabel->setBounds(getRight() - 220, 0, 70, getHeight());
-    colourSchemeSelection->setBounds(colourSchemeSelectionLabel->getRight(), 2, 90, getHeight() - 4);
-    
-    Rectangle<int> subOptionBounds(marginWidth + 3, 0, getWidth() - marginWidth - 220 - 3, getHeight());
-    rmsSubOptionComponent->setBounds(subOptionBounds);
-    fftSubOptionComponent->setBounds(subOptionBounds);
-    spikeRateSubOptionComponent->setBounds(subOptionBounds);
+    colourSchemeSelectionLabel->setBounds (getRight() - 220, 0, 70, getHeight());
+    colourSchemeSelection->setBounds (colourSchemeSelectionLabel->getRight(), 2, 90, getHeight() - 4);
+
+    Rectangle<int> subOptionBounds (marginWidth + 3, 0, getWidth() - marginWidth - 220 - 3, getHeight());
+    rmsSubOptionComponent->setBounds (subOptionBounds);
+    fftSubOptionComponent->setBounds (subOptionBounds);
+    spikeRateSubOptionComponent->setBounds (subOptionBounds);
 }
 
-void CanvasOptionsBar::comboBoxChanged(ComboBox *cb)
+void CanvasOptionsBar::comboBoxChanged (ComboBox* cb)
 {
     if (cb == renderModeSelection)
     {
-        removeChildComponent(currentSubOptionComponent);
-        
+        removeChildComponent (currentSubOptionComponent);
+
         RenderMode renderMode;
-        
-        switch(cb->getSelectedId())
+
+        switch (cb->getSelectedId())
         {
             case 1:
                 renderMode = RenderMode::RMS;
                 currentSubOptionComponent = rmsSubOptionComponent;
                 break;
-                
+
             case 2:
                 renderMode = RenderMode::FFT;
                 currentSubOptionComponent = fftSubOptionComponent;
                 break;
-                
+
             case 3:
             default:
                 renderMode = RenderMode::SPIKE_RATE;
                 currentSubOptionComponent = spikeRateSubOptionComponent;
                 break;
         }
-        
-        addAndMakeVisible(currentSubOptionComponent);
-        
-        channelsView->setCurrentRenderMode(renderMode);
+
+        addAndMakeVisible (currentSubOptionComponent);
+
+        channelsView->setCurrentRenderMode (renderMode);
     }
     else if (cb == colourSchemeSelection)
     {
         ColourSchemeId colourSchemeId;
-        
-        switch(cb->getSelectedId())
+
+        switch (cb->getSelectedId())
         {
             case 1:
                 colourSchemeId = ColourSchemeId::INFERNO;
                 break;
-                
+
             case 2:
                 colourSchemeId = ColourSchemeId::PLASMA;
                 break;
-                
+
             case 3:
                 colourSchemeId = ColourSchemeId::MAGMA;
                 break;
-                
+
             case 4:
                 colourSchemeId = ColourSchemeId::VIRIDIS;
                 break;
-                
+
             case 5:
             default:
                 colourSchemeId = ColourSchemeId::JET;
                 break;
         }
-        
-        channelsView->setCurrentColourScheme(colourSchemeId);
+
+        channelsView->setCurrentColourScheme (colourSchemeId);
     }
 }
 
-void CanvasOptionsBar::buttonClicked(Button* button)
+void CanvasOptionsBar::buttonClicked (Button* button)
 {
     if (button == showAverageViewButton)
     {
-		channelsView->showAverageView(showAverageViewButton->getToggleState());
-        timeScale->showAverageView(showAverageViewButton->getToggleState());
+        channelsView->showAverageView (showAverageViewButton->getToggleState());
+        timeScale->showAverageView (showAverageViewButton->getToggleState());
     }
 }
 
-void CanvasOptionsBar::setMarginOffset(float marginOffset)
+void CanvasOptionsBar::setMarginOffset (float marginOffset)
 {
     marginWidth = marginOffset;
     resized();
 }
 
-void ShowAverageViewButton::paint(Graphics& g)
+void ShowAverageViewButton::paint (Graphics& g)
 {
-    
-    g.setFont(Font(12.0f, Font::plain));
-    
+    g.setFont (Font (12.0f, Font::plain));
+
     if (getToggleState())
     {
-        g.setColour(Colour(200, 200, 200));
-        g.drawText("HIDE", 0, 3, getWidth(), getHeight()/2, Justification::centred);
+        g.setColour (Colour (200, 200, 200));
+        g.drawText ("HIDE", 0, 3, getWidth(), getHeight() / 2, Justification::centred);
     }
-    else {
-        g.setColour(Colour(150, 150, 150));
-        g.drawText("SHOW", 0, 3, getWidth(), getHeight()/2, Justification::centred);
+    else
+    {
+        g.setColour (Colour (150, 150, 150));
+        g.drawText ("SHOW", 0, 3, getWidth(), getHeight() / 2, Justification::centred);
     }
 
-    g.drawText("AVG", 0, getHeight() / 2, getWidth(), getHeight() / 2 - 3, Justification::centred);
-
+    g.drawText ("AVG", 0, getHeight() / 2, getWidth(), getHeight() / 2 - 3, Justification::centred);
 }
 
 // BEGIN PUBLIC ACCESSOR DELEGATES
@@ -240,11 +235,10 @@ int CanvasOptionsBar::getFFTCenterFrequencyBin() const
     return fftSubOptionComponent->getFFTSamplingBin();
 }
 
-void CanvasOptionsBar::setFFTParams(const int numBins, const float sampleRate)
+void CanvasOptionsBar::setFFTParams (const int numBins, const float sampleRate)
 {
-    fftSubOptionComponent->setSampleRate(sampleRate);
-    fftSubOptionComponent->setFFTSize(numBins);
-    
+    fftSubOptionComponent->setSampleRate (sampleRate);
+    fftSubOptionComponent->setFFTSize (numBins);
 }
 
 float CanvasOptionsBar::getSpikeRateLowBound() const
@@ -267,201 +261,195 @@ float CanvasOptionsBar::getSpikeRateThreshold() const
     return spikeRateSubOptionComponent->getSpikeRateThreshold();
 }
 
-void CanvasOptionsBar::saveParameters(XmlElement* xml)
+void CanvasOptionsBar::saveParameters (XmlElement* xml)
 {
-    XmlElement* xmlNode = xml->createNewChildElement("OPTIONS");
+    XmlElement* xmlNode = xml->createNewChildElement ("OPTIONS");
 
-    xmlNode->setAttribute("renderMode", renderModeSelection->getSelectedId());
+    xmlNode->setAttribute ("renderMode", renderModeSelection->getSelectedId());
 
-    xmlNode->setAttribute("rmsLow", getRMSLowBound());
-    xmlNode->setAttribute("rmsHi", getRMSHiBound());
+    xmlNode->setAttribute ("rmsLow", getRMSLowBound());
+    xmlNode->setAttribute ("rmsHi", getRMSHiBound());
 
-    xmlNode->setAttribute("fftLow", getFFTLowBound());
-    xmlNode->setAttribute("fftHi", getFFTHiBound());
-    xmlNode->setAttribute("fftFreqBin", fftSubOptionComponent->getFFTFrequency());
+    xmlNode->setAttribute ("fftLow", getFFTLowBound());
+    xmlNode->setAttribute ("fftHi", getFFTHiBound());
+    xmlNode->setAttribute ("fftFreqBin", fftSubOptionComponent->getFFTFrequency());
 
-    xmlNode->setAttribute("spikeLow", getSpikeRateLowBound());
-    xmlNode->setAttribute("spikeHi", getSpikeRateHiBound());
-    xmlNode->setAttribute("spikeThreshold", getSpikeRateThreshold());
+    xmlNode->setAttribute ("spikeLow", getSpikeRateLowBound());
+    xmlNode->setAttribute ("spikeHi", getSpikeRateHiBound());
+    xmlNode->setAttribute ("spikeThreshold", getSpikeRateThreshold());
 
-    xmlNode->setAttribute("colourScheme", colourSchemeSelection->getSelectedId());
+    xmlNode->setAttribute ("colourScheme", colourSchemeSelection->getSelectedId());
 
-    xmlNode->setAttribute("showAverageView", showAverageViewButton->getToggleState());
+    xmlNode->setAttribute ("showAverageView", showAverageViewButton->getToggleState());
 
-	float rollingWindowSize, averageWindowPre, averageWindowPost;
-    
-    timeScale->getWindowSize(&rollingWindowSize, &averageWindowPre, &averageWindowPost);
-    
-    xmlNode->setAttribute("rollingWindowSize", rollingWindowSize);
-    xmlNode->setAttribute("averageWindowPre", averageWindowPre);
-    xmlNode->setAttribute("averageWindowPost", averageWindowPost);
-    
+    float rollingWindowSize, averageWindowPre, averageWindowPost;
+
+    timeScale->getWindowSize (&rollingWindowSize, &averageWindowPre, &averageWindowPost);
+
+    xmlNode->setAttribute ("rollingWindowSize", rollingWindowSize);
+    xmlNode->setAttribute ("averageWindowPre", averageWindowPre);
+    xmlNode->setAttribute ("averageWindowPost", averageWindowPost);
 }
 
-void CanvasOptionsBar::loadParameters(XmlElement* xml)
+void CanvasOptionsBar::loadParameters (XmlElement* xml)
 {
-    XmlElement* xmlNode = xml->getChildByName("OPTIONS");
+    XmlElement* xmlNode = xml->getChildByName ("OPTIONS");
 
     if (xmlNode)
     {
-        renderModeSelection->setSelectedId(xmlNode->getIntAttribute("renderMode", 1), sendNotification);
+        renderModeSelection->setSelectedId (xmlNode->getIntAttribute ("renderMode", 1), sendNotification);
 
-        rmsSubOptionComponent->setRMSBounds(xmlNode->getStringAttribute("rmsLow", String()), 
-            xmlNode->getStringAttribute("rmsHi", String()));
-        
-        fftSubOptionComponent->setFFTParams(xmlNode->getStringAttribute("fftLow", String()),
-            xmlNode->getStringAttribute("fftHi", String()),
-            xmlNode->getStringAttribute("fftFreqBin", String()));
+        rmsSubOptionComponent->setRMSBounds (xmlNode->getStringAttribute ("rmsLow", String()),
+                                             xmlNode->getStringAttribute ("rmsHi", String()));
 
-        spikeRateSubOptionComponent->setSpikeRateParams(xmlNode->getStringAttribute("spikeLow", String()),
-            xmlNode->getStringAttribute("spikeHi", String()),
-            xmlNode->getStringAttribute("spikeThreshold", String()));
+        fftSubOptionComponent->setFFTParams (xmlNode->getStringAttribute ("fftLow", String()),
+                                             xmlNode->getStringAttribute ("fftHi", String()),
+                                             xmlNode->getStringAttribute ("fftFreqBin", String()));
 
-        colourSchemeSelection->setSelectedId(xmlNode->getIntAttribute("colourScheme", 1));
+        spikeRateSubOptionComponent->setSpikeRateParams (xmlNode->getStringAttribute ("spikeLow", String()),
+                                                         xmlNode->getStringAttribute ("spikeHi", String()),
+                                                         xmlNode->getStringAttribute ("spikeThreshold", String()));
 
-		showAverageViewButton->setToggleState(xmlNode->getBoolAttribute("showAverageView", false), sendNotification);
+        colourSchemeSelection->setSelectedId (xmlNode->getIntAttribute ("colourScheme", 1));
+
+        showAverageViewButton->setToggleState (xmlNode->getBoolAttribute ("showAverageView", false), sendNotification);
 
         float rollingWindowSize, averageWindowPre, averageWindowPost;
 
-		rollingWindowSize = xmlNode->getDoubleAttribute("rollingWindowSize", 8.0f);
-        averageWindowPre = xmlNode->getDoubleAttribute("averageWindowPre", 0.5f);
-        averageWindowPost = xmlNode->getDoubleAttribute("averageWindowPost", 0.5f);
+        rollingWindowSize = xmlNode->getDoubleAttribute ("rollingWindowSize", 8.0f);
+        averageWindowPre = xmlNode->getDoubleAttribute ("averageWindowPre", 0.5f);
+        averageWindowPost = xmlNode->getDoubleAttribute ("averageWindowPost", 0.5f);
 
-        timeScale->setRollingViewWindowSize(rollingWindowSize);
-		timeScale->setAverageViewWindowSize(averageWindowPre, averageWindowPost);
+        timeScale->setRollingViewWindowSize (rollingWindowSize);
+        timeScale->setAverageViewWindowSize (averageWindowPre, averageWindowPost);
     }
 }
 
 #pragma mark - RMSSubOptionComponent -
 
-RMSSubOptionComponent::RMSSubOptionComponent(Font labelFont, Colour labelColour)
-: labelFont(labelFont)
-, labelColour(labelColour)
-, lowValueBound(0)
-, hiValueBound(250)
+RMSSubOptionComponent::RMSSubOptionComponent (Font labelFont, Colour labelColour)
+    : labelFont (labelFont), labelColour (labelColour), lowValueBound (0), hiValueBound (250)
 {
     // low value plotting threshold
-    lowValueBoundLabel = new Label("lowValueBoundLabel", "Low:");
-    lowValueBoundLabel->setFont(labelFont);
-    lowValueBoundLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(lowValueBoundLabel);
-    
-    lowValueBoundSelectionOptions.addArray({
-        "0",
-        "50",
-        "100",
-        "150",
-        "200",
-        "250",
-        "300",
-        "350",
-        "400",
-        "450",
-        "500"
-    });
-    lowValueBoundSelection = new ComboBox("lowValueBoundSelection");
-    lowValueBoundSelection->addItemList(lowValueBoundSelectionOptions, 1);
-    lowValueBoundSelection->setEditableText(true);
-    lowValueBoundSelection->addListener(this);
-    lowValueBoundSelection->setSelectedId(1, dontSendNotification);
-    addAndMakeVisible(lowValueBoundSelection);
-    
+    lowValueBoundLabel = new Label ("lowValueBoundLabel", "Low:");
+    lowValueBoundLabel->setFont (labelFont);
+    lowValueBoundLabel->setColour (Label::textColourId, labelColour);
+    addAndMakeVisible (lowValueBoundLabel);
+
+    lowValueBoundSelectionOptions.addArray ({ "0",
+                                              "50",
+                                              "100",
+                                              "150",
+                                              "200",
+                                              "250",
+                                              "300",
+                                              "350",
+                                              "400",
+                                              "450",
+                                              "500" });
+    lowValueBoundSelection = new ComboBox ("lowValueBoundSelection");
+    lowValueBoundSelection->addItemList (lowValueBoundSelectionOptions, 1);
+    lowValueBoundSelection->setEditableText (true);
+    lowValueBoundSelection->addListener (this);
+    lowValueBoundSelection->setSelectedId (1, dontSendNotification);
+    addAndMakeVisible (lowValueBoundSelection);
+
     // hi value plotting threshold
-    hiValueBoundLabel = new Label("hiValueBoundLabel", "High:");
-    hiValueBoundLabel->setFont(labelFont);
-    hiValueBoundLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(hiValueBoundLabel);
-    
-    hiValueBoundSelectionOptions.addArray({
-        "0",
-        "50",
-        "100",
-        "150",
-        "200",
-        "250",
-        "300",
-        "350",
-        "400",
-        "450",
-        "500"
-    });
-    hiValueBoundSelection = new ComboBox("hiValueBoundSelection");
-    hiValueBoundSelection->addItemList(hiValueBoundSelectionOptions, 1);
-    hiValueBoundSelection->setEditableText(true);
-    hiValueBoundSelection->addListener(this);
-    hiValueBoundSelection->setSelectedId(6, dontSendNotification);
-    addAndMakeVisible(hiValueBoundSelection);
+    hiValueBoundLabel = new Label ("hiValueBoundLabel", "High:");
+    hiValueBoundLabel->setFont (labelFont);
+    hiValueBoundLabel->setColour (Label::textColourId, labelColour);
+    addAndMakeVisible (hiValueBoundLabel);
+
+    hiValueBoundSelectionOptions.addArray ({ "0",
+                                             "50",
+                                             "100",
+                                             "150",
+                                             "200",
+                                             "250",
+                                             "300",
+                                             "350",
+                                             "400",
+                                             "450",
+                                             "500" });
+    hiValueBoundSelection = new ComboBox ("hiValueBoundSelection");
+    hiValueBoundSelection->addItemList (hiValueBoundSelectionOptions, 1);
+    hiValueBoundSelection->setEditableText (true);
+    hiValueBoundSelection->addListener (this);
+    hiValueBoundSelection->setSelectedId (6, dontSendNotification);
+    addAndMakeVisible (hiValueBoundSelection);
 }
 
 RMSSubOptionComponent::~RMSSubOptionComponent()
-{ }
-
-void RMSSubOptionComponent::paint(Graphics& g)
 {
-    g.setColour(Colours::darkgrey);
-    g.drawRect(0, 0, getWidth(), getHeight());
-    g.drawFittedText("RMS OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
+}
+
+void RMSSubOptionComponent::paint (Graphics& g)
+{
+    g.setColour (Colours::darkgrey);
+    g.drawRect (0, 0, getWidth(), getHeight());
+    g.drawFittedText ("RMS OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
 }
 
 void RMSSubOptionComponent::resized()
 {
-    lowValueBoundLabel->setBounds(0, 0, 40, getHeight());
-    lowValueBoundSelection->setBounds(lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
-    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight() + 10, 0, 50, getHeight());
-    hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    lowValueBoundLabel->setBounds (0, 0, 40, getHeight());
+    lowValueBoundSelection->setBounds (lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    hiValueBoundLabel->setBounds (lowValueBoundSelection->getRight() + 10, 0, 50, getHeight());
+    hiValueBoundSelection->setBounds (hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
 }
 
-void RMSSubOptionComponent::addListener(ComboBox::Listener* listener)
+void RMSSubOptionComponent::addListener (ComboBox::Listener* listener)
 {
-    lowValueBoundSelection->addListener(listener);
-    hiValueBoundSelection->addListener(listener);
+    lowValueBoundSelection->addListener (listener);
+    hiValueBoundSelection->addListener (listener);
 }
 
-
-void RMSSubOptionComponent::comboBoxChanged(ComboBox* cb)
+void RMSSubOptionComponent::comboBoxChanged (ComboBox* cb)
 {
     if (cb == lowValueBoundSelection)
     {
         // if custom value
         if (cb->getSelectedId() == 0)
         {
-            auto val = fabsf(cb->getText().getFloatValue());
+            auto val = fabsf (cb->getText().getFloatValue());
             std::cout << val << std::endl;
-            
+
             // clip value if necessary
-            if (val > 1000) val = 1000;
-            
+            if (val > 1000)
+                val = 1000;
+
             lowValueBound = val;
-            
-            cb->setText(String(val));
+
+            cb->setText (String (val));
         }
         else
         {
             lowValueBound = lowValueBoundSelectionOptions[cb->getSelectedItemIndex()].getFloatValue();
         }
-        
+
         return;
     }
-    
+
     if (cb == hiValueBoundSelection)
     {
         // if custom value
         if (cb->getSelectedId() == 0)
         {
-            auto val = fabsf(cb->getText().getFloatValue());
-            
+            auto val = fabsf (cb->getText().getFloatValue());
+
             // clip value if necessary
-            if (val > 1000) val = 1000;
-            
+            if (val > 1000)
+                val = 1000;
+
             hiValueBound = val;
-            
-            cb->setText(String(val));
+
+            cb->setText (String (val));
         }
         else
         {
             hiValueBound = lowValueBoundSelectionOptions[cb->getSelectedItemIndex()].getFloatValue();
         }
-        
+
         return;
     }
 }
@@ -481,131 +469,121 @@ float RMSSubOptionComponent::getRMSBoundSpread() const
     return hiValueBound - lowValueBound;
 }
 
-void RMSSubOptionComponent::setRMSBounds(String low, String high)
+void RMSSubOptionComponent::setRMSBounds (String low, String high)
 {
-    if(low.isNotEmpty())
-        lowValueBoundSelection->setText(low, sendNotification);
+    if (low.isNotEmpty())
+        lowValueBoundSelection->setText (low, sendNotification);
 
-    if(high.isNotEmpty())
-        hiValueBoundSelection->setText(high, sendNotification);
+    if (high.isNotEmpty())
+        hiValueBoundSelection->setText (high, sendNotification);
 }
-
 
 #pragma mark - FFTSubOptionComponent -
 
-FFTSubOptionComponent::FFTSubOptionComponent(Font labelFont, Colour labelColour)
-: labelFont(labelFont)
-, labelColour(labelColour)
-, binSelectionValue(0)
-, maxFreq(44100.0f / 2.0f)
+FFTSubOptionComponent::FFTSubOptionComponent (Font labelFont, Colour labelColour)
+    : labelFont (labelFont), labelColour (labelColour), binSelectionValue (0), maxFreq (44100.0f / 2.0f)
 {
     // low value plotting threshold
-    lowValueBoundLabel = new Label("lowValueBoundLabel", "Low (dB):");
-    lowValueBoundLabel->setFont(labelFont);
-    lowValueBoundLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(lowValueBoundLabel);
-    
+    lowValueBoundLabel = new Label ("lowValueBoundLabel", "Low (dB):");
+    lowValueBoundLabel->setFont (labelFont);
+    lowValueBoundLabel->setColour (Label::textColourId, labelColour);
+    addAndMakeVisible (lowValueBoundLabel);
+
     lowValueBound = -100;
-    lowValueBoundSelectionOptions.addArray({
-        "-100", "-90", "-80", "-70", "-60", "-70", "-50", "-40", "-30"
-    });
-    lowValueBoundSelection = new ComboBox("lowValueBoundSelection");
-    lowValueBoundSelection->addItemList(lowValueBoundSelectionOptions, 1);
-    lowValueBoundSelection->setEditableText(true);
-    lowValueBoundSelection->addListener(this);
-    lowValueBoundSelection->setSelectedId(1, dontSendNotification);
-    addAndMakeVisible(lowValueBoundSelection);
-    
-    
-    
+    lowValueBoundSelectionOptions.addArray ({ "-100", "-90", "-80", "-70", "-60", "-70", "-50", "-40", "-30" });
+    lowValueBoundSelection = new ComboBox ("lowValueBoundSelection");
+    lowValueBoundSelection->addItemList (lowValueBoundSelectionOptions, 1);
+    lowValueBoundSelection->setEditableText (true);
+    lowValueBoundSelection->addListener (this);
+    lowValueBoundSelection->setSelectedId (1, dontSendNotification);
+    addAndMakeVisible (lowValueBoundSelection);
+
     // hi value plotting threshold
-    hiValueBoundLabel = new Label("hiValueBoundLabel", "High (dB):");
-    hiValueBoundLabel->setFont(labelFont);
-    hiValueBoundLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(hiValueBoundLabel);
-    
+    hiValueBoundLabel = new Label ("hiValueBoundLabel", "High (dB):");
+    hiValueBoundLabel->setFont (labelFont);
+    hiValueBoundLabel->setColour (Label::textColourId, labelColour);
+    addAndMakeVisible (hiValueBoundLabel);
+
     hiValueBound = 0;
-    hiValueBoundSelectionOptions.addArray({
-        "0", "-5", "-10", "-15", "-20"
-    });
-    hiValueBoundSelection = new ComboBox("hiValueBoundSelection");
-    hiValueBoundSelection->addItemList(hiValueBoundSelectionOptions, 1);
-    hiValueBoundSelection->setEditableText(true);
-    hiValueBoundSelection->addListener(this);
-    hiValueBoundSelection->setSelectedId(1, dontSendNotification);
-    addAndMakeVisible(hiValueBoundSelection);
-    
-    
-    
+    hiValueBoundSelectionOptions.addArray ({ "0", "-5", "-10", "-15", "-20" });
+    hiValueBoundSelection = new ComboBox ("hiValueBoundSelection");
+    hiValueBoundSelection->addItemList (hiValueBoundSelectionOptions, 1);
+    hiValueBoundSelection->setEditableText (true);
+    hiValueBoundSelection->addListener (this);
+    hiValueBoundSelection->setSelectedId (1, dontSendNotification);
+    addAndMakeVisible (hiValueBoundSelection);
+
     // bin selection
-    binSelectionLabel = new Label("binSelectionLabel", "Center Freq.:");
-    binSelectionLabel->setFont(labelFont);
-    binSelectionLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(binSelectionLabel);
-    
-    binSelectionOptions.addArray({"1", "8", "16", "32", "64", "128", "256"});
-    binSelection = new ComboBox("binSelection");
-    binSelection->addItemList(binSelectionOptions, 1);
-    binSelection->setEditableText(false);
-    binSelection->addListener(this);
-    binSelection->setSelectedId(binSelectionValue + 1, dontSendNotification);
-    addAndMakeVisible(binSelection);
-    
+    binSelectionLabel = new Label ("binSelectionLabel", "Center Freq.:");
+    binSelectionLabel->setFont (labelFont);
+    binSelectionLabel->setColour (Label::textColourId, labelColour);
+    addAndMakeVisible (binSelectionLabel);
+
+    binSelectionOptions.addArray ({ "1", "8", "16", "32", "64", "128", "256" });
+    binSelection = new ComboBox ("binSelection");
+    binSelection->addItemList (binSelectionOptions, 1);
+    binSelection->setEditableText (false);
+    binSelection->addListener (this);
+    binSelection->setSelectedId (binSelectionValue + 1, dontSendNotification);
+    addAndMakeVisible (binSelection);
 }
 
 FFTSubOptionComponent::~FFTSubOptionComponent()
-{ }
-
-void FFTSubOptionComponent::paint(Graphics& g)
 {
-    g.setColour(Colours::darkgrey);
-    g.drawRect(0, 0, getWidth(), getHeight());
-    g.drawFittedText("FFT OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
+}
+
+void FFTSubOptionComponent::paint (Graphics& g)
+{
+    g.setColour (Colours::darkgrey);
+    g.drawRect (0, 0, getWidth(), getHeight());
+    g.drawFittedText ("FFT OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
 }
 
 void FFTSubOptionComponent::resized()
 {
-    lowValueBoundLabel->setBounds(0, 0, 70, getHeight());
-    lowValueBoundSelection->setBounds(lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    lowValueBoundLabel->setBounds (0, 0, 70, getHeight());
+    lowValueBoundSelection->setBounds (lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
 
-    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight() + 10, 0, 75, getHeight());
-    hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    hiValueBoundLabel->setBounds (lowValueBoundSelection->getRight() + 10, 0, 75, getHeight());
+    hiValueBoundSelection->setBounds (hiValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
 
-    binSelectionLabel->setBounds(hiValueBoundSelection->getRight() + 10, 0, 100, getHeight());
-    binSelection->setBounds(binSelectionLabel->getRight(), 2, 80, getHeight() - 4);
+    binSelectionLabel->setBounds (hiValueBoundSelection->getRight() + 10, 0, 100, getHeight());
+    binSelection->setBounds (binSelectionLabel->getRight(), 2, 80, getHeight() - 4);
 }
 
-namespace {
-    // helper function for center frequency bin selection, 0 and numBins inclusive
-    inline int freqToBinIndex(float freq, float maxFreq, int numBins)
-    {
-        return std::round((freq/maxFreq) * numBins);
-    }
-}
-
-void FFTSubOptionComponent::addListener(ComboBox::Listener* listener)
+namespace
 {
-    lowValueBoundSelection->addListener(listener);
-    hiValueBoundSelection->addListener(listener);
-    binSelection->addListener(listener);
+// helper function for center frequency bin selection, 0 and numBins inclusive
+inline int freqToBinIndex (float freq, float maxFreq, int numBins)
+{
+    return std::round ((freq / maxFreq) * numBins);
+}
+} // namespace
+
+void FFTSubOptionComponent::addListener (ComboBox::Listener* listener)
+{
+    lowValueBoundSelection->addListener (listener);
+    hiValueBoundSelection->addListener (listener);
+    binSelection->addListener (listener);
 }
 
-void FFTSubOptionComponent::comboBoxChanged(ComboBox* cb)
+void FFTSubOptionComponent::comboBoxChanged (ComboBox* cb)
 {
     if (cb == lowValueBoundSelection)
     {
         // if custom value
         if (cb->getSelectedId() == 0)
         {
-            auto val = fabsf(cb->getText().getFloatValue());
-            
-            if (val > 100) val = 100;
-            
+            auto val = fabsf (cb->getText().getFloatValue());
+
+            if (val > 100)
+                val = 100;
+
             val *= -1;
-            
+
             lowValueBound = val;
-            
-            cb->setText(String(val));
+
+            cb->setText (String (val));
         }
         else
         {
@@ -618,15 +596,16 @@ void FFTSubOptionComponent::comboBoxChanged(ComboBox* cb)
         // if custom value
         if (cb->getSelectedId() == 0)
         {
-            auto val = fabsf(cb->getText().getFloatValue());
-            
-            if (val > 100) val = 100;
-            
+            auto val = fabsf (cb->getText().getFloatValue());
+
+            if (val > 100)
+                val = 100;
+
             val *= -1;
-            
+
             hiValueBound = val;
-            
-            cb->setText(String(val));
+
+            cb->setText (String (val));
         }
         else
         {
@@ -636,18 +615,18 @@ void FFTSubOptionComponent::comboBoxChanged(ComboBox* cb)
     }
     if (cb == binSelection)
     {
-        binSelectionValue = freqToBinIndex(cb->getText().getFloatValue(), maxFreq, fftSize/2);
+        binSelectionValue = freqToBinIndex (cb->getText().getFloatValue(), maxFreq, fftSize / 2);
         return;
     }
 }
 
-void FFTSubOptionComponent::setSampleRate(const float sampleRate)
+void FFTSubOptionComponent::setSampleRate (const float sampleRate)
 {
     this->sampleRate = sampleRate;
     maxFreq = sampleRate / 2.0f;
 }
 
-void FFTSubOptionComponent::setFFTSize(const int numBins_)
+void FFTSubOptionComponent::setFFTSize (const int numBins_)
 {
     fftSize = numBins_;
     this->numBins = numBins_ / 2 + 1;
@@ -665,7 +644,7 @@ float FFTSubOptionComponent::getFFTHiBound() const
 
 float FFTSubOptionComponent::getFFTBoundSpread() const
 {
-    return fabsf(hiValueBound - lowValueBound);
+    return fabsf (hiValueBound - lowValueBound);
 }
 
 int FFTSubOptionComponent::getFFTSamplingBin() const
@@ -678,182 +657,174 @@ int FFTSubOptionComponent::getFFTFrequency() const
     return binSelection->getText().getIntValue();
 }
 
-void FFTSubOptionComponent::setFFTParams(String low, String high, String bin)
+void FFTSubOptionComponent::setFFTParams (String low, String high, String bin)
 {
-    if(low.isNotEmpty())
-        lowValueBoundSelection->setText(low, sendNotification);
+    if (low.isNotEmpty())
+        lowValueBoundSelection->setText (low, sendNotification);
 
-    if(high.isNotEmpty())
-        hiValueBoundSelection->setText(high, sendNotification);
+    if (high.isNotEmpty())
+        hiValueBoundSelection->setText (high, sendNotification);
 
-    if(bin.isNotEmpty())
-        binSelection->setText(bin, sendNotification);
+    if (bin.isNotEmpty())
+        binSelection->setText (bin, sendNotification);
 }
-
-
-
-
 
 #pragma mark - SpikeRateSubOptionComponent -
 
-SpikeRateSubOptionComponent::SpikeRateSubOptionComponent(Font labelFont, Colour labelColour)
-: labelFont(labelFont)
-, labelColour(labelColour)
+SpikeRateSubOptionComponent::SpikeRateSubOptionComponent (Font labelFont, Colour labelColour)
+    : labelFont (labelFont), labelColour (labelColour)
 {
     // low bound plotting threshold
-    lowValueBoundLabel = new Label("lowValueBoundLabel", "Low:");
-    lowValueBoundLabel->setFont(labelFont);
-    lowValueBoundLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(lowValueBoundLabel);
-    
-    lowValueBoundSelectionOptions.add("0");
-    lowValueBoundSelection = new ComboBox("lowValueBoundSelection");
-    lowValueBoundSelection->addItemList(lowValueBoundSelectionOptions, 1);
-    lowValueBoundSelection->setEditableText(true);
-    lowValueBoundSelection->addListener(this);
-    lowValueBoundSelection->setSelectedId(1, dontSendNotification);
+    lowValueBoundLabel = new Label ("lowValueBoundLabel", "Low:");
+    lowValueBoundLabel->setFont (labelFont);
+    lowValueBoundLabel->setColour (Label::textColourId, labelColour);
+    addAndMakeVisible (lowValueBoundLabel);
+
+    lowValueBoundSelectionOptions.add ("0");
+    lowValueBoundSelection = new ComboBox ("lowValueBoundSelection");
+    lowValueBoundSelection->addItemList (lowValueBoundSelectionOptions, 1);
+    lowValueBoundSelection->setEditableText (true);
+    lowValueBoundSelection->addListener (this);
+    lowValueBoundSelection->setSelectedId (1, dontSendNotification);
     lowValueBound = 0;
-    addAndMakeVisible(lowValueBoundSelection);
-    
-    
+    addAndMakeVisible (lowValueBoundSelection);
+
     // hi bound plotting threshold
-    hiValueBoundLabel = new Label("hiValueBoundLabel", "High:");
-    hiValueBoundLabel->setFont(labelFont);
-    hiValueBoundLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(hiValueBoundLabel);
-    
-    hiValueBoundSelectionOptions.add("10000");
-    hiValueBoundSelection = new ComboBox("hiValueBoundSelection");
-    hiValueBoundSelection->addItemList(hiValueBoundSelectionOptions, 1);
-    hiValueBoundSelection->setEditableText(true);
-    hiValueBoundSelection->addListener(this);
-    hiValueBoundSelection->setSelectedId(1, dontSendNotification);
+    hiValueBoundLabel = new Label ("hiValueBoundLabel", "High:");
+    hiValueBoundLabel->setFont (labelFont);
+    hiValueBoundLabel->setColour (Label::textColourId, labelColour);
+    addAndMakeVisible (hiValueBoundLabel);
+
+    hiValueBoundSelectionOptions.add ("10000");
+    hiValueBoundSelection = new ComboBox ("hiValueBoundSelection");
+    hiValueBoundSelection->addItemList (hiValueBoundSelectionOptions, 1);
+    hiValueBoundSelection->setEditableText (true);
+    hiValueBoundSelection->addListener (this);
+    hiValueBoundSelection->setSelectedId (1, dontSendNotification);
     hiValueBound = 10000;
-    addAndMakeVisible(hiValueBoundSelection);
-    
-    
+    addAndMakeVisible (hiValueBoundSelection);
+
     // spike onset threshold
-    thresholdSelectionLabel = new Label("thresholdSelectionLabel", "Threshold (uV):");
-    thresholdSelectionLabel->setFont(labelFont);
-    thresholdSelectionLabel->setColour(Label::textColourId, labelColour);
-    addAndMakeVisible(thresholdSelectionLabel);
-    
-    thresholdSelectionOptions.addArray({
-        "-25", "-50",
-        "-75", "-100",
-        "-150", "-200"
-    });
-    thresholdSelection = new ComboBox("thresholdSelection");
-    thresholdSelection->addItemList(thresholdSelectionOptions, 1);
-    thresholdSelection->setEditableText(true);
-    thresholdSelection->setSelectedId(2, dontSendNotification);
-    thresholdSelection->addListener(this);
+    thresholdSelectionLabel = new Label ("thresholdSelectionLabel", "Threshold (uV):");
+    thresholdSelectionLabel->setFont (labelFont);
+    thresholdSelectionLabel->setColour (Label::textColourId, labelColour);
+    addAndMakeVisible (thresholdSelectionLabel);
+
+    thresholdSelectionOptions.addArray ({ "-25", "-50", "-75", "-100", "-150", "-200" });
+    thresholdSelection = new ComboBox ("thresholdSelection");
+    thresholdSelection->addItemList (thresholdSelectionOptions, 1);
+    thresholdSelection->setEditableText (true);
+    thresholdSelection->setSelectedId (2, dontSendNotification);
+    thresholdSelection->addListener (this);
     threshold = -50;
-    addAndMakeVisible(thresholdSelection);
+    addAndMakeVisible (thresholdSelection);
 }
 
 SpikeRateSubOptionComponent::~SpikeRateSubOptionComponent()
-{ }
-
-void SpikeRateSubOptionComponent::paint(Graphics& g)
 {
-    g.setColour(Colours::darkgrey);
-    g.drawRect(0, 0, getWidth(), getHeight());
-    g.drawFittedText("SPIKE RATE OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
+}
+
+void SpikeRateSubOptionComponent::paint (Graphics& g)
+{
+    g.setColour (Colours::darkgrey);
+    g.drawRect (0, 0, getWidth(), getHeight());
+    g.drawFittedText ("SPIKE RATE OPTIONS", 0, 0, getWidth() - 5, getHeight(), Justification::centredRight, 1);
 }
 
 void SpikeRateSubOptionComponent::resized()
 {
-    lowValueBoundLabel->setBounds(0, 0, 40, getHeight());
-    lowValueBoundSelection->setBounds(lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
+    lowValueBoundLabel->setBounds (0, 0, 40, getHeight());
+    lowValueBoundSelection->setBounds (lowValueBoundLabel->getRight(), 2, 60, getHeight() - 4);
 
-    hiValueBoundLabel->setBounds(lowValueBoundSelection->getRight() + 10, 0, 50, getHeight());
-    hiValueBoundSelection->setBounds(hiValueBoundLabel->getRight(), 2, 70, getHeight() - 4);
-    
-    thresholdSelectionLabel->setBounds(hiValueBoundSelection->getRight() + 10, 0, 120, getHeight());
-    thresholdSelection->setBounds(thresholdSelectionLabel->getRight(), 2, 60, getHeight() - 4);
+    hiValueBoundLabel->setBounds (lowValueBoundSelection->getRight() + 10, 0, 50, getHeight());
+    hiValueBoundSelection->setBounds (hiValueBoundLabel->getRight(), 2, 70, getHeight() - 4);
+
+    thresholdSelectionLabel->setBounds (hiValueBoundSelection->getRight() + 10, 0, 120, getHeight());
+    thresholdSelection->setBounds (thresholdSelectionLabel->getRight(), 2, 60, getHeight() - 4);
 }
 
-void SpikeRateSubOptionComponent::addListener(ComboBox::Listener* listener)
+void SpikeRateSubOptionComponent::addListener (ComboBox::Listener* listener)
 {
-    lowValueBoundSelection->addListener(listener);
-    hiValueBoundSelection->addListener(listener);
-    thresholdSelection->addListener(listener);
+    lowValueBoundSelection->addListener (listener);
+    hiValueBoundSelection->addListener (listener);
+    thresholdSelection->addListener (listener);
 }
 
-
-void SpikeRateSubOptionComponent::comboBoxChanged(ComboBox* cb)
+void SpikeRateSubOptionComponent::comboBoxChanged (ComboBox* cb)
 {
     if (cb == lowValueBoundSelection)
     {
         // if custom value
         if (cb->getSelectedId() == 0)
         {
-            auto val = fabsf(cb->getText().getFloatValue());
-            
-            if (val > 5000) val = 5000;
-            
+            auto val = fabsf (cb->getText().getFloatValue());
+
+            if (val > 5000)
+                val = 5000;
+
             lowValueBound = val;
-            
-            cb->setText(String(val));
+
+            cb->setText (String (val));
         }
         else
         {
             auto val = cb->getText().getFloatValue();
-            
+
             lowValueBound = val;
         }
         return;
     }
-    
+
     if (cb == hiValueBoundSelection)
     {
         // if custom value
         if (cb->getSelectedId() == 0)
         {
-            auto val = fabsf(cb->getText().getFloatValue());
-            
-            if (val > 10000) val = 10000;
-            
+            auto val = fabsf (cb->getText().getFloatValue());
+
+            if (val > 10000)
+                val = 10000;
+
             hiValueBound = val;
-            
-            cb->setText(String(val));
+
+            cb->setText (String (val));
         }
         else
         {
             auto val = cb->getText().getFloatValue();
-            
+
             hiValueBound = val;
         }
         return;
     }
-    
+
     if (cb == thresholdSelection)
     {
         // if custom value
         if (cb->getSelectedId() == 0)
         {
-            auto val = fabsf(cb->getText().getFloatValue());
-            
-            if (val < 10) val = 10;
-            else if (val > 500) val = 500;
-            
+            auto val = fabsf (cb->getText().getFloatValue());
+
+            if (val < 10)
+                val = 10;
+            else if (val > 500)
+                val = 500;
+
             val *= -1;
-            
+
             threshold = val;
-            
-            cb->setText(String(val));
+
+            cb->setText (String (val));
         }
         else // otherwise get the preset value
         {
             auto val = cb->getText().getFloatValue();
-            
+
             threshold = val;
         }
-        
+
         return;
     }
-    
 }
 
 float SpikeRateSubOptionComponent::getSpikeRateLowBound() const
@@ -868,7 +839,7 @@ float SpikeRateSubOptionComponent::getSpikeRateHiBound() const
 
 float SpikeRateSubOptionComponent::getSpikeRateBoundSpread() const
 {
-    return fabs(hiValueBound - lowValueBound);
+    return fabs (hiValueBound - lowValueBound);
 }
 
 float SpikeRateSubOptionComponent::getSpikeRateThreshold() const
@@ -876,14 +847,14 @@ float SpikeRateSubOptionComponent::getSpikeRateThreshold() const
     return threshold;
 }
 
-void SpikeRateSubOptionComponent::setSpikeRateParams(String low, String high, String threshold)
+void SpikeRateSubOptionComponent::setSpikeRateParams (String low, String high, String threshold)
 {
-    if(low.isNotEmpty())
-        lowValueBoundSelection->setText(low, sendNotification);
-    
-    if(high.isNotEmpty())
-        hiValueBoundSelection->setText(high, sendNotification);
-    
-    if(threshold.isNotEmpty())
-        thresholdSelection->setText(threshold, sendNotification);
+    if (low.isNotEmpty())
+        lowValueBoundSelection->setText (low, sendNotification);
+
+    if (high.isNotEmpty())
+        hiValueBoundSelection->setText (high, sendNotification);
+
+    if (threshold.isNotEmpty())
+        thresholdSelection->setText (threshold, sendNotification);
 }

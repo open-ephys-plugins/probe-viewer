@@ -26,8 +26,8 @@
 
 #include "VisualizerWindowHeaders.h"
 
-
-namespace ProbeViewer {
+namespace ProbeViewer
+{
 
 enum class RenderMode : int;
 enum class ColourSchemeId : int;
@@ -37,15 +37,14 @@ class ChannelViewCanvas;
 class RollingView : public Component
 {
 public:
+    /** Constructor */
+    RollingView (class ChannelViewCanvas*);
 
-	/** Constructor */
-    RollingView(class ChannelViewCanvas*);
-    
     /** Destructor */
-    ~RollingView() { }
+    ~RollingView() {}
 
     /** Draw the canvas */
-    void paint(Graphics&) override;
+    void paint (Graphics&) override;
 
     /** Change size */
     void resized() override;
@@ -78,7 +77,7 @@ public:
     /**
      *  Set the height in pixels of the displayed channels (data and reference)
      */
-    void setChannelHeight(float height);
+    void setChannelHeight (float height);
 
     /**
      *  Returns the height in pixels of the displayed channels.
@@ -86,7 +85,7 @@ public:
     float getChannelHeight();
 
     /** Change the window size (in seconds) */
-    void setWindow(float window);
+    void setWindow (float window);
 
     /**
      *  Receive and queue pixel value updates for RMS, FFT, or SpikeRate
@@ -95,7 +94,7 @@ public:
      *  This method expects the channel to refer to an index within the
      *  data acquisition subset of channels, and does not do bound checking.
      */
-    void pushPixelValueForChannel(int channel, float value);
+    void pushPixelValueForChannel (int channel, float value);
 
     /**
      *  Returns a pointer the BitmapRenderTile that is currently flagged
@@ -147,13 +146,8 @@ protected:
     int frontBackBufferPixelOffset;
     int frontBufferIndex;
 
-    
-
     CriticalSection imageMutex;
-
 };
-
-
 
 struct BitmapRenderTile
 {
@@ -172,7 +166,7 @@ struct BitmapRenderTile
      *  directly from width, height, and number of channels. These values are not checked for
      *  valid input.
      */
-    BitmapRenderTile(int width, int height, int numChannels);
+    BitmapRenderTile (int width, int height, int numChannels);
 
     /** Destructor */
     ~BitmapRenderTile() = default;
@@ -191,17 +185,16 @@ struct BitmapRenderTile
      *  @param mode         The RenderMode which must be drawn to for
      *                      this tile
      */
-    Image getChannelSubImage(int channel);
+    Image getChannelSubImage (int channel);
 
     /**
      *  BitmapRenderTiles are non-copyable and non-moveable.
      */
-    BitmapRenderTile(const BitmapRenderTile &) = delete;
-    BitmapRenderTile(BitmapRenderTile &&) = delete;
-    BitmapRenderTile& operator=(const BitmapRenderTile &) = delete;
-    BitmapRenderTile& operator=(BitmapRenderTile &&) = delete;
+    BitmapRenderTile (const BitmapRenderTile&) = delete;
+    BitmapRenderTile (BitmapRenderTile&&) = delete;
+    BitmapRenderTile& operator= (const BitmapRenderTile&) = delete;
+    BitmapRenderTile& operator= (BitmapRenderTile&&) = delete;
 };
-
 
 /** 
     
@@ -212,22 +205,22 @@ class ProbeChannelDisplay : public Component
 {
 public:
     /** Constructor */
-    ProbeChannelDisplay(RollingView* view,
-                        class CanvasOptionsBar* optionsBar, 
-                        int channelID, 
-                        float sampleRate);
-    
+    ProbeChannelDisplay (RollingView* view,
+                         class CanvasOptionsBar* optionsBar,
+                         int channelID,
+                         float sampleRate);
+
     /** Destructor*/
     virtual ~ProbeChannelDisplay() override;
 
-	/** Paints the channel display */
+    /** Paints the channel display */
     void pxPaint();
 
     /**
      *  Accept and queue one pixel worth of updates on this channel for
      *  RMS, FFT, or SpikeRate value.
      */
-    void pushSample(float sample);
+    void pushSample (float sample);
 
     /**
      *  Return the index number of this channel relative to the subset of
@@ -239,7 +232,7 @@ public:
      *  Set the index of this channel relative to the subset of available
      *  probe channels that are only data acquiring.
      */
-    void setChannelId(int id);
+    void setChannelId (int id);
 
     /**
      *  Return the sample rate of this channel, or 0 if this is a
@@ -254,7 +247,7 @@ public:
     float getNumSamplesPerPixel();
 
     /** Change the window size (in seconds) */
-    void setWindow(float window);
+    void setWindow (float window);
 
 private:
     RollingView* rollingView;
@@ -266,11 +259,9 @@ private:
 
     Array<float> samples;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ProbeChannelDisplay);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProbeChannelDisplay);
 };
 
-}
-
-
+} // namespace ProbeViewer
 
 #endif /* RollingView_hpp */

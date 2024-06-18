@@ -23,53 +23,49 @@
 
 #include "AverageView.hpp"
 
-#include "ChannelViewCanvas.hpp"
-#include "CanvasOptionsBar.hpp"
-#include "../Utilities/CircularBuffer.hpp"
 #include "../ProbeViewerNode.h"
+#include "../Utilities/CircularBuffer.hpp"
+#include "CanvasOptionsBar.hpp"
+#include "ChannelViewCanvas.hpp"
 
 using namespace ProbeViewer;
 
 const int AVERAGE_VIEW_WIDTH = 300;
 
-AverageView::AverageView(ChannelViewCanvas* canvas_, ProbeViewerNode* node_) :
-    canvas(canvas_),
-    node(node_),
-    numChannels(1),
-    numTrials(0),
-    channelHeight(10),
-    screenBufferImage(Image::RGB, AVERAGE_VIEW_WIDTH, 1, true, SoftwareImageType())
+AverageView::AverageView (ChannelViewCanvas* canvas_, ProbeViewerNode* node_) : canvas (canvas_),
+                                                                                node (node_),
+                                                                                numChannels (1),
+                                                                                numTrials (0),
+                                                                                channelHeight (10),
+                                                                                screenBufferImage (Image::RGB, AVERAGE_VIEW_WIDTH, 1, true, SoftwareImageType())
 {
-
 }
-
 
 void AverageView::updateViewSettings()
 {
-    
     numChannels = canvas->getNumChannels();
 
     if (numChannels == 0)
         numChannels = 1;
 
-    screenBufferImage = Image(Image::RGB, AVERAGE_VIEW_WIDTH, numChannels * 2, true, SoftwareImageType());
+    screenBufferImage = Image (Image::RGB, AVERAGE_VIEW_WIDTH, numChannels * 2, true, SoftwareImageType());
 
-	screenBuffer.setSize(numChannels, AVERAGE_VIEW_WIDTH);
+    screenBuffer.setSize (numChannels, AVERAGE_VIEW_WIDTH);
     screenBuffer.clear();
-   
-    cacheBuffer.setSize(numChannels, 1000);
+
+    cacheBuffer.setSize (numChannels, 1000);
     cacheBuffer.clear();
 
     numTrials = 1;
-    
+
     pixelIndex.clear();
-    pixelIndex.insertMultiple(0, 0, numChannels);
+    pixelIndex.insertMultiple (0, 0, numChannels);
 
     numCachedSamples.clear();
-    numCachedSamples.insertMultiple(0, 0, numChannels);
+    numCachedSamples.insertMultiple (0, 0, numChannels);
 }
 
-void AverageView::comboBoxChanged(ComboBox* c)
+void AverageView::comboBoxChanged (ComboBox* c)
 {
     updateImage = true;
 
@@ -82,82 +78,77 @@ void AverageView::comboBoxChanged(ComboBox* c)
     repaint();
 }
 
-
-void AverageView::paint(Graphics& g)
+void AverageView::paint (Graphics& g)
 {
+    const float verticalScale = float (channelHeight * numChannels) / (numChannels * 2);
+    const float horizontalScale = getWidth() / float (AVERAGE_VIEW_WIDTH);
 
-    const float verticalScale =  float(channelHeight * numChannels) / (numChannels * 2);
-    const float horizontalScale = getWidth() / float(AVERAGE_VIEW_WIDTH);
-
-    const auto transform = AffineTransform::scale(horizontalScale, verticalScale).followedBy(AffineTransform::verticalFlip(getHeight()));
+    const auto transform = AffineTransform::scale (horizontalScale, verticalScale).followedBy (AffineTransform::verticalFlip (getHeight()));
 
     if (updateImage)
     {
-        int zeroMarker = int(preWindow / (preWindow + postWindow) * float(AVERAGE_VIEW_WIDTH));
-        
+        int zeroMarker = int (preWindow / (preWindow + postWindow) * float (AVERAGE_VIEW_WIDTH));
+
         float boundSpread = canvas->optionsBar->getRMSBoundSpread();
         const float lowerBound = canvas->optionsBar->getRMSLowBound();
-        
-        if (boundSpread == 0) boundSpread = 1;
-        
+
+        if (boundSpread == 0)
+            boundSpread = 1;
+
         for (int channel = 0; channel < numChannels; ++channel)
         {
-			for (int pixel = 0; pixel < AVERAGE_VIEW_WIDTH; ++pixel)
-			{
+            for (int pixel = 0; pixel < AVERAGE_VIEW_WIDTH; ++pixel)
+            {
                 if (pixel == zeroMarker)
                 {
                     for (int i = 0; i < 2; i++)
                     {
-                        screenBufferImage.setPixelAt(pixel, channel * 2 + i, Colours::yellow);
+                        screenBufferImage.setPixelAt (pixel, channel * 2 + i, Colours::yellow);
                     }
                 }
-                else {
-                    const float value = screenBuffer.getSample(channel, pixel) / numTrials;
+                else
+                {
+                    const float value = screenBuffer.getSample (channel, pixel) / numTrials;
                     const float normValue = (value - lowerBound) / boundSpread;
 
-                    const Colour colour = ColourScheme::getColourForNormalizedValueInScheme(normValue, canvas->getCurrentColourScheme());
+                    const Colour colour = ColourScheme::getColourForNormalizedValueInScheme (normValue, canvas->getCurrentColourScheme());
 
                     for (int i = 0; i < 2; i++)
                     {
-                        screenBufferImage.setPixelAt(pixel, channel * 2 + i, colour);
+                        screenBufferImage.setPixelAt (pixel, channel * 2 + i, colour);
                     }
-                    
                 }
-                
-
-			}
+            }
         }
-        
+
         updateImage = false;
     }
 
-    g.drawImageTransformed(screenBufferImage, transform);
-
+    g.drawImageTransformed (screenBufferImage, transform);
 }
 
-void AverageView::setChannelHeight(float height)
+void AverageView::setChannelHeight (float height)
 {
     channelHeight = height;
 
     repaint();
 }
 
-void AverageView::setSampleRate(float sampleRate_)
+void AverageView::setSampleRate (float sampleRate_)
 {
     sampleRate = sampleRate_;
 
     samplesPerPixel = sampleRate * (preWindow + postWindow)
-        / float(AVERAGE_VIEW_WIDTH);
+                      / float (AVERAGE_VIEW_WIDTH);
 }
 
-
-void AverageView::setWindow(float pre, float post)
+void AverageView::setWindow (float pre, float post)
 {
-	preWindow = pre;
-	postWindow = post;
+    preWindow = pre;
+    postWindow = post;
 
-	samplesPerPixel = sampleRate * (preWindow + postWindow)
-		/ float(AVERAGE_VIEW_WIDTH);
+    samplesPerPixel = sampleRate * (preWindow + postWindow)
+                      / float (AVERAGE_VIEW_WIDTH);
 
     updateImage = true;
 
@@ -166,24 +157,24 @@ void AverageView::setWindow(float pre, float post)
     repaint();
 }
 
-void AverageView::mouseDown(const MouseEvent& e)
+void AverageView::mouseDown (const MouseEvent& e)
 {
     if (e.mods.isRightButtonDown())
     {
         PopupMenu m;
 
-        m.addItem(98, "TTL Trigger Line", false);
-        m.addItem(99, "None", true, triggerLine == -1);
-        m.addItem(1, "TTL 1", true, triggerLine == 0);
-        m.addItem(2, "TTL 2", true, triggerLine == 1);
-		m.addItem(3, "TTL 3", true, triggerLine == 2);
-		m.addItem(4, "TTL 4", true, triggerLine == 3);
-		m.addItem(5, "TTL 5", true, triggerLine == 4);
-		m.addItem(6, "TTL 6", true, triggerLine == 5);
-		m.addItem(7, "TTL 7", true, triggerLine == 6);
-		m.addItem(8, "TTL 8", true, triggerLine == 7);
-        
-		const int result = m.show();
+        m.addItem (98, "TTL Trigger Line", false);
+        m.addItem (99, "None", true, triggerLine == -1);
+        m.addItem (1, "TTL 1", true, triggerLine == 0);
+        m.addItem (2, "TTL 2", true, triggerLine == 1);
+        m.addItem (3, "TTL 3", true, triggerLine == 2);
+        m.addItem (4, "TTL 4", true, triggerLine == 3);
+        m.addItem (5, "TTL 5", true, triggerLine == 4);
+        m.addItem (6, "TTL 6", true, triggerLine == 5);
+        m.addItem (7, "TTL 7", true, triggerLine == 6);
+        m.addItem (8, "TTL 8", true, triggerLine == 7);
+
+        const int result = m.show();
 
         if (result == 0)
             return;
@@ -193,25 +184,22 @@ void AverageView::mouseDown(const MouseEvent& e)
         else
             triggerLine = result - 1;
 
-        node->getParameter("trigger_line")->setNextValue(triggerLine);
-		setWindow(preWindow, postWindow);
-		
-	}
+        node->getParameter ("trigger_line")->setNextValue (triggerLine);
+        setWindow (preWindow, postWindow);
+    }
 }
 
-void AverageView::fillFromBuffer(CircularBuffer* dataBuffer)
+void AverageView::fillFromBuffer (CircularBuffer* dataBuffer)
 {
-
     // grab samples from start of window up to current sample
-    int64 windowStartSampleNumber = dataBuffer->triggerSampleNumber - int(preWindow * sampleRate);
-    int64 windowEndSampleNumber = dataBuffer->triggerSampleNumber + int(postWindow * sampleRate);
+    int64 windowStartSampleNumber = dataBuffer->triggerSampleNumber - int (preWindow * sampleRate);
+    int64 windowEndSampleNumber = dataBuffer->triggerSampleNumber + int (postWindow * sampleRate);
     int64 currentSampleNumber = dataBuffer->latestSampleNumber;
 
     RenderMode modeId = canvas->getCurrentRenderMode();
 
     for (int channel = 0; channel < numChannels; ++channel)
     {
-
         int64 numSamplesAvailable;
         int sampleBufferIndex;
 
@@ -219,12 +207,13 @@ void AverageView::fillFromBuffer(CircularBuffer* dataBuffer)
         {
             if (channel == 0)
                 numTrials += 1;
-            
+
             numSamplesAvailable = currentSampleNumber - windowStartSampleNumber;
-            sampleBufferIndex = dataBuffer->getNumSamplesReadyForDrawing(channel) - numSamplesAvailable;
+            sampleBufferIndex = dataBuffer->getNumSamplesReadyForDrawing (channel) - numSamplesAvailable;
         }
-        else {
-            numSamplesAvailable = dataBuffer->getNumSamplesReadyForDrawing(channel) + numCachedSamples[channel];
+        else
+        {
+            numSamplesAvailable = dataBuffer->getNumSamplesReadyForDrawing (channel) + numCachedSamples[channel];
             sampleBufferIndex = 0;
         }
 
@@ -240,15 +229,15 @@ void AverageView::fillFromBuffer(CircularBuffer* dataBuffer)
             float min = 0;
             float max = 0;
             Array<float> samples;
-            samples.resize(samplesPerPixel);
+            samples.resize (samplesPerPixel);
 
             // find min, max for cached samples
             if (pix == 0 && numCachedSamples[channel] > 0)
             {
                 for (int cachedSampIdx = 0; cachedSampIdx < numCachedSamples[channel]; ++cachedSampIdx)
                 {
-                    const auto val = cacheBuffer.getSample(channel, cachedSampIdx);
-                    samples.set(cachedSampIdx, val);
+                    const auto val = cacheBuffer.getSample (channel, cachedSampIdx);
+                    samples.set (cachedSampIdx, val);
 
                     if (cachedSampIdx == 0)
                     {
@@ -268,8 +257,8 @@ void AverageView::fillFromBuffer(CircularBuffer* dataBuffer)
             // find min, max for new buffer samples
             for (int sampIdx = (pix == 0 && numCachedSamples[channel] > 0 ? numCachedSamples[channel] : 0); sampIdx < samplesPerPixel; ++sampIdx)
             {
-                const auto val = dataBuffer->getSample(sampleBufferIndex, channel);
-                samples.set(sampIdx, val);
+                const auto val = dataBuffer->getSample (sampleBufferIndex, channel);
+                samples.set (sampIdx, val);
 
                 if (sampIdx == 0)
                 {
@@ -310,32 +299,31 @@ void AverageView::fillFromBuffer(CircularBuffer* dataBuffer)
 
             if (modeId == RenderMode::RMS)
             {
-                rms = sqrtf(rms / samplesPerPixel);
+                rms = sqrtf (rms / samplesPerPixel);
 
-               // if (pixelIndex[channel] < 5)
-               //     std::cout << int(rms) << " ";
+                // if (pixelIndex[channel] < 5)
+                //     std::cout << int(rms) << " ";
 
-                screenBuffer.addSample(channel, pixelIndex[channel], rms);
-
+                screenBuffer.addSample (channel, pixelIndex[channel], rms);
             }
             else if (modeId == RenderMode::SPIKE_RATE)
             {
                 spikeRate = numSpikesInPixel / (samplesPerPixel / sampleRate);
-                screenBuffer.addSample(channel, pixelIndex[channel], spikeRate);
+                screenBuffer.addSample (channel, pixelIndex[channel], spikeRate);
             }
 
-            pixelIndex.set(channel, pixelIndex[channel] + 1);
+            pixelIndex.set (channel, pixelIndex[channel] + 1);
 
             int newIndex = pixelIndex[channel];
 
             if (pixelIndex[channel] == AVERAGE_VIEW_WIDTH)
             {
-                pixelIndex.set(channel, 0);
-                
+                pixelIndex.set (channel, 0);
+
                 if (channel == numChannels - 1)
                 {
                     dataBuffer->triggered = false;
-                    
+
                     updateImage = true;
                     repaint();
                 }
@@ -346,12 +334,8 @@ void AverageView::fillFromBuffer(CircularBuffer* dataBuffer)
         //std::cout << std::endl;
 
         //for (int sampIdx = sampleBufferIndex; sampIdx < numSamplesAvailable; ++sampIdx)
-       // {
+        // {
         //    cacheBuffer.setSample(channel, sampIdx, dataBuffer->getSample(sampleBufferIndex, channel));
         //}
-
     }
-
-
-    
 }
