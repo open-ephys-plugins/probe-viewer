@@ -43,7 +43,7 @@ jobs:
 #    - name: test
 #      run: cd build && ctest
     - name: deploy
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/juce8'
       env:
         artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
         build_dir: "Build/Release"
