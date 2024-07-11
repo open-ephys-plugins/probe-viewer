@@ -228,14 +228,14 @@ void ProbeViewerCanvas::resized()
         timeScale->setMarginOffset (cb->getWidth());
         optionsBar->setMarginOffset (cb->getWidth());
 
-        channelsView->setBounds (0, 0, viewport->getWidth(), channelsView->rollingView->getChannelHeight() * channelsView->rollingView->channels.size());
-
         viewport->setBounds (cb->getRight(),
                              timeScale->getBottom() + 2,
                              getWidth() - cb->getWidth(),
                              getHeight() - timeScale->getHeight() - optionsBar->getHeight() - 4);
 
         viewport->setViewPositionProportionately (0, cb->getViewportScrollPositionRatio());
+
+        channelsView->setBounds (0, 0, viewport->getWidth(), channelsView->rollingView->getChannelHeight() * channelsView->rollingView->channels.size());
     }
 }
 
