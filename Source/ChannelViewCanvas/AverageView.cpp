@@ -95,8 +95,19 @@ void AverageView::paint(Graphics& g)
     {
         int zeroMarker = int(preWindow / (preWindow + postWindow) * float(AVERAGE_VIEW_WIDTH));
         
-        float boundSpread = canvas->optionsBar->getRMSBoundSpread();
-        const float lowerBound = canvas->optionsBar->getRMSLowBound();
+        float boundSpread;
+        float lowerBound;
+
+        if (canvas->getCurrentRenderMode() == RenderMode::RMS)
+        {
+            boundSpread = canvas->optionsBar->getRMSBoundSpread();
+            lowerBound = canvas->optionsBar->getRMSLowBound();
+        }
+        else if (canvas->getCurrentRenderMode() == RenderMode::SPIKE_RATE)
+        {
+            boundSpread = canvas->optionsBar->getSpikeRateBoundSpread();
+            lowerBound = canvas->optionsBar->getSpikeRateLowBound();
+        }
         
         if (boundSpread == 0) boundSpread = 1;
         
