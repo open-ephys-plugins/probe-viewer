@@ -89,8 +89,19 @@ void AverageView::paint (Graphics& g)
     {
         int zeroMarker = int (preWindow / (preWindow + postWindow) * float (AVERAGE_VIEW_WIDTH));
 
-        float boundSpread = canvas->optionsBar->getRMSBoundSpread();
-        const float lowerBound = canvas->optionsBar->getRMSLowBound();
+        float boundSpread;
+        float lowerBound;
+
+        if (canvas->getCurrentRenderMode() == RenderMode::RMS)
+        {
+			boundSpread = canvas->optionsBar->getRMSBoundSpread();
+			lowerBound = canvas->optionsBar->getRMSLowBound();
+		}
+        else if (canvas->getCurrentRenderMode() == RenderMode::SPIKE_RATE)
+        {
+			boundSpread = canvas->optionsBar->getSpikeRateBoundSpread();
+			lowerBound = canvas->optionsBar->getSpikeRateLowBound();
+		}
 
         if (boundSpread == 0)
             boundSpread = 1;
@@ -115,7 +126,7 @@ void AverageView::paint (Graphics& g)
 
                     for (int i = 0; i < 2; i++)
                     {
-                        screenBufferImage.setPixelAt (pixel, channel * 2 + i, colour);
+                        screenBufferImage.setPixelAt (pixel, (numChannels-channel) * 2 + i, colour);
                     }
                 }
             }
@@ -275,25 +286,33 @@ void AverageView::fillFromBuffer (CircularBuffer* dataBuffer)
                 ++sampleBufferIndex;
             }
 
-            float median = (max + min) / 2.0f;
+            float mean = (max + min) / 2.0f;
             float rms = 0;
             float spikeRate = 0;
             int numSpikesInPixel = 0;
+            bool belowThresh = false;
 
             const float spikeRateThreshold = canvas->optionsBar->getSpikeRateThreshold();
 
             for (int sampIdx = 0; sampIdx < samplesPerPixel; ++sampIdx)
             {
-                const float medianOffsetVal = samples[sampIdx] - median;
+                const float offset = samples[sampIdx] - mean;
 
                 if (modeId == RenderMode::RMS) // RMS
                 {
-                    rms += (medianOffsetVal * medianOffsetVal);
+                    rms += (offset * offset);
                 }
                 else if (modeId == RenderMode::SPIKE_RATE) // Spike Rate
                 {
-                    if (medianOffsetVal < spikeRateThreshold)
+                    if ((offset < spikeRateThreshold) && ! belowThresh)
+                    {
                         numSpikesInPixel++;
+                        belowThresh = true;
+                    }
+                    else if ((offset > spikeRateThreshold) && belowThresh)
+                    {
+                        belowThresh = false;
+                    }
                 }
             }
 
@@ -309,6 +328,9 @@ void AverageView::fillFromBuffer (CircularBuffer* dataBuffer)
             else if (modeId == RenderMode::SPIKE_RATE)
             {
                 spikeRate = numSpikesInPixel / (samplesPerPixel / sampleRate);
+
+                //if(channel == 0 && pix == 0)
+                 //   std::cout << spikeRate << " avg" << std::endl;
                 screenBuffer.addSample (channel, pixelIndex[channel], spikeRate);
             }
 

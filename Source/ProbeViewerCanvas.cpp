@@ -371,11 +371,11 @@ void ProbeViewerCanvas::updateScreenBuffers()
             const float samplesPerPixel = channelsView->rollingView->channels[channel]->getNumSamplesPerPixel();
             const float numPixelsToCreate = float (numCachedSamples + numSamplesToRead) / samplesPerPixel;
 
-            // if (channel == 0)
-            //    std::cout << "numCachedSamples: " << numCachedSamples
-            //              << " numSamplesToRead: " << numSamplesToRead
-            //              << " samplesPerPixel: " << samplesPerPixel
-            //               << " numPixelsToCreate: " << numPixelsToCreate << std::endl;
+             //if (channel == 0)
+             //   std::cout << "numCachedSamples: " << numCachedSamples
+             //             << " numSamplesToRead: " << numSamplesToRead
+             //            << " samplesPerPixel: " << samplesPerPixel
+             //              << " numPixelsToCreate: " << numPixelsToCreate << std::endl;
 
             if (numPixelsToCreate == 0.0f)
             {
@@ -448,31 +448,40 @@ void ProbeViewerCanvas::updateScreenBuffers()
                     ++sampleBufferIndex;
                 }
 
-                float median = (max + min) / 2.0f;
+                float mean = (max + min) / 2.0f;
                 float rms = 0;
                 float spikeRate = 0;
                 int numSpikesInPixel = 0;
+                bool belowThresh = false;
 
                 const float spikeRateThreshold = optionsBar->getSpikeRateThreshold();
 
                 for (int sampIdx = 0; sampIdx < samplesPerPixel; ++sampIdx)
                 {
-                    const float medianOffsetVal = samples[sampIdx] - median;
+                    const float offset = samples[sampIdx] - mean;
 
                     if (modeId == RenderMode::RMS) // RMS
                     {
-                        rms += (medianOffsetVal * medianOffsetVal);
+                        rms += (offset * offset);
                     }
 
                     else if (modeId == RenderMode::SPIKE_RATE) // Spike Rate
                     {
-                        if (medianOffsetVal < spikeRateThreshold)
+                        if ((offset < spikeRateThreshold) && ! belowThresh)
+                        {
                             numSpikesInPixel++;
+                            belowThresh = true;
+                        }
+                        else if ((offset > spikeRateThreshold) && belowThresh)
+                        {
+							belowThresh = false;
+						}
+                            
                     }
                     else // FFT
                     {
                         if (inputDownsamplingIndex[channel]++ == 0)
-                            channelFFTSampleBuffer[channel]->pushSample (medianOffsetVal / 500.0f);
+                            channelFFTSampleBuffer[channel]->pushSample (offset / 500.0f);
                         else if (inputDownsamplingIndex[channel] >= numSamplesToChunk)
                             inputDownsamplingIndex[channel] = 0;
                     }
@@ -487,6 +496,8 @@ void ProbeViewerCanvas::updateScreenBuffers()
                 else if (modeId == RenderMode::SPIKE_RATE)
                 {
                     spikeRate = numSpikesInPixel / (samplesPerPixel / getChannelSampleRate (channel));
+                    //if (channel == 0 && pix == 0)
+                     //   std::cout << spikeRate << " rolling" << std::endl;
                     channelsView->rollingView->pushPixelValueForChannel (channel, spikeRate);
                 }
                 else
