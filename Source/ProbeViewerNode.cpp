@@ -41,7 +41,7 @@ ProbeViewerNode::~ProbeViewerNode()
 void ProbeViewerNode::registerParameters()
 {
     addIntParameter (Parameter::PROCESSOR_SCOPE, "trigger_line", "Trigger Line", "The TTL trigger line", -1, -1, 15);
-    addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "display_stream", "Display Stream", "The stream to display", {}, 0, false);
+    addSelectedStreamParameter (Parameter::PROCESSOR_SCOPE, "display_stream", "Display Stream", "The stream to display", {}, 0, true, false);
 }
 
 AudioProcessorEditor* ProbeViewerNode::createEditor()
