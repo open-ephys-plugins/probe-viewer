@@ -54,6 +54,8 @@ void RollingView::paint (Graphics& g)
 
 void RollingView::resized()
 {
+    //LOGC ("RollingView resized\n");
+
     fullRedraw = true;
     repaint();
 }

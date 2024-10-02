@@ -61,6 +61,8 @@ void ChannelViewCanvas::updateRollingViewWindow (float windowSize)
 
 void ChannelViewCanvas::resized()
 {
+    //LOGC ("ChannelViewCanvas::resized()");
+
     if (averageView->isVisible())
     {
         rollingView->setBounds (0, 0, getWidth() - 300, getHeight());
@@ -70,6 +72,8 @@ void ChannelViewCanvas::resized()
     {
         rollingView->setBounds (0, 0, getWidth(), getHeight());
     }
+
+    rollingView->resized();
 }
 
 int ChannelViewCanvas::getNumChannels() const
