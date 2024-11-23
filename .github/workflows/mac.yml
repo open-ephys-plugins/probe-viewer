@@ -42,7 +42,7 @@ jobs:
     - name: codesign_deploy
       if: github.ref == 'refs/heads/testing-juce8'
       env:
-        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
         MACOS_CERTIFICATE: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
         MACOS_CERTIFICATE_PWD: ${{ secrets.BUILD_CERTIFICATE_PWD }}
         MACOS_CERTIFICATE_NAME: ${{ secrets.BUILD_CERTIFICATE_NAME }}
@@ -106,4 +106,4 @@ jobs:
 
         zipfile=${package}_${new_plugin_ver}.zip
         /usr/bin/ditto -c -k --sequesterRsrc --keepParent plugins $zipfile
-        curl -H "X-JFrog-Art-Api:$artifactoryApiKey" -T $zipfile "https://openephys.jfrog.io/artifactory/ProbeViewer-plugin/mac/$zipfile"
+        curl -H "X-JFrog-Art-Api:$ARTIFACTORY_ACCESS_TOKEN" -T $zipfile "https://openephys.jfrog.io/artifactory/ProbeViewer-plugin/mac/$zipfile"
