@@ -98,7 +98,7 @@ private:
     int numChannels;
     int graphicBottomPos;
 
-    ScopedPointer<struct ProbeGraphicZoomInfo> zoomInfo;
+    std::unique_ptr<struct ProbeGraphicZoomInfo> zoomInfo;
 
     MouseCursor::StandardCursorType cursorType;
 

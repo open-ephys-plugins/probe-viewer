@@ -119,7 +119,7 @@ public:
     /**  Adds a listener to sub-components */
     void addListener (ComboBox::Listener* listener);
 
-    ScopedPointer<ComboBox> renderModeSelection;
+    std::unique_ptr<ComboBox> renderModeSelection;
 
 private:
     class ChannelViewCanvas* channelsView;
@@ -129,18 +129,18 @@ private:
 
     Font labelFont;
 
-    ScopedPointer<Label> renderModeSelectionLabel;
+    std::unique_ptr<Label> renderModeSelectionLabel;
 
-    ScopedPointer<ShowAverageViewButton> showAverageViewButton;
+    std::unique_ptr<ShowAverageViewButton> showAverageViewButton;
 
-    ScopedPointer<Label> colourSchemeSelectionLabel;
-    ScopedPointer<ComboBox> colourSchemeSelection;
+    std::unique_ptr<Label> colourSchemeSelectionLabel;
+    std::unique_ptr<ComboBox> colourSchemeSelection;
 
     Component* currentSubOptionComponent;
 
-    ScopedPointer<class RMSSubOptionComponent> rmsSubOptionComponent;
-    ScopedPointer<class FFTSubOptionComponent> fftSubOptionComponent;
-    ScopedPointer<class SpikeRateSubOptionComponent> spikeRateSubOptionComponent;
+    std::unique_ptr<class RMSSubOptionComponent> rmsSubOptionComponent;
+    std::unique_ptr<class FFTSubOptionComponent> fftSubOptionComponent;
+    std::unique_ptr<class SpikeRateSubOptionComponent> spikeRateSubOptionComponent;
 
     bool displayLineSelectionInstructions = true;
 };
@@ -187,13 +187,13 @@ private:
     Font labelFont;
 
     StringArray lowValueBoundSelectionOptions;
-    ScopedPointer<Label> lowValueBoundLabel;
-    ScopedPointer<ComboBox> lowValueBoundSelection;
+    std::unique_ptr<Label> lowValueBoundLabel;
+    std::unique_ptr<ComboBox> lowValueBoundSelection;
     float lowValueBound;
 
     StringArray hiValueBoundSelectionOptions;
-    ScopedPointer<Label> hiValueBoundLabel;
-    ScopedPointer<ComboBox> hiValueBoundSelection;
+    std::unique_ptr<Label> hiValueBoundLabel;
+    std::unique_ptr<ComboBox> hiValueBoundSelection;
     float hiValueBound;
 };
 
@@ -251,18 +251,18 @@ private:
     Font labelFont;
 
     StringArray lowValueBoundSelectionOptions;
-    ScopedPointer<Label> lowValueBoundLabel;
-    ScopedPointer<ComboBox> lowValueBoundSelection;
+    std::unique_ptr<Label> lowValueBoundLabel;
+    std::unique_ptr<ComboBox> lowValueBoundSelection;
     float lowValueBound;
 
     StringArray hiValueBoundSelectionOptions;
-    ScopedPointer<Label> hiValueBoundLabel;
-    ScopedPointer<ComboBox> hiValueBoundSelection;
+    std::unique_ptr<Label> hiValueBoundLabel;
+    std::unique_ptr<ComboBox> hiValueBoundSelection;
     float hiValueBound;
 
     StringArray binSelectionOptions;
-    ScopedPointer<Label> binSelectionLabel;
-    ScopedPointer<ComboBox> binSelection;
+    std::unique_ptr<Label> binSelectionLabel;
+    std::unique_ptr<ComboBox> binSelection;
     int binSelectionValue;
 
     float sampleRate;
@@ -323,18 +323,18 @@ private:
     Font labelFont;
 
     StringArray lowValueBoundSelectionOptions;
-    ScopedPointer<Label> lowValueBoundLabel;
-    ScopedPointer<ComboBox> lowValueBoundSelection;
+    std::unique_ptr<Label> lowValueBoundLabel;
+    std::unique_ptr<ComboBox> lowValueBoundSelection;
     float lowValueBound;
 
     StringArray hiValueBoundSelectionOptions;
-    ScopedPointer<Label> hiValueBoundLabel;
-    ScopedPointer<ComboBox> hiValueBoundSelection;
+    std::unique_ptr<Label> hiValueBoundLabel;
+    std::unique_ptr<ComboBox> hiValueBoundSelection;
     float hiValueBound;
 
     StringArray thresholdSelectionOptions;
-    ScopedPointer<Label> thresholdSelectionLabel;
-    ScopedPointer<ComboBox> thresholdSelection;
+    std::unique_ptr<Label> thresholdSelectionLabel;
+    std::unique_ptr<ComboBox> thresholdSelection;
     float threshold;
 };
 

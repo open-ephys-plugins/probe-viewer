@@ -135,10 +135,10 @@ private:
     OwnedArray<ChannelBrowser> channelBrowsers;
     std::map<uint16, ChannelBrowser*> channelBrowserMap;
 
-    ScopedPointer<class ChannelViewCanvas> channelsView;
-    ScopedPointer<class ProbeViewerTimeScale> timeScale;
-    ScopedPointer<class CanvasOptionsBar> optionsBar;
-    ScopedPointer<class ProbeViewerViewport> viewport;
+    std::unique_ptr<class ChannelViewCanvas> channelsView;
+    std::unique_ptr<class ProbeViewerTimeScale> timeScale;
+    std::unique_ptr<class CanvasOptionsBar> optionsBar;
+    std::unique_ptr<class ProbeViewerViewport> viewport;
 
     class CircularBuffer* dataBuffer;
     OwnedArray<Array<float>> partialBufferCache;

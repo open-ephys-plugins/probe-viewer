@@ -55,24 +55,24 @@ ProbeViewerCanvas::ProbeViewerCanvas (ProbeViewerNode* processor_)
 
     updateChannelBrowsers();
 
-    channelsView = new ChannelViewCanvas (this, pvProcessor);
+    channelsView.reset( new ChannelViewCanvas (this, pvProcessor));
 
-    timeScale = new ProbeViewerTimeScale (channelsView);
+    timeScale.reset( new ProbeViewerTimeScale (channelsView.get()));
     timeScale->setRollingViewWindowSize (ProbeViewerCanvas::TRANSPORT_WINDOW_TIMEBASE);
     timeScale->setAverageViewWindowSize (0.5, 0.5);
-    addAndMakeVisible (timeScale);
+    addAndMakeVisible (timeScale.get());
 
-    optionsBar = new CanvasOptionsBar (channelsView, timeScale);
-    addAndMakeVisible (optionsBar);
+    optionsBar.reset( new CanvasOptionsBar (channelsView.get(), timeScale.get()));
+    addAndMakeVisible (optionsBar.get());
     optionsBar->addListener (channelsView->averageView.get());
 
     optionsBar->setFFTParams (ProbeViewerCanvas::FFT_SIZE, ProbeViewerCanvas::FFT_TARGET_SAMPLE_RATE);
-    channelsView->optionsBar = optionsBar;
+    channelsView->optionsBar = optionsBar.get();
 
-    viewport = new ProbeViewerViewport (this, channelsView);
-    viewport->setViewedComponent (channelsView, false);
+    viewport.reset( new ProbeViewerViewport (this, channelsView.get()));
+    viewport->setViewedComponent (channelsView.get(), false);
     viewport->setScrollBarsShown (false, false);
-    addAndMakeVisible (viewport);
+    addAndMakeVisible (viewport.get());
 
     // init the fft input/output containers
     for (int i = 0; i < ProbeViewerCanvas::FFT_SIZE; ++i)
@@ -131,7 +131,7 @@ void ProbeViewerCanvas::updateSettings()
     {
         auto channelDisplay =
             new ProbeChannelDisplay (channelsView->rollingView.get(),
-                                     optionsBar,
+                                     optionsBar.get(),
                                      i,
                                      sampleRate);
         channelDisplay->setWindow (channelsView->rollingView->windowSize);
@@ -323,12 +323,12 @@ float ProbeViewerCanvas::getChannelSampleRate (int channel)
 
 ProbeViewerViewport* ProbeViewerCanvas::getViewportPtr()
 {
-    return viewport;
+    return viewport.get();
 }
 
 ChannelViewCanvas* ProbeViewerCanvas::getChannelViewCanvasPtr()
 {
-    return channelsView;
+    return channelsView.get();
 }
 
 ChannelBrowser* ProbeViewerCanvas::getChannelBrowserPtr()

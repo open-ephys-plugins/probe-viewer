@@ -32,7 +32,7 @@ using namespace ProbeViewer;
 ChannelBrowser::ChannelBrowser (ProbeViewerCanvas* canvas_, int id_)
     : canvas (canvas_), id (id_), cursorType (MouseCursor::NormalCursor), numChannels (0), graphicBottomPos (0)
 {
-    zoomInfo = new ProbeGraphicZoomInfo;
+    zoomInfo.reset( new ProbeGraphicZoomInfo);
 
     setBufferedToImage (true);
 }
