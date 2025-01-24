@@ -119,6 +119,9 @@ public:
     /**  Adds a listener to sub-components */
     void addListener (ComboBox::Listener* listener);
 
+    /** Returns the horizontal scroll bar visibility for the new width */
+    bool isScrollBarVisible (int newWidth);
+
     std::unique_ptr<ComboBox> renderModeSelection;
 
 private:
@@ -126,8 +129,13 @@ private:
     class ProbeViewerTimeScale* timeScale;
 
     float marginWidth;
+    
+    int minWidth;
 
     Font labelFont;
+
+    std::unique_ptr<Viewport> optionsViewport;
+    std::unique_ptr<Component> optionsHolder;
 
     std::unique_ptr<Label> renderModeSelectionLabel;
 

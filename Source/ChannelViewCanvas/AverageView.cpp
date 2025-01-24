@@ -69,7 +69,7 @@ void AverageView::comboBoxChanged (ComboBox* c)
 {
     updateImage = true;
 
-    if (c == canvas->optionsBar->renderModeSelection)
+    if (c == canvas->optionsBar->renderModeSelection.get())
     {
         screenBuffer.clear();
         numTrials = 1;

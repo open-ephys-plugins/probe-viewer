@@ -21,16 +21,26 @@ CanvasOptionsBar::CanvasOptionsBar (class ChannelViewCanvas* channelsView_,
 {
     labelFont = FontOptions ("Inter", "Regular", 16.0f);
 
+    optionsViewport = std::make_unique<Viewport>();
+    optionsViewport->setScrollBarsShown (false, true);
+    optionsViewport->setScrollBarThickness (12);
+    addAndMakeVisible (optionsViewport.get());
+
+    optionsHolder = std::make_unique<Component> ("Main options");
+    optionsViewport->setViewedComponent (optionsHolder.get(), false);
+
     rmsSubOptionComponent.reset (new RMSSubOptionComponent (labelFont));
     fftSubOptionComponent.reset (new FFTSubOptionComponent (labelFont));
     spikeRateSubOptionComponent.reset (new SpikeRateSubOptionComponent (labelFont));
 
     currentSubOptionComponent = rmsSubOptionComponent.get();
-    addAndMakeVisible (currentSubOptionComponent);
+    optionsHolder->addAndMakeVisible (currentSubOptionComponent);
+
+    minWidth = 730; // min width for RMS mode
 
     renderModeSelectionLabel.reset (new Label ("renderModeSelectionLabel", "Render Mode"));
     renderModeSelectionLabel->setFont (labelFont);
-    addAndMakeVisible (renderModeSelectionLabel.get());
+    optionsHolder->addAndMakeVisible (renderModeSelectionLabel.get());
 
     StringArray renderModeNames = { "RMS Signal", "Freq. Band Power", "Spike Rate" };
     renderModeSelection.reset (new ComboBox ("renderModeSelection"));
@@ -38,18 +48,18 @@ CanvasOptionsBar::CanvasOptionsBar (class ChannelViewCanvas* channelsView_,
     renderModeSelection->setEditableText (false);
     renderModeSelection->addListener (this);
     renderModeSelection->setSelectedId (1, dontSendNotification);
-    addAndMakeVisible (renderModeSelection.get());
+    optionsHolder->addAndMakeVisible (renderModeSelection.get());
 
     showAverageViewButton.reset (new ShowAverageViewButton());
     showAverageViewButton->setClickingTogglesState (true);
     showAverageViewButton->setToggleState (false, dontSendNotification);
     showAverageViewButton->addListener (this);
-    addAndMakeVisible (showAverageViewButton.get());
+    optionsHolder->addAndMakeVisible (showAverageViewButton.get());
 
     // colour scheme options
     colourSchemeSelectionLabel.reset (new Label ("colourSchemeSelectionLabel", "Colour\nScheme"));
     colourSchemeSelectionLabel->setFont (labelFont);
-    addAndMakeVisible (colourSchemeSelectionLabel.get());
+    optionsHolder->addAndMakeVisible (colourSchemeSelectionLabel.get());
 
     StringArray colourSchemeNames = { "Inferno", "Plasma", "Magma", "Viridis", "Jet" };
     colourSchemeSelection.reset (new ComboBox ("colourSchemeSelection"));
@@ -57,7 +67,7 @@ CanvasOptionsBar::CanvasOptionsBar (class ChannelViewCanvas* channelsView_,
     colourSchemeSelection->setEditableText (false);
     colourSchemeSelection->addListener (this);
     colourSchemeSelection->setSelectedId (1, dontSendNotification);
-    addAndMakeVisible (colourSchemeSelection.get());
+    optionsHolder->addAndMakeVisible (colourSchemeSelection.get());
 
     setBufferedToImage (true);
 }
@@ -86,17 +96,23 @@ void CanvasOptionsBar::addListener (ComboBox::Listener* listener)
 
 void CanvasOptionsBar::resized()
 {
-    renderModeSelectionLabel->setBounds (0, 0, 95, getHeight());
-    renderModeSelection->setBounds (renderModeSelectionLabel->getRight(), 4, 100, getHeight() - 8);
+    optionsViewport->setBounds (0, 0, getWidth(), getHeight());
 
-    showAverageViewButton->setBounds (getRight() - 50, 0, 45, getHeight());
+    int optionsWidth = getWidth() < minWidth ? minWidth : getWidth();
+
+    optionsHolder->setBounds (0, 0, optionsWidth, 30);
+
+    renderModeSelectionLabel->setBounds (0, 0, 95, optionsHolder->getHeight());
+    renderModeSelection->setBounds (renderModeSelectionLabel->getRight(), 4, 100, optionsHolder->getHeight() - 8);
+
+    showAverageViewButton->setBounds (optionsHolder->getRight() - 50, 0, 45, optionsHolder->getHeight());
 
     //int colourSchemeOffset = 700;
     //if (getWidth() > colourSchemeOffset) colourSchemeOffset = getWidth();
-    colourSchemeSelectionLabel->setBounds (getRight() - 220, 0, 70, getHeight());
-    colourSchemeSelection->setBounds (colourSchemeSelectionLabel->getRight(), 4, 90, getHeight() - 8);
+    colourSchemeSelectionLabel->setBounds (optionsHolder->getRight() - 220, 0, 70, optionsHolder->getHeight());
+    colourSchemeSelection->setBounds (colourSchemeSelectionLabel->getRight(), 4, 90, optionsHolder->getHeight() - 8);
 
-    Rectangle<int> subOptionBounds (marginWidth + 3, 0, getWidth() - marginWidth - 220 - 3, getHeight());
+    Rectangle<int> subOptionBounds (marginWidth + 3, 0, optionsWidth - marginWidth - 220 - 3, optionsHolder->getHeight());
     rmsSubOptionComponent->setBounds (subOptionBounds);
     fftSubOptionComponent->setBounds (subOptionBounds);
     spikeRateSubOptionComponent->setBounds (subOptionBounds);
@@ -106,7 +122,7 @@ void CanvasOptionsBar::comboBoxChanged (ComboBox* cb)
 {
     if (cb == renderModeSelection.get())
     {
-        removeChildComponent (currentSubOptionComponent);
+        optionsHolder->removeChildComponent (currentSubOptionComponent);
 
         RenderMode renderMode;
 
@@ -115,21 +131,26 @@ void CanvasOptionsBar::comboBoxChanged (ComboBox* cb)
             case 1:
                 renderMode = RenderMode::RMS;
                 currentSubOptionComponent = rmsSubOptionComponent.get();
+                minWidth = 730;
                 break;
 
             case 2:
                 renderMode = RenderMode::FFT;
                 currentSubOptionComponent = fftSubOptionComponent.get();
+                minWidth = 980;
                 break;
 
             case 3:
             default:
                 renderMode = RenderMode::SPIKE_RATE;
                 currentSubOptionComponent = spikeRateSubOptionComponent.get();
+                minWidth = 980;
                 break;
         }
 
-        addAndMakeVisible (currentSubOptionComponent);
+        optionsHolder->addAndMakeVisible (currentSubOptionComponent);
+
+        resized();
 
         channelsView->setCurrentRenderMode (renderMode);
     }
@@ -323,6 +344,11 @@ void CanvasOptionsBar::loadParameters (XmlElement* xml)
         timeScale->setRollingViewWindowSize (rollingWindowSize);
         timeScale->setAverageViewWindowSize (averageWindowPre, averageWindowPost);
     }
+}
+
+bool CanvasOptionsBar::isScrollBarVisible(int newWidth)
+{
+    return newWidth < minWidth;
 }
 
 #pragma mark - RMSSubOptionComponent -

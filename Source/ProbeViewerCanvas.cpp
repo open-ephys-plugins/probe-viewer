@@ -217,7 +217,14 @@ void ProbeViewerCanvas::paint (Graphics& g)
 void ProbeViewerCanvas::resized()
 {
     timeScale->setBounds (0, 0, getWidth(), 30);
-    optionsBar->setBounds (0, getHeight() - 30, getWidth(), 30);
+    timeScale->setMarginOffset (200);
+
+    if (optionsBar->isScrollBarVisible(getWidth()))
+        optionsBar->setBounds (0, getHeight() - 42, getWidth(), 42);
+    else
+        optionsBar->setBounds (0, getHeight() - 30, getWidth(), 30);
+    
+    optionsBar->setMarginOffset (200);
 
     for (auto browser : channelBrowsers)
         browser->setBounds (0, timeScale->getBottom(), 200, getHeight() - timeScale->getHeight() - optionsBar->getHeight());
@@ -225,9 +232,6 @@ void ProbeViewerCanvas::resized()
     ChannelBrowser* cb = getChannelBrowserPtr();
     if (cb)
     {
-        timeScale->setMarginOffset (cb->getWidth());
-        optionsBar->setMarginOffset (cb->getWidth());
-
         viewport->setBounds (cb->getRight(),
                              timeScale->getBottom() + 2,
                              getWidth() - cb->getWidth(),
