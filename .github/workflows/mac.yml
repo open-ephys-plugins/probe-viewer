@@ -29,9 +29,6 @@ jobs:
         cd ../..
         git clone https://github.com/open-ephys/plugin-GUI.git --branch $GUI_BRANCH
         cd plugin-GUI/Build && cmake -G "Xcode" ..
-    - uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: latest-stable
     - name: build
       run: |
         cd Build
