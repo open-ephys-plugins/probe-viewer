@@ -83,7 +83,7 @@ void AverageView::paint (Graphics& g)
     const float verticalScale = float (channelHeight * numChannels) / (numChannels * 2);
     const float horizontalScale = getWidth() / float (AVERAGE_VIEW_WIDTH);
 
-    const auto transform = AffineTransform::scale (horizontalScale, verticalScale).followedBy (AffineTransform::verticalFlip (getHeight()));
+    const auto transform = AffineTransform::scale (horizontalScale, verticalScale);
 
     if (updateImage)
     {
@@ -94,14 +94,14 @@ void AverageView::paint (Graphics& g)
 
         if (canvas->getCurrentRenderMode() == RenderMode::RMS)
         {
-			boundSpread = canvas->optionsBar->getRMSBoundSpread();
-			lowerBound = canvas->optionsBar->getRMSLowBound();
-		}
+            boundSpread = canvas->optionsBar->getRMSBoundSpread();
+            lowerBound = canvas->optionsBar->getRMSLowBound();
+        }
         else if (canvas->getCurrentRenderMode() == RenderMode::SPIKE_RATE)
         {
-			boundSpread = canvas->optionsBar->getSpikeRateBoundSpread();
-			lowerBound = canvas->optionsBar->getSpikeRateLowBound();
-		}
+            boundSpread = canvas->optionsBar->getSpikeRateBoundSpread();
+            lowerBound = canvas->optionsBar->getSpikeRateLowBound();
+        }
 
         if (boundSpread == 0)
             boundSpread = 1;
@@ -126,7 +126,7 @@ void AverageView::paint (Graphics& g)
 
                     for (int i = 0; i < 2; i++)
                     {
-                        screenBufferImage.setPixelAt (pixel, (numChannels-channel) * 2 + i, colour);
+                        screenBufferImage.setPixelAt (pixel, (numChannels - channel) * 2 + i, colour);
                     }
                 }
             }
@@ -174,6 +174,8 @@ void AverageView::mouseDown (const MouseEvent& e)
     {
         PopupMenu m;
 
+        triggerLine = (int) node->getParameter ("trigger_line")->getValue();
+
         m.addItem (98, "TTL Trigger Line", false);
         m.addItem (99, "None", true, triggerLine == -1);
         m.addItem (1, "TTL 1", true, triggerLine == 0);
@@ -208,6 +210,8 @@ void AverageView::fillFromBuffer (CircularBuffer* dataBuffer)
     int64 currentSampleNumber = dataBuffer->latestSampleNumber;
 
     RenderMode modeId = canvas->getCurrentRenderMode();
+
+    const float spikeRateThreshold = canvas->optionsBar->getSpikeRateThreshold();
 
     for (int channel = 0; channel < numChannels; ++channel)
     {
@@ -292,8 +296,6 @@ void AverageView::fillFromBuffer (CircularBuffer* dataBuffer)
             int numSpikesInPixel = 0;
             bool belowThresh = false;
 
-            const float spikeRateThreshold = canvas->optionsBar->getSpikeRateThreshold();
-
             for (int sampIdx = 0; sampIdx < samplesPerPixel; ++sampIdx)
             {
                 const float offset = samples[sampIdx] - mean;
@@ -330,7 +332,7 @@ void AverageView::fillFromBuffer (CircularBuffer* dataBuffer)
                 spikeRate = numSpikesInPixel / (samplesPerPixel / sampleRate);
 
                 //if(channel == 0 && pix == 0)
-                 //   std::cout << spikeRate << " avg" << std::endl;
+                //   std::cout << spikeRate << " avg" << std::endl;
                 screenBuffer.addSample (channel, pixelIndex[channel], spikeRate);
             }
 
