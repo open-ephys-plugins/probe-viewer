@@ -29,8 +29,8 @@
 
 using namespace ProbeViewer;
 
-ChannelBrowser::ChannelBrowser (ProbeViewerCanvas* canvas_, int id_)
-    : canvas (canvas_), id (id_), cursorType (MouseCursor::NormalCursor), numChannels (0), graphicBottomPos (0)
+ChannelBrowser::ChannelBrowser (ProbeViewerCanvas* canvas_, const String& streamKey_)
+    : canvas (canvas_), streamKey (streamKey_), cursorType (MouseCursor::NormalCursor), numChannels (0), graphicBottomPos (0)
 {
     zoomInfo.reset( new ProbeGraphicZoomInfo);
 
@@ -185,8 +185,6 @@ void ChannelBrowser::paint (Graphics& g)
     g.fillRect (24, 0, 16, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight);
     g.fillRect (24, zoomInfo->lowerBound - zoomInfo->zoomOffset, 16, zoomInfo->zoomOffset + 10);
 
-    g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
-
     Path upperBorder;
     upperBorder.startNewSubPath (5, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight);
     upperBorder.lineTo (54, zoomInfo->lowerBound - zoomInfo->zoomOffset - zoomInfo->zoomHeight);
@@ -199,7 +197,18 @@ void ChannelBrowser::paint (Graphics& g)
     lowerBorder.lineTo (100, getHeight() - 1);
     lowerBorder.lineTo (200, getHeight() - 1);
 
+    if (zoomInfo->isMouseOverZoomRegion && !zoomInfo->isMouseOverLowerBorder)
+        g.setColour (findColour (ThemeColours::defaultText));
+    else
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
+
     g.strokePath (upperBorder, PathStrokeType (2.0));
+
+    if (zoomInfo->isMouseOverZoomRegion && !zoomInfo->isMouseOverUpperBorder)
+        g.setColour (findColour (ThemeColours::defaultText));
+    else
+        g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
+
     g.strokePath (lowerBorder, PathStrokeType (2.0));
 
     // draw area labels
@@ -545,7 +554,7 @@ void ChannelBrowser::saveParameters (XmlElement* xml)
 {
     XmlElement* xmlNode = xml->createNewChildElement ("STREAM");
 
-    xmlNode->setAttribute ("id", id);
+    xmlNode->setAttribute ("key", streamKey);
     xmlNode->setAttribute ("zoomLowerBound", zoomInfo->lowerBound);
     xmlNode->setAttribute ("zoomOffset", zoomInfo->zoomOffset);
     xmlNode->setAttribute ("zoomHeight", zoomInfo->zoomHeight);

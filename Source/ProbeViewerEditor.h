@@ -53,11 +53,9 @@ public:
     void updateSettings() override;
 
     /** Sets custom regions by electrode index */
-    void setRegions (uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
+    void setRegions (String streamKey, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
 
 private:
-    Array<int> inputStreamIds;
-
     class ProbeViewerNode* probeViewerProcessor;
 
     std::unique_ptr<Label> streamSampleRateLabel;

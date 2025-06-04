@@ -113,7 +113,7 @@ void ProbeViewerCanvas::updateSettings()
 
     for (auto browser : channelBrowsers)
     {
-        if (browser->id == pvProcessor->getDisplayedStream())
+        if (browser->streamKey == pvProcessor->getDisplayedStream())
         {
             setChannelHeight (browser->getChannelHeight());
             browser->setVisible (true);
@@ -169,9 +169,9 @@ void ProbeViewerCanvas::endAnimation()
     stopCallbacks();
 }
 
-void ProbeViewerCanvas::setRegions (uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours)
+void ProbeViewerCanvas::setRegions (String streamKey, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours)
 {
-    channelBrowserMap[streamId]->setRegions (electrodeInds, regionNames, regionColours);
+    channelBrowserMap[streamKey]->setRegions (electrodeInds, regionNames, regionColours);
 }
 
 void ProbeViewerCanvas::saveCustomParametersToXml (XmlElement* xml)
@@ -197,12 +197,13 @@ void ProbeViewerCanvas::loadCustomParametersFromXml (XmlElement* xml)
     {
         if (streamXml->hasTagName ("STREAM"))
         {
-            int streamId = streamXml->getIntAttribute ("id");
+            String streamKey = streamXml->getStringAttribute ("key");
 
-            if (channelBrowserMap.find (streamId) == channelBrowserMap.end())
+            if (streamKey.isEmpty()
+                || channelBrowserMap.find (streamKey) == channelBrowserMap.end())
                 continue;
             else
-                channelBrowserMap[streamId]->loadParameters (streamXml);
+                channelBrowserMap[streamKey]->loadParameters (streamXml);
         }
     }
 
@@ -252,15 +253,15 @@ void ProbeViewerCanvas::updateChannelBrowsers()
 
     for (auto stream : pvProcessor->getDataStreams())
     {
-        uint16 streamId = stream->getStreamId();
+        String streamKey = stream->getKey();
 
-        if (channelBrowserMap.count (streamId) == 0)
+        if (channelBrowserMap.count (streamKey) == 0)
         {
-            channelBrowserMap[streamId] = channelBrowsers.add (new ChannelBrowser (this, streamId));
-            addChildComponent (channelBrowserMap[streamId]);
+            channelBrowserMap[streamKey] = channelBrowsers.add (new ChannelBrowser (this, streamKey));
+            addChildComponent (channelBrowserMap[streamKey]);
         }
 
-        channelBrowserMap[streamId]->reset();
+        channelBrowserMap[streamKey]->reset();
 
         for (int i = 0; i < stream->getChannelCount(); i++)
         {
@@ -279,12 +280,12 @@ void ProbeViewerCanvas::updateChannelBrowsers()
                 //LOGD("Channel ", i, " electrode index: ", electrode_index);
             }
 
-            channelBrowserMap[streamId]->addChannel (i, chan->getName(), chan->position.y, electrode_index);
+            channelBrowserMap[streamKey]->addChannel (i, chan->getName(), chan->position.y, electrode_index);
         }
 
-        channelBrowserMap[streamId]->createChannelColours();
+        channelBrowserMap[streamKey]->createChannelColours();
 
-        channelBrowserMap[streamId]->updateChannelSitesRendering();
+        channelBrowserMap[streamKey]->updateChannelSitesRendering();
     }
 
     Array<ChannelBrowser*> toDelete;
@@ -293,7 +294,7 @@ void ProbeViewerCanvas::updateChannelBrowsers()
     {
         if (browser->getNumChannels() == 0)
         {
-            channelBrowserMap.erase (browser->id);
+            channelBrowserMap.erase (browser->streamKey);
             toDelete.add (browser);
         }
     }
@@ -337,7 +338,7 @@ ChannelViewCanvas* ProbeViewerCanvas::getChannelViewCanvasPtr()
 
 ChannelBrowser* ProbeViewerCanvas::getChannelBrowserPtr()
 {
-    uint16 displayStream = pvProcessor->getDisplayedStream();
+    String displayStream = pvProcessor->getDisplayedStream();
 
     if (channelBrowserMap.count (displayStream) > 0)
         return channelBrowserMap[displayStream];

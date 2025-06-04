@@ -25,8 +25,8 @@
 
 using namespace ProbeViewer;
 
-CircularBuffer::CircularBuffer (int id_, float sampleRate_, int bufferLengthInSec) : samplesReadyForDrawing (false),
-                                                                                     id (id_),
+CircularBuffer::CircularBuffer (String key_, float sampleRate_, int bufferLengthInSec) : samplesReadyForDrawing (false),
+                                                                                     key (key_),
                                                                                      sampleRate (sampleRate_),
                                                                                      isNeeded (true)
 {

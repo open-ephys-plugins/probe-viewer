@@ -83,10 +83,10 @@ void ProbeViewerEditor::displayStreamChanged()
 }
 
 /** Sets custom depths and regions */
-void ProbeViewerEditor::setRegions (uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours)
+void ProbeViewerEditor::setRegions (String streamKey, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours)
 {
     if (canvas != nullptr)
     {
-        static_cast<ProbeViewerCanvas*> (canvas.get())->setRegions (streamId, electrodeInds, regionNames, regionColours);
+        static_cast<ProbeViewerCanvas*> (canvas.get())->setRegions (streamKey, electrodeInds, regionNames, regionColours);
     }
 }

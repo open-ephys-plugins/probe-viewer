@@ -71,7 +71,7 @@ public:
     void resized() override;
 
     /** Set custom brain regions for each electrode */
-    void setRegions (uint16 streamId, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
+    void setRegions (String streamKey, Array<int>& electrodeInds, Array<String>& regionNames, Array<Colour>& regionColours);
 
     /**
      *  Custom member methods
@@ -133,7 +133,7 @@ private:
     class ProbeViewerNode* pvProcessor;
 
     OwnedArray<ChannelBrowser> channelBrowsers;
-    std::map<uint16, ChannelBrowser*> channelBrowserMap;
+    std::map<String, ChannelBrowser*> channelBrowserMap;
 
     std::unique_ptr<class ChannelViewCanvas> channelsView;
     std::unique_ptr<class ProbeViewerTimeScale> timeScale;

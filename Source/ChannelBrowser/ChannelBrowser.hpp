@@ -35,7 +35,7 @@ public:
     static const unsigned int MARGIN_WIDTH;
 
     /** Constructor */
-    ChannelBrowser (class ProbeViewerCanvas* canvas, int id);
+    ChannelBrowser (class ProbeViewerCanvas* canvas, const String& streamKey);
 
     /** Destructor*/
     virtual ~ChannelBrowser() override {}
@@ -87,7 +87,7 @@ public:
     static const unsigned int NUM_PROBE_READ_SITES;
     static const int PROBE_VIEW_X_OFFSET;
 
-    int id;
+    const String streamKey;
 
 private:
     class ProbeViewerCanvas* canvas;

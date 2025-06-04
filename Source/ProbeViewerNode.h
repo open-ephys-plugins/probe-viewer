@@ -56,10 +56,10 @@ public:
     void parameterValueChanged (Parameter*) override;
 
     /** Updates the displayed stream, then calls updateSettings() */
-    void setDisplayedStream (int idx);
+    void setDisplayedStream (const String& streamKey);
 
-    /** Gtes the displayed stream id*/
-    uint16 getDisplayedStream();
+    /** Gets the displayed stream key*/
+    String getDisplayedStream() const;
 
     /** Returns the sample rate of the currently selected stream*/
     float getStreamSampleRate();
@@ -84,9 +84,9 @@ private:
 
     OwnedArray<CircularBuffer> dataBuffers;
 
-    std::map<uint16, CircularBuffer*> dataBufferMap;
+    std::map<String, CircularBuffer*> dataBufferMap;
 
-    int streamToDraw;
+    String streamToDraw;
     int lastChannelInStream;
 
     Array<bool> channelsToDraw;

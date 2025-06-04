@@ -31,7 +31,7 @@ using namespace ProbeViewer;
 ProbeViewerNode::ProbeViewerNode()
     : GenericProcessor ("Probe Viewer")
 {
-    streamToDraw = -1;
+    streamToDraw = String();
 }
 
 ProbeViewerNode::~ProbeViewerNode()
@@ -52,15 +52,16 @@ AudioProcessorEditor* ProbeViewerNode::createEditor()
 
 void ProbeViewerNode::process (AudioBuffer<float>& buffer)
 {
-    for (int chan = 0; chan < buffer.getNumChannels(); chan++)
+    for (auto stream : getDataStreams())
     {
-        uint16 streamId = continuousChannels[chan]->getStreamId();
-        int localId = continuousChannels[chan]->getLocalIndex();
-        int globalId = continuousChannels[chan]->getGlobalIndex();
-        uint32 nSamples = getNumSamplesInBlock (streamId);
-        int64 sampleNumber = getFirstSampleNumberForBlock (streamId);
-
-        dataBufferMap[streamId]->addData (buffer, localId, globalId, nSamples, sampleNumber);
+        String streamKey = stream->getKey();
+        uint16 streamId = stream->getStreamId();
+        CircularBuffer* streamBuffer = dataBufferMap[streamKey];
+        for (int localId = 0; localId < stream->getChannelCount(); localId++)
+        {
+            int globalId = stream->getContinuousChannels()[localId]->getGlobalIndex();
+            streamBuffer->addData (buffer, localId, globalId, getNumSamplesInBlock (streamId), getFirstSampleNumberForBlock (streamId));
+        }
     }
 
     checkForEvents();
@@ -75,7 +76,7 @@ void ProbeViewerNode::handleTTLEvent (TTLEventPtr event)
 
     if (eventState && eventLine == (int) getParameter ("trigger_line")->getValue())
     {
-        dataBufferMap[streamId]->setTrigger (sampleNumber);
+        dataBufferMap[getDataStream (streamId)->getKey()]->setTrigger (sampleNumber);
     }
 }
 
@@ -88,19 +89,19 @@ void ProbeViewerNode::updateSettings()
 
     for (auto stream : getDataStreams())
     {
-        uint16 streamId = stream->getStreamId();
+        String streamKey = stream->getKey();
 
-        if (dataBufferMap.count (streamId) == 0)
+        if (dataBufferMap.count (streamKey) == 0)
         {
-            dataBuffers.add (new CircularBuffer (streamId, stream->getSampleRate(), bufferLengthSeconds));
-            dataBufferMap[streamId] = dataBuffers.getLast();
+            dataBuffers.add (new CircularBuffer (streamKey, stream->getSampleRate(), bufferLengthSeconds));
+            dataBufferMap[streamKey] = dataBuffers.getLast();
         }
         else
         {
-            dataBufferMap[streamId]->sampleRate = stream->getSampleRate();
+            dataBufferMap[streamKey]->sampleRate = stream->getSampleRate();
         }
 
-        dataBufferMap[streamId]->updateChannelInfo (stream->getContinuousChannels());
+        dataBufferMap[streamKey]->updateChannelInfo (stream->getContinuousChannels());
     }
 
     Array<CircularBuffer*> toDelete;
@@ -113,7 +114,7 @@ void ProbeViewerNode::updateSettings()
         }
         else
         {
-            dataBufferMap.erase (dataBuffer->id);
+            dataBufferMap.erase (dataBuffer->key);
             toDelete.add (dataBuffer);
         }
     }
@@ -130,9 +131,9 @@ void ProbeViewerNode::parameterValueChanged (Parameter* param)
     {
         String streamKey = param->getValueAsString();
         if (auto stream = getDataStream (streamKey))
-            setDisplayedStream (getDataStream (streamKey)->getStreamId());
+            setDisplayedStream (streamKey);
         else
-            setDisplayedStream (-1);
+            setDisplayedStream (String());
     }
 }
 
@@ -148,20 +149,20 @@ bool ProbeViewerNode::stopAcquisition()
     return true;
 }
 
-void ProbeViewerNode::setDisplayedStream (int idx)
+void ProbeViewerNode::setDisplayedStream (const String& streamKey)
 {
-    streamToDraw = idx;
+    streamToDraw = streamKey;
     ((ProbeViewerEditor*) getEditor())->displayStreamChanged();
 }
 
-uint16 ProbeViewerNode::getDisplayedStream()
+String ProbeViewerNode::getDisplayedStream() const
 {
     return streamToDraw;
 }
 
 float ProbeViewerNode::getStreamSampleRate()
 {
-    if (streamToDraw >= 0)
+    if (streamToDraw.isNotEmpty())
         return getDataStream (streamToDraw)->getSampleRate();
     else
         return 0.0f;
@@ -169,7 +170,7 @@ float ProbeViewerNode::getStreamSampleRate()
 
 int ProbeViewerNode::getNumStreamChannels()
 {
-    if (streamToDraw >= 0)
+    if (streamToDraw.isNotEmpty())
         return getDataStream (streamToDraw)->getChannelCount();
     else
         return 0;
@@ -177,7 +178,7 @@ int ProbeViewerNode::getNumStreamChannels()
 
 CircularBuffer* ProbeViewerNode::getCircularBufferPtr()
 {
-    if (streamToDraw >= 0 && dataBufferMap.count (streamToDraw) > 0)
+    if (streamToDraw.isNotEmpty() && dataBufferMap.count (streamToDraw) > 0)
         return dataBufferMap[streamToDraw];
     else
         return nullptr;
@@ -210,7 +211,7 @@ String ProbeViewerNode::handleConfigMessage (const String& msg)
         return "No probe name detected.";
     }
 
-    Array<uint16> streamIds;
+    Array<String> streamKeys;
 
     for (auto stream : dataStreams)
     {
@@ -226,12 +227,12 @@ String ProbeViewerNode::handleConfigMessage (const String& msg)
         }
 
         if (probeName.equalsIgnoreCase (streamName))
-            streamIds.add (stream->getStreamId());
+            streamKeys.add (stream->getKey());
     }
 
-    LOGD ("Number of matching streams: ", streamIds.size());
+    LOGD ("Number of matching streams: ", streamKeys.size());
 
-    if (streamIds.size() == 0)
+    if (streamKeys.size() == 0)
     {
         return "No matching stream detected.";
     }
@@ -296,8 +297,8 @@ String ProbeViewerNode::handleConfigMessage (const String& msg)
     {
         ProbeViewerEditor* ed = (ProbeViewerEditor*) getEditor();
 
-        for (auto streamId : streamIds)
-            ed->setRegions (streamId, electrodeInds, regionNames, regionColours);
+        for (auto streamKey : streamKeys)
+            ed->setRegions (streamKey, electrodeInds, regionNames, regionColours);
     }
 
     return "Success";

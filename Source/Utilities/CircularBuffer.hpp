@@ -32,7 +32,7 @@ namespace ProbeViewer
 class CircularBuffer
 {
 public:
-    CircularBuffer (int id, float sampleRate, int bufferLengthSec);
+    CircularBuffer (String key, float sampleRate, int bufferLengthSec);
     virtual ~CircularBuffer();
 
     /** Resets buffer*/
@@ -97,7 +97,7 @@ public:
      */
     CriticalSection* getMutex() { return &dataMutex; }
 
-    int id;
+    String key;
     int bufferLengthSamples;
     float sampleRate;
     bool isNeeded;
