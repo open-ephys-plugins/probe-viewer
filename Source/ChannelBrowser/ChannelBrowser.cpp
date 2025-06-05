@@ -32,7 +32,7 @@ using namespace ProbeViewer;
 ChannelBrowser::ChannelBrowser (ProbeViewerCanvas* canvas_, const String& streamKey_)
     : canvas (canvas_), streamKey (streamKey_), cursorType (MouseCursor::NormalCursor), numChannels (0), graphicBottomPos (0)
 {
-    zoomInfo.reset( new ProbeGraphicZoomInfo);
+    zoomInfo.reset (new ProbeGraphicZoomInfo);
 
     setBufferedToImage (true);
 }
@@ -197,14 +197,14 @@ void ChannelBrowser::paint (Graphics& g)
     lowerBorder.lineTo (100, getHeight() - 1);
     lowerBorder.lineTo (200, getHeight() - 1);
 
-    if (zoomInfo->isMouseOverZoomRegion && !zoomInfo->isMouseOverLowerBorder)
+    if (zoomInfo->isMouseOverZoomRegion && ! zoomInfo->isMouseOverLowerBorder)
         g.setColour (findColour (ThemeColours::defaultText));
     else
         g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
 
     g.strokePath (upperBorder, PathStrokeType (2.0));
 
-    if (zoomInfo->isMouseOverZoomRegion && !zoomInfo->isMouseOverUpperBorder)
+    if (zoomInfo->isMouseOverZoomRegion && ! zoomInfo->isMouseOverUpperBorder)
         g.setColour (findColour (ThemeColours::defaultText));
     else
         g.setColour (findColour (ThemeColours::defaultText).withAlpha (0.5f));
@@ -402,49 +402,37 @@ void ChannelBrowser::mouseDrag (const MouseEvent& event)
         if (zoomInfo->isMouseOverUpperBorder)
         {
             zoomInfo->zoomHeight = zoomInfo->initialHeight - event.getDistanceFromDragStartY();
+            zoomInfo->zoomHeight = jlimit (zoomInfo->minZoomHeight, zoomInfo->maxZoomHeight, zoomInfo->zoomHeight);
 
-            if (zoomInfo->zoomHeight > zoomInfo->lowerBound - zoomInfo->zoomOffset)
-                zoomInfo->zoomHeight = zoomInfo->lowerBound - zoomInfo->zoomOffset;
+            if ((numChannels - zoomInfo->zoomOffset - zoomInfo->zoomHeight) < zoomInfo->minZoomHeight)
+                zoomInfo->zoomHeight = numChannels - zoomInfo->zoomOffset;
         }
         else if (zoomInfo->isMouseOverLowerBorder)
         {
-            zoomInfo->zoomOffset = zoomInfo->initialOffset - event.getDistanceFromDragStartY();
+            int newOffset = zoomInfo->initialOffset - event.getDistanceFromDragStartY();
+            int maxOffset = zoomInfo->initialOffset + zoomInfo->initialHeight - zoomInfo->minZoomHeight;
+            int minOffset = zoomInfo->initialOffset + zoomInfo->initialHeight - zoomInfo->maxZoomHeight;
 
-            if (zoomInfo->zoomOffset < 0)
-            {
-                zoomInfo->zoomOffset = 0;
-            }
+            if (newOffset < 0)
+                zoomInfo->zoomOffset = (zoomInfo->initialOffset + zoomInfo->initialHeight < zoomInfo->maxZoomHeight) ? 0 : minOffset;
+            else if (newOffset > maxOffset)
+                zoomInfo->zoomOffset = maxOffset;
+            else if ((zoomInfo->initialOffset + zoomInfo->initialHeight - newOffset) > zoomInfo->maxZoomHeight)
+                zoomInfo->zoomOffset = minOffset;
             else
-            {
-                zoomInfo->zoomHeight = zoomInfo->initialHeight + event.getDistanceFromDragStartY();
-                if (zoomInfo->zoomHeight < 10)
-                    zoomInfo->zoomHeight = 10;
-            }
+                zoomInfo->zoomOffset = newOffset;
+
+            zoomInfo->zoomHeight = zoomInfo->initialOffset + zoomInfo->initialHeight - zoomInfo->zoomOffset;
         }
         else
         {
             zoomInfo->zoomOffset = zoomInfo->initialOffset - event.getDistanceFromDragStartY();
             if (zoomInfo->zoomOffset < 0)
                 zoomInfo->zoomOffset = 0;
+            else if (zoomInfo->zoomOffset > numChannels - zoomInfo->zoomHeight)
+                zoomInfo->zoomOffset = numChannels - zoomInfo->zoomHeight;
         }
     }
-
-    if (zoomInfo->zoomOffset > numChannels - zoomInfo->zoomHeight)
-    {
-        zoomInfo->zoomOffset = numChannels - zoomInfo->zoomHeight;
-    }
-
-    if (zoomInfo->zoomOffset < 0)
-    {
-        zoomInfo->zoomOffset = 0;
-    }
-
-    if (zoomInfo->zoomHeight < 10)
-        zoomInfo->zoomHeight = 10;
-
-    int maxZoomHeight = numChannels > 384 ? 384 : numChannels;
-    if (zoomInfo->zoomHeight > maxZoomHeight)
-        zoomInfo->zoomHeight = maxZoomHeight;
 
     // draw zoomed channels
     zoomInfo->lowestChan = graphicBottomPos - (zoomInfo->lowerBound - zoomInfo->zoomOffset);
@@ -459,16 +447,7 @@ void ChannelBrowser::mouseDrag (const MouseEvent& event)
     }
 
     // update the viewport
-    const float viewportHeight = (numChannels) -zoomInfo->zoomHeight;
-    const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
-    zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
-
-    auto viewport = canvas->getViewportPtr();
-    if (viewport)
-    {
-        viewport->setViewPositionProportionately (0, zoomInfo->viewportScrollPositionRatio);
-    }
-
+    updateViewportVisibleArea();
     repaint();
 }
 
@@ -501,13 +480,7 @@ void ChannelBrowser::mouseWheelMove (const MouseEvent& event, const MouseWheelDe
             zoomInfo->zoomOffset = numChannels - zoomInfo->zoomHeight;
         }
 
-        // update the viewport
-        const float viewportHeight = numChannels - zoomInfo->zoomHeight;
-        const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
-        zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
-        auto viewport = canvas->getViewportPtr();
-        viewport->setViewPositionProportionately (0, zoomInfo->viewportScrollPositionRatio);
-
+        updateViewportVisibleArea();
         repaint();
     }
 }
@@ -566,12 +539,7 @@ void ChannelBrowser::loadParameters (XmlElement* xml)
     zoomInfo->zoomOffset = xml->getIntAttribute ("zoomOffset", 0);
     zoomInfo->zoomHeight = xml->getIntAttribute ("zoomHeight", numChannels > 128 ? 50 : 16);
 
-    const float viewportHeight = numChannels - zoomInfo->zoomHeight;
-    const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
-    zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
-    auto viewport = canvas->getViewportPtr();
-    viewport->setViewPositionProportionately (0, zoomInfo->viewportScrollPositionRatio);
-
+    updateViewportVisibleArea();
     repaint();
 }
 
@@ -656,7 +624,19 @@ void ChannelBrowser::updateChannelSitesRendering()
 {
     graphicBottomPos = numChannels + 10;
     zoomInfo->lowerBound = graphicBottomPos;
-    zoomInfo->zoomHeight = numChannels > 127 ? 50 : (numChannels < 16 ? numChannels : 16);
+    zoomInfo->minZoomHeight = jmin (10, numChannels);
+    zoomInfo->maxZoomHeight = jmin (384, numChannels);
+
+    if (zoomInfo->zoomHeight == 0)
+        zoomInfo->zoomHeight = numChannels > 127 ? 50 : (numChannels < 16 ? numChannels : 16);
+    else
+        zoomInfo->zoomHeight = jlimit (zoomInfo->minZoomHeight, zoomInfo->maxZoomHeight, zoomInfo->zoomHeight);
+
+    if (zoomInfo->zoomOffset > (numChannels - zoomInfo->zoomHeight))
+        zoomInfo->zoomOffset = numChannels - zoomInfo->zoomHeight;
+
+    if (zoomInfo->zoomOffset < 0)
+        zoomInfo->zoomOffset = 0;
 
     channelOrder.clear();
 
@@ -702,7 +682,24 @@ void ChannelBrowser::updateChannelSitesRendering()
         }
     }
 
+    updateViewportVisibleArea();
     repaint();
+}
+
+void ChannelBrowser::updateViewportVisibleArea()
+{
+    if (numChannels <= 0)
+        return;
+
+    // update the viewport
+    const float viewportHeight = numChannels - zoomInfo->zoomHeight;
+    const float zoomAreaTopEdge = viewportHeight - zoomInfo->zoomOffset;
+    zoomInfo->viewportScrollPositionRatio = zoomAreaTopEdge / viewportHeight;
+
+    if (auto viewport = canvas->getViewportPtr())
+    {
+        viewport->setViewPositionProportionately (0, zoomInfo->viewportScrollPositionRatio);
+    }
 }
 
 #pragma mark - ChannelBrowser Constants

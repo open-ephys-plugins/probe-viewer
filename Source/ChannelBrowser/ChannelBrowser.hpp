@@ -127,6 +127,8 @@ private:
     int getNearestChannelIdx (int x, int y);
     MouseCursor getMouseCursor();
 
+    void updateViewportVisibleArea();
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelBrowser);
 };
 
@@ -143,12 +145,14 @@ struct ProbeGraphicZoomInfo
     bool isMouseOverLowerBorder = { false };
     bool isMouseOverChannel = { false };
 
-    int zoomHeight = { 16 };
+    int zoomHeight = { 0 };
     int zoomOffset = { 0 };
     int initialOffset = { 0 };
     int initialHeight = { 0 };
     int lowerBound = { 513 };
     int dragZoneWidth = { 8 };
+    int maxZoomHeight = { 0 };
+    int minZoomHeight = { 0 };
 
     int lowestChan = { 0 };
     int highestChan = { 0 };
