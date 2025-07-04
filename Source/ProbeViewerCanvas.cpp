@@ -161,6 +161,10 @@ void ProbeViewerCanvas::refresh()
 
 void ProbeViewerCanvas::beginAnimation()
 {
+    if (auto* cb = getChannelBrowserPtr())
+    {
+        viewport->setViewPositionProportionately (0, cb->getViewportScrollPositionRatio());
+    }
     startCallbacks();
 }
 
