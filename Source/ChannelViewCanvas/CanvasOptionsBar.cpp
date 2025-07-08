@@ -436,7 +436,6 @@ void RMSSubOptionComponent::comboBoxChanged (ComboBox* cb)
         if (cb->getSelectedId() == 0)
         {
             auto val = fabsf (cb->getText().getFloatValue());
-            std::cout << val << std::endl;
 
             // clip value if necessary
             if (val > 1000)
